@@ -1,43 +1,58 @@
 import { useEffect, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
+
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import BrandLogos from './components/BrandLogos';
 import Footer from './components/Footer';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
 import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
 import LoginSystem from './components/LoginSystem';
+import AdminDashboard from './components/AdminDashboard';
+import UserDashboard from './components/UserDashboard';
 
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import './index.css';
+
+function HomePage({ onSignInClick }) {
+  return (
+    <>
+      <Navbar onSignInClick={onSignInClick} />
+      <Hero />
+      <BrandLogos />
+      <Footer />
+      <FloatingWhatsAppButton />
+    </>
+  );
+}
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     AOS.init({
-      duration: 1200, // animation duration in ms
-      once: true,     // animate only once
-      offset: 100     // how early to trigger animations
+      duration: 1200,
+      once: true,
+      offset: 100
     });
   }, []);
 
   return (
-    <>
-      <div className="App"></div>
-
+    
       <div className="min-h-screen bg-[#1B2A2F] text-white">
-        {/* Pass the onSignInClick prop to open modal */}
-        <Navbar onSignInClick={() => setShowLogin(true)} />
+        <Routes>
+          {/* Homepage */}
+          <Route path="/" element={<HomePage onSignInClick={() => setShowLogin(true)} />} />
 
-        <Hero />
-        <BrandLogos />
-        <Footer />
-        <FloatingWhatsAppButton />
+          {/* Dashboards */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/user" element={<UserDashboard />} />
+        </Routes>
 
-        {/* Show LoginSystem as a modal only when showLogin is true */}
+        {/* Modal Login shown from homepage */}
         {showLogin && <LoginSystem onClose={() => setShowLogin(false)} />}
       </div>
-    </>
+    
   );
 }
 

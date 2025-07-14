@@ -1,39 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const UserDashboard = ({ user, onLogout }) => {
+const UserDashboard = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem('sparePartsUser'));
+    if (!savedUser || savedUser.role !== 'user') {
+      navigate('/');
+    } else {
+      setUser(savedUser);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('sparePartsUser');
+    navigate('/');
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <header className="bg-white shadow p-4 flex justify-between items-center">
-        <h1 className="text-xl font-semibold">🛒 Customer Portal</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-gray-600">Welcome, {user?.username}</span>
+    <div className="p-6">
+      <header className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold">🛒 Customer Portal</h1>
+        <div className="flex items-center gap-3">
+          <span>Welcome, {user?.username}</span>
           <button
-            onClick={onLogout}
-            className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+            onClick={handleLogout}
+            className="bg-red-500 text-white px-4 py-2 rounded"
           >
             Logout
           </button>
         </div>
       </header>
 
-      <main className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-lg font-bold mb-2">🔍 Browse Parts</h2>
-          <p>Search and view available spare parts</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-lg font-bold mb-2">🛒 My Cart</h2>
-          <p>View and manage your cart</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-lg font-bold mb-2">📋 My Orders</h2>
-          <p>Track order status & history</p>
-        </div>
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-lg font-bold mb-2">👤 My Profile</h2>
-          <p>Edit your account information</p>
-        </div>
-      </main>
+      {/* Dashboard cards here */}
     </div>
   );
 };
