@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const LoginSystem = ({ onClose }) => {
+const LoginSystem = ({ onClose, onSwitchToSignup }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -150,6 +150,17 @@ const LoginSystem = ({ onClose }) => {
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
+        {/* 🔁 Switch to Signup */}
+<p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.9rem' }}>
+  Don’t have an account?{' '}
+  <button
+    type="button"
+    onClick={onSwitchToSignup}
+    style={{ color: '#4f46e5', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
+  >
+    Sign Up
+  </button>
+</p>
 
         <div style={{
           marginTop: '2rem',
@@ -196,6 +207,7 @@ const LoginSystem = ({ onClose }) => {
         </div>
       </div>
     </div>
+    
   );
 };
 

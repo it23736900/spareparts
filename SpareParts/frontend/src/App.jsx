@@ -9,15 +9,20 @@ import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
 import LoginSystem from './components/LoginSystem';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
+import SignupModal from './components/SignupModal';
 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import './index.css';
 
-function HomePage({ onSignInClick }) {
+// ✅ HomePage component with both modal triggers
+function HomePage({ onSignInClick, onSignUpClick }) {
   return (
     <>
-      <Navbar onSignInClick={onSignInClick} />
+      <Navbar
+        onSignInClick={onSignInClick}
+        onSignUpClick={onSignUpClick}
+      />
       <Hero />
       <BrandLogos />
       <Footer />
@@ -28,6 +33,7 @@ function HomePage({ onSignInClick }) {
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignupModal] = useState(false);
 
   useEffect(() => {
     AOS.init({
@@ -38,21 +44,46 @@ function App() {
   }, []);
 
   return (
-    
-      <div className="min-h-screen bg-[#1B2A2F] text-white">
-        <Routes>
-          {/* Homepage */}
-          <Route path="/" element={<HomePage onSignInClick={() => setShowLogin(true)} />} />
+    <div className="min-h-screen bg-[#1B2A2F] text-white">
+      <Routes>
+        {/* Homepage with modal triggers */}
+        <Route
+          path="/"
+          element={
+            <HomePage
+              onSignInClick={() => setShowLogin(true)}
+              onSignUpClick={() => setShowSignupModal(true)}
+            />
+          }
+        />
 
-          {/* Dashboards */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/user" element={<UserDashboard />} />
-        </Routes>
+        {/* Dashboards */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/user" element={<UserDashboard />} />
+      </Routes>
 
-        {/* Modal Login shown from homepage */}
-        {showLogin && <LoginSystem onClose={() => setShowLogin(false)} />}
-      </div>
-    
+      {/* Login Modal */}
+      {showLogin && (
+        <LoginSystem
+          onClose={() => setShowLogin(false)}
+          onSwitchToSignup={() => {
+            setShowLogin(false);
+            setShowSignupModal(true);
+          }}
+        />
+      )}
+
+      {/* Signup Modal */}
+      {showSignup && (
+        <SignupModal
+          onClose={() => setShowSignupModal(false)}
+          onSwitchToLogin={() => {
+            setShowSignupModal(false);
+            setShowLogin(true);
+          }}
+        />
+      )}
+    </div>
   );
 }
 

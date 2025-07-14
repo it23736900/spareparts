@@ -16,7 +16,7 @@ const sriLankanFlag = cld.image("sri_lanka_elrjw8").format("png").quality("auto:
 const ukFlag = cld.image("UK_j0lfab").format("png").quality("auto:best").resize(auto().width(32));
 
 // ✅ Navbar component
-const Navbar = ({ onSignInClick }) => {
+const Navbar = ({ onSignInClick, onSignUpClick }) => {
   return (
     <header className="fixed w-full z-50 bg-black/40 backdrop-blur-md shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -30,13 +30,21 @@ const Navbar = ({ onSignInClick }) => {
         {/* Right side - Navigation */}
         <nav className="space-x-6 text-white">
           <a href="#" className="hover:text-green-400">Home</a>
+
           <button
             onClick={onSignInClick}
             className="hover:text-green-400 focus:outline-none"
           >
             Sign In
           </button>
-          <a href="#" className="hover:text-green-400">Sign Up</a>
+
+          <button
+            onClick={onSignUpClick}
+            className="hover:text-green-400 focus:outline-none"
+          >
+            Sign Up
+          </button>
+
           <a href="#" className="hover:text-green-400">Profile</a>
         </nav>
       </div>
