@@ -19,7 +19,7 @@ const Footer = () => {
           <h4 className="mb-4 text-lg font-semibold text-yellow-400">Company</h4>
           <p className="flex items-center gap-2 text-sm text-gray-300">
             <FaMapMarkerAlt className="text-yellow-400" />
-            123 Luxury Drive, Automotive District, New York, NY 10001
+            No.63, Buthgamuwa Road, Rajagiriya, 10100, Sri Lanka.
           </p>
           <p className="flex items-center gap-2 mt-3 text-sm text-gray-300">
             <FaPhoneAlt className="text-yellow-400" />
@@ -34,8 +34,8 @@ const Footer = () => {
         {/* Business Hours */}
         <div>
           <h4 className="mb-4 text-lg font-semibold text-yellow-400">Business Hours</h4>
-          <p className="text-sm text-gray-300">Mon–Fri: 9 AM – 6 PM</p>
-          <p className="mt-1 text-sm text-gray-300">Sat: 10 AM – 4 PM</p>
+          <p className="text-sm text-gray-300">Mon–Sat: 8.30 AM – 5.30 PM</p>
+          <p className="mt-1 text-sm text-gray-300">Sun : Closed</p>
           <p className="mt-1 text-sm text-gray-300">Emergency services available 24/7</p>
         </div>
 

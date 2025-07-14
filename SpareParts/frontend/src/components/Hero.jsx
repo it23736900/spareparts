@@ -33,10 +33,10 @@ const Hero = () => {
       <div className="relative z-10 flex items-center justify-start h-full px-10">
         <div className="max-w-xl">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Premium European Vehicle Parts
+            Premium Used Vehicle Parts
           </h1>
           <p className="text-lg text-green-300 mb-6">
-            Trusted quality from brands like BMW, AUDI, TOYOTA and more.
+            Fast, Reliable Island Wide Delivery.
           </p>
           <a
             href="#brands"
