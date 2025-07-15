@@ -10,6 +10,8 @@ import LoginSystem from './components/LoginSystem';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
 import SignupModal from './components/SignupModal';
+import InquiryTracker from './components/InquiryTracker';
+
 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -17,6 +19,8 @@ import './index.css';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+
 
 
 // ✅ HomePage component with both modal triggers
@@ -61,7 +65,7 @@ function App() {
             />
           }
         />
-
+<Route path="/track" element={<InquiryTracker />} /> 
         {/* Dashboards */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/user" element={<UserDashboard />} />

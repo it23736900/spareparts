@@ -3,5 +3,11 @@ module.exports = {
   theme: {
     extend: {},
   },
+  
+  variants: {
+    extend: {
+      transform: ['group-hover'], // ✅ ADD THIS
+    },
+  },
   plugins: [],
 }

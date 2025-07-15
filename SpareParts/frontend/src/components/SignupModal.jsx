@@ -59,7 +59,7 @@ const SignupModal = ({ onClose, onSwitchToLogin }) => {
             &times;
           </button>
 
-          <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+          <h2 className="mb-6 text-3xl font-bold text-center text-yellow-400">Create Account</h2>
 
           <form onSubmit={handleSubmit}>
             <input
@@ -97,7 +97,7 @@ const SignupModal = ({ onClose, onSwitchToLogin }) => {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+              className="w-full py-2 font-semibold text-black transition bg-yellow-400 rounded-xl hover:bg-yellow-300"
             >
               Sign Up
             </button>
