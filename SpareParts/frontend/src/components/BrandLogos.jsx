@@ -2,10 +2,51 @@ import React, { useState } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
+import "keen-slider/keen-slider.min.css";
+import { useKeenSlider } from "keen-slider/react";
 
 const cld = new Cloudinary({
   cloud: { cloudName: "dnk3tgxht" },
 });
+
+const testimonials = [
+  {
+    name: "Lakmal Perera",
+    location: "Colombo",
+    feedback:
+      "I needed original BMW parts urgently, and this direct European auto parts importer sourced them from the UK faster than I expected. Highly recommend for vehicle spares!",
+  },
+  {
+    name: "Sanduni Fernando",
+    location: "Nugegoda",
+    feedback:
+      "My 2018 Range Rover Autobiography needed SUV parts that weren’t available locally. They imported spare parts directly for me. Great service, friendly team, and quick delivery across Sri Lanka!",
+  },
+  {
+    name: "Nuwan Jayasinghe",
+    location: "Negombo",
+    feedback:
+      "Finding European auto parts for my Volvo XC90 was a real struggle until I discovered this company. They imported quality used car parts directly from the UK. Excellent European auto parts importer!",
+  },
+  {
+    name: "Dilan Appuhami",
+    location: "Kandy",
+    feedback:
+      "Great experience! I got original Mercedes‑Benz C200 spares at a reasonable price. They’re true specialists in European car parts and deliver island‑wide.",
+  },
+  {
+    name: "Harsha Senanayake",
+    location: "Galle",
+    feedback:
+      "Needed German spare parts for my Volkswagen Transporter 2007. They sourced them directly, with reliable island‑wide delivery. Best place in Colombo for European auto parts!",
+  },
+  {
+    name: "Hashan Costa",
+    location: "Katunayake",
+    feedback:
+      "I needed Renault spare parts in Sri Lanka and this European auto parts importer helped right away. Great service and reliable quality!",
+  },
+];
 
 const brands = [
   {
@@ -90,70 +131,93 @@ const brands = [
 
 const BrandLogos = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [sliderRef] = useKeenSlider({
+    loop: true,
+    slides: { perView: 1, spacing: 15 },
+  });
 
   return (
-    <section className="bg-[#0B1C1F] py-20 px-4 text-white font-poppins min-h-screen">
-      <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
-        Our Supportive Brands
-      </h2>
+    <>
+      <section className="bg-[#0B1C1F] py-20 px-4 text-white font-poppins min-h-screen">
+        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
+          Our Supportive Brands
+        </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-7xl mx-auto">
-        {brands.map((brand, index) => {
-          const img = cld
-            .image(brand.imageId)
-            .format("auto")
-            .quality("auto")
-            .resize(auto().width(600));
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-7xl mx-auto">
+          {brands.map((brand, index) => {
+            const img = cld
+              .image(brand.imageId)
+              .format("auto")
+              .quality("auto")
+              .resize(auto().width(600));
 
-          const isFlipped = hoveredIndex === index;
+            const isFlipped = hoveredIndex === index;
 
-          return (
-            <div
-              key={index}
-              className="relative w-full h-[400px] cursor-pointer"
-              style={{ perspective: "1000px" }}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-            >
+            return (
               <div
-                className="absolute w-full h-full transition-transform duration-700"
-                style={{
-                  transformStyle: "preserve-3d",
-                  transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-                }}
+                key={index}
+                className="relative w-full h-[400px] cursor-pointer"
+                style={{ perspective: "1000px" }}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
               >
-                {/* Front */}
                 <div
-                  className="absolute w-full h-full bg-[#1B2A2F] rounded-2xl flex flex-col items-center justify-center p-6"
+                  className="absolute w-full h-full transition-transform duration-700"
                   style={{
-                    backfaceVisibility: "hidden",
+                    transformStyle: "preserve-3d",
+                    transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                   }}
                 >
-                  <AdvancedImage
-                    cldImg={img}
-                    className="w-28 h-28 object-contain mb-4"
-                  />
-                  <h3 className="text-lg font-semibold text-center">
-                    {brand.title}
-                  </h3>
-                </div>
+                  {/* Front */}
+                  <div
+                    className="absolute w-full h-full bg-[#1B2A2F] rounded-2xl flex flex-col items-center justify-center p-6"
+                    style={{ backfaceVisibility: "hidden" }}
+                  >
+                    <AdvancedImage
+                      cldImg={img}
+                      className="w-28 h-28 object-contain mb-4"
+                    />
+                    <h3 className="text-lg font-semibold text-center">
+                      {brand.title}
+                    </h3>
+                  </div>
 
-                {/* Back */}
-                <div
-                  className="absolute w-full h-full bg-[#102024] rounded-2xl flex items-center justify-center p-6 text-sm text-center leading-relaxed text-white"
-                  style={{
-                    transform: "rotateY(180deg)",
-                    backfaceVisibility: "hidden",
-                  }}
-                >
-                  {brand.description}
+                  {/* Back */}
+                  <div
+                    className="absolute w-full h-full bg-[#102024] rounded-2xl flex items-center justify-center p-6 text-sm text-center leading-relaxed text-white"
+                    style={{
+                      transform: "rotateY(180deg)",
+                      backfaceVisibility: "hidden",
+                    }}
+                  >
+                    {brand.description}
+                  </div>
                 </div>
               </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Testimonials Slider */}
+      <section className="bg-[#111E21] py-20 px-4 text-white font-poppins">
+        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
+          What Our Clients Say
+        </h2>
+        <div ref={sliderRef} className="keen-slider max-w-xl mx-auto">
+          {testimonials.map((t, idx) => (
+            <div key={idx} className="keen-slider__slide px-4">
+              <div className="bg-[#1F2D31] p-6 rounded-xl shadow-md border border-white/10 text-center">
+                <p className="text-sm text-white/90 mb-4">“{t.feedback}”</p>
+                <p className="text-sm font-semibold text-[#FFD700]">
+                  ⭐ {t.name} <span className="text-white/70">({t.location})</span>
+                </p>
+              </div>
             </div>
-          );
-        })}
-      </div>
-    </section>
+          ))}
+        </div>
+      </section>
+    </>
   );
 };
 
