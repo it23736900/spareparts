@@ -15,6 +15,10 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import './index.css';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 // ✅ HomePage component with both modal triggers
 function HomePage({ onSignInClick, onSignUpClick }) {
   return (
@@ -44,6 +48,7 @@ function App() {
   }, []);
 
   return (
+    
     <div className="min-h-screen bg-[#1B2A2F] text-white">
       <Routes>
         {/* Homepage with modal triggers */}
@@ -83,8 +88,13 @@ function App() {
           }}
         />
       )}
+    {/* ✅ Toast notifications */}
+    <ToastContainer position="top-center" autoClose={3000} />
+
     </div>
-  );
+    
+  );<ToastContainer position="top-center" autoClose={3000} />
+
 }
 
 export default App;
