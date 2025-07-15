@@ -41,26 +41,26 @@ const SignupModal = ({ onClose, onSwitchToLogin }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white text-black p-8 rounded-lg shadow-lg w-full max-w-md relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="bg-[#0B1C1F] text-white p-8 rounded-2xl shadow-2xl w-full max-w-md relative border border-yellow-400">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 text-gray-500 text-2xl"
+          className="absolute text-2xl text-yellow-400 transition top-3 right-4 hover:text-yellow-300"
         >
           &times;
         </button>
 
-        <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+        <h2 className="mb-6 text-3xl font-bold text-center text-yellow-400">Create Account</h2>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             name="username"
             value={form.username}
             onChange={handleChange}
             placeholder="Username"
-            className="w-full p-3 border border-gray-300 rounded mb-4"
+            className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="email"
@@ -68,7 +68,7 @@ const SignupModal = ({ onClose, onSwitchToLogin }) => {
             value={form.email}
             onChange={handleChange}
             placeholder="Email"
-            className="w-full p-3 border border-gray-300 rounded mb-4"
+            className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="password"
@@ -76,7 +76,7 @@ const SignupModal = ({ onClose, onSwitchToLogin }) => {
             value={form.password}
             onChange={handleChange}
             placeholder="Password"
-            className="w-full p-3 border border-gray-300 rounded mb-4"
+            className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="password"
@@ -84,26 +84,25 @@ const SignupModal = ({ onClose, onSwitchToLogin }) => {
             value={form.confirmPassword}
             onChange={handleChange}
             placeholder="Confirm Password"
-            className="w-full p-3 border border-gray-300 rounded mb-4"
+            className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
 
-          {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
-          {success && <p className="text-green-600 text-sm mb-2">{success}</p>}
+          {error && <p className="text-sm text-red-500">{error}</p>}
+          {success && <p className="text-sm text-green-500">{success}</p>}
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            className="w-full py-2 font-semibold text-black transition bg-yellow-400 rounded-xl hover:bg-yellow-300"
           >
             Sign Up
           </button>
 
-          {/* 🔁 Switch to Sign In link */}
-          <p className="text-sm text-center mt-4">
+          <p className="mt-4 text-sm text-center text-gray-300">
             Already have an account?{' '}
             <button
               type="button"
               onClick={onSwitchToLogin}
-              className="text-blue-500 hover:underline"
+              className="text-yellow-400 hover:underline"
             >
               Sign In
             </button>

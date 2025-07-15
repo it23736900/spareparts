@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const LoginSystem = ({ onClose, onSwitchToSignup }) => {
@@ -26,9 +26,8 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
 
       if (foundUser) {
         localStorage.setItem('sparePartsUser', JSON.stringify(foundUser));
-        // Redirect to dashboard route
         navigate(foundUser.role === 'admin' ? '/admin' : '/user');
-        onClose(); // Close modal
+        onClose();
       } else {
         setError('Wrong username or password! Try again.');
       }
@@ -48,156 +47,87 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div style={{
-        background: 'white',
-        padding: '2rem',
-        borderRadius: '10px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-        width: '100%',
-        maxWidth: '400px',
-        position: 'relative'
-      }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="bg-[#0B1C1F] text-white p-8 rounded-2xl shadow-2xl w-full max-w-md relative border border-yellow-400">
+        {/* Close button */}
         <button
           onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            background: 'transparent',
-            border: 'none',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            color: '#999'
-          }}
+          className="absolute text-2xl text-yellow-400 transition top-3 right-4 hover:text-yellow-300"
         >
           &times;
         </button>
 
-        <h2 style={{ textAlign: 'center', marginBottom: '0.5rem', color: '#333' }}>
-          🚪 Spare Parts Login
-        </h2>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '2rem' }}>
-          Enter your credentials to access your area
-        </p>
+        {/* Header */}
+        <h2 className="mb-1 text-3xl font-bold text-center text-yellow-400">🚪 Spare Parts Login</h2>
+        <p className="mb-6 text-center text-gray-400">Enter your credentials to access your area</p>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#333', fontWeight: 'bold' }}>
-            Username:
-          </label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter your username"
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '2px solid #ddd',
-              borderRadius: '5px',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#333', fontWeight: 'bold' }}>
-            Password:
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '2px solid #ddd',
-              borderRadius: '5px',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
-
-        {error && (
-          <div style={{
-            color: '#e53e3e',
-            textAlign: 'center',
-            margin: '1rem 0',
-            padding: '0.5rem',
-            background: '#fed7d7',
-            borderRadius: '5px'
-          }}>
-            {error}
+        {/* Form */}
+        <div className="space-y-4">
+          <div>
+            <label className="block mb-1 text-sm font-medium text-yellow-400">Username:</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
+              className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
           </div>
-        )}
 
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            background: loading ? '#ccc' : '#667eea',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            fontSize: '1rem',
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }}
-        >
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-        {/* 🔁 Switch to Signup */}
-<p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.9rem' }}>
-  Don’t have an account?{' '}
-  <button
-    type="button"
-    onClick={onSwitchToSignup}
-    style={{ color: '#4f46e5', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
-  >
-    Sign Up
-  </button>
-</p>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-yellow-400">Password:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+          </div>
 
-        <div style={{
-          marginTop: '2rem',
-          padding: '1rem',
-          background: '#f7fafc',
-          borderRadius: '5px',
-          fontSize: '0.9rem'
-        }}>
-          <h4 style={{ margin: '0 0 0.5rem 0', color: '#4a5568' }}>
-            Demo Accounts:
-          </h4>
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+          {error && (
+            <div className="px-4 py-2 text-sm text-center text-red-700 bg-red-100 rounded-md">
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            className={`w-full py-3 font-semibold rounded-xl transition ${
+              loading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-yellow-400 text-black hover:bg-yellow-300'
+            }`}
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+
+          <p className="mt-4 text-sm text-center text-gray-300">
+            Don’t have an account?{' '}
+            <button
+              type="button"
+              onClick={onSwitchToSignup}
+              className="text-yellow-400 hover:underline"
+            >
+              Sign Up
+            </button>
+          </p>
+        </div>
+
+        {/* Demo credentials */}
+        <div className="mt-6 p-4 bg-[#13272A] rounded-xl text-sm">
+          <h4 className="mb-2 font-semibold text-yellow-400">Demo Accounts:</h4>
+          <div className="flex gap-3 mb-3">
             <button
               onClick={() => fillDemoCredentials('admin')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: '#e53e3e',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '0.8rem'
-              }}
+              className="px-3 py-2 text-xs text-white bg-red-600 rounded-md hover:bg-red-500"
             >
               Admin Login
             </button>
             <button
               onClick={() => fillDemoCredentials('user')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: '#38a169',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '0.8rem'
-              }}
+              className="px-3 py-2 text-xs text-white bg-green-600 rounded-md hover:bg-green-500"
             >
               User Login
             </button>
@@ -207,7 +137,6 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
         </div>
       </div>
     </div>
-    
   );
 };
 
