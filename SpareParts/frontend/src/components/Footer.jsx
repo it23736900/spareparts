@@ -8,8 +8,10 @@ import {
   FaPhoneAlt,
   FaEnvelope,
 } from "react-icons/fa";
+import GetQuotationForm from './GetQuotationForm';
 
 const Footer = () => {
+  const [showModal, setShowModal] = React.useState(false);
   return (
     <footer className="bg-[#0B1C1F] text-white py-12 px-6">
       {/* Main Grid */}
@@ -29,6 +31,12 @@ const Footer = () => {
             <FaEnvelope className="text-yellow-400" />
             inquiry@luxuryautoparts.com
           </p>
+          <button
+            onClick={() => setShowModal(true)}
+            className="mt-6 bg-yellow-500 text-black px-3 py-2 rounded hover:bg-yellow-600 w-full font-semibold text-base transition"
+          >
+            Get Quotation
+          </button>
         </div>
 
         {/* Business Hours */}
@@ -105,6 +113,20 @@ const Footer = () => {
         <p>© 2025 Luxury Auto Parts Inquiry. All Rights Reserved.</p>
        
       </div>
+      {/* Modal Form */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full shadow-xl relative">
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl"
+            >
+              &times;
+            </button>
+            <GetQuotationForm />
+          </div>
+        </div>
+      )}
     </footer>
   );
 };

@@ -48,166 +48,79 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div style={{
-        background: 'white',
-        padding: '2rem',
-        borderRadius: '10px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-        width: '100%',
-        maxWidth: '400px',
-        position: 'relative'
-      }}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
+      <div className="bg-white text-black p-8 rounded-xl shadow-2xl w-full max-w-md relative transition-transform duration-300 animate-slide-in">
         <button
           onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            background: 'transparent',
-            border: 'none',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            color: '#999'
-          }}
+          className="absolute top-3 right-4 text-gray-500 text-2xl hover:text-black"
         >
           &times;
         </button>
-
-        <h2 style={{ textAlign: 'center', marginBottom: '0.5rem', color: '#333' }}>
-          🚪 Spare Parts Login
-        </h2>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '2rem' }}>
-          Enter your credentials to access your area
-        </p>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#333', fontWeight: 'bold' }}>
-            Username:
-          </label>
+        <h2 className="text-2xl font-bold mb-2 text-center text-blue-700">Spare Parts Login</h2>
+        <p className="text-center text-gray-500 mb-6">Enter your credentials to access your area</p>
+        <div className="mb-4">
+          <label className="block mb-1 text-gray-700 font-semibold">Username</label>
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter your username"
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '2px solid #ddd',
-              borderRadius: '5px',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base bg-gray-50 transition text-gray-900 placeholder-gray-400"
           />
         </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#333', fontWeight: 'bold' }}>
-            Password:
-          </label>
+        <div className="mb-4">
+          <label className="block mb-1 text-gray-700 font-semibold">Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '2px solid #ddd',
-              borderRadius: '5px',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base bg-gray-50 transition text-gray-900 placeholder-gray-400"
           />
         </div>
-
         {error && (
-          <div style={{
-            color: '#e53e3e',
-            textAlign: 'center',
-            margin: '1rem 0',
-            padding: '0.5rem',
-            background: '#fed7d7',
-            borderRadius: '5px'
-          }}>
-            {error}
-          </div>
+          <div className="text-red-600 bg-red-50 border border-red-200 rounded p-2 text-center mb-4">{error}</div>
         )}
-
         <button
           onClick={handleLogin}
           disabled={loading}
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            background: loading ? '#ccc' : '#667eea',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            fontSize: '1rem',
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }}
+          className="w-full py-3 rounded-lg font-bold text-lg shadow-md transition bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transform hover:scale-105"
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
-        {/* 🔁 Switch to Signup */}
-<p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.9rem' }}>
-  Don’t have an account?{' '}
-  <button
-    type="button"
-    onClick={onSwitchToSignup}
-    style={{ color: '#4f46e5', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
-  >
-    Sign Up
-  </button>
-</p>
-
-        <div style={{
-          marginTop: '2rem',
-          padding: '1rem',
-          background: '#f7fafc',
-          borderRadius: '5px',
-          fontSize: '0.9rem'
-        }}>
-          <h4 style={{ margin: '0 0 0.5rem 0', color: '#4a5568' }}>
-            Demo Accounts:
-          </h4>
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+        <p className="text-center mt-4 text-sm">
+          Don’t have an account?{' '}
+          <button
+            type="button"
+            onClick={onSwitchToSignup}
+            className="text-blue-500 hover:underline font-semibold"
+          >
+            Sign Up
+          </button>
+        </p>
+        <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+          <h4 className="mb-2 text-gray-700 font-semibold">Demo Accounts:</h4>
+          <div className="flex gap-2 mb-2">
             <button
               onClick={() => fillDemoCredentials('admin')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: '#e53e3e',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '0.8rem'
-              }}
+              className="px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-50 text-xs font-semibold transition bg-transparent"
             >
               Admin Login
             </button>
             <button
               onClick={() => fillDemoCredentials('user')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: '#38a169',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '0.8rem'
-              }}
+              className="px-3 py-1 border border-green-500 text-green-500 rounded hover:bg-green-50 text-xs font-semibold transition bg-transparent"
             >
               User Login
             </button>
           </div>
-          <p><strong>Admin:</strong> admin_john / admin123</p>
-          <p><strong>User:</strong> customer_mike / user123</p>
+          <div className="text-gray-600">
+            <div><span className="font-semibold">Admin:</span> admin_john / admin123</div>
+            <div><span className="font-semibold">User:</span> customer_mike / user123</div>
+          </div>
         </div>
       </div>
     </div>
-    
   );
 };
 
