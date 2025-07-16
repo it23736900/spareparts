@@ -9,12 +9,16 @@ import LoginSystem from './components/LoginSystem';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
 import SignupModal from './components/SignupModal';
-import GetQuotationForm from './components/GetQuotationForm';
-import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import './index.css';
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
 
 // ✅ HomePage with modal triggers
 function HomePage({ onSignInClick, onSignUpClick }) {
@@ -45,23 +49,7 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#1B2A2F] text-white relative">
-      {/* ✅ Inquiry Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div className="bg-white text-black p-6 rounded-lg max-w-lg w-full shadow-lg relative mx-4 sm:mx-0">
-            <button
-              onClick={() => setShowForm(false)}
-              className="absolute top-2 right-3 text-gray-600 hover:text-black text-2xl"
-            >
-              &times;
-            </button>
-            <GetQuotationForm />
-          </div>
-        </div>
-      )}
-
-      {/* ✅ Routes */}
+    <div className="min-h-screen bg-[#1B2A2F] text-white">
       <Routes>
         <Route
           path="/"
@@ -72,6 +60,8 @@ function App() {
             />
           }
         />
+
+        {/* Dashboards */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/user" element={<UserDashboard />} />
       </Routes>
@@ -97,9 +87,10 @@ function App() {
           }}
         />
       )}
-      <FloatingWhatsAppButton />
     </div>
-  );
+    
+  );<ToastContainer position="top-center" autoClose={3000} />
+
 }
 
 export default App;
