@@ -2,19 +2,14 @@ import React, { useState } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
-<<<<<<< HEAD
-import GetQuotationForm from './GetQuotationForm';
-=======
 import { FaHome } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
->>>>>>> 4483b6b78bac643d7475944ea7312393866ac889
 
 // Cloudinary config
 const cld = new Cloudinary({
   cloud: { cloudName: "dnk3tgxht" },
 });
 
-// Images
 const logo = cld.image("logo_e46o12").format("auto").quality("auto").resize(auto().width(120));
 const sriLankanFlag = cld.image("sri_lanka_elrjw8").format("png").quality("auto:best").resize(auto().width(32));
 const ukFlag = cld.image("UK_j0lfab").format("png").quality("auto:best").resize(auto().width(32));
@@ -49,65 +44,6 @@ const statusColors = {
   'Closed': 'text-gray-400',
 };
 
-<<<<<<< HEAD
-// ✅ Modal Wrapper Component
-const QuotationModal = ({ onClose }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-6 rounded-lg max-w-md w-full shadow-xl relative">
-      <button
-        onClick={onClose}
-        className="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl"
-      >
-        &times;
-      </button>
-      <GetQuotationForm />
-    </div>
-  </div>
-);
-
-// ✅ Navbar component
-const Navbar = ({ onSignInClick, onSignUpClick }) => {
-  const [showModal, setShowModal] = useState(false);
-
-  return (
-    <>
-      <header className="fixed w-full z-50 bg-black/40 backdrop-blur-md shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          {/* Left side - Logo and Flags */}
-          <div className="flex items-center space-x-4">
-            <AdvancedImage cldImg={logo} className="h-10 object-contain" alt="Company Logo" />
-            <AdvancedImage cldImg={sriLankanFlag} className="h-6 w-8 object-contain rounded-sm" alt="Sri Lankan Flag" />
-            <AdvancedImage cldImg={ukFlag} className="h-6 w-8 object-contain rounded-sm" alt="UK Flag" />
-          </div>
-
-          {/* Right side - Navigation */}
-          <nav className="space-x-6 text-white">
-            <a href="#" className="hover:text-green-400">Home</a>
-
-            <button
-              onClick={onSignInClick}
-              className="hover:text-green-400 focus:outline-none"
-            >
-              Sign In
-            </button>
-
-            <button
-              onClick={onSignUpClick}
-              className="hover:text-green-400 focus:outline-none"
-            >
-              Sign Up
-            </button>
-
-            <a href="#" className="hover:text-green-400">Profile</a>
-
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-600"
-            >
-              Get Quotation
-            </button>
-          </nav>
-=======
 const Navbar = ({ onSignInClick, onSignUpClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -127,22 +63,15 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
   };
 
   return (
-    <header className="fixed w-full z-50 bg-[#0B1C1F]/90 backdrop-blur-md shadow-md text-white">
+<header className="fixed top-0 left-0 w-full z-50 bg-[#0B1C1F]/90 backdrop-blur-md shadow-md text-white">
       <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-4 mx-auto max-w-7xl">
         {/* Left: Logo and Flags */}
         <div className="flex items-center gap-4 min-w-fit">
           <AdvancedImage cldImg={logo} className="object-contain h-10" alt="Company Logo" />
           <AdvancedImage cldImg={sriLankanFlag} className="object-contain w-8 h-6 rounded-sm" alt="Sri Lankan Flag" />
           <AdvancedImage cldImg={ukFlag} className="object-contain w-8 h-6 rounded-sm" alt="UK Flag" />
->>>>>>> 4483b6b78bac643d7475944ea7312393866ac889
         </div>
-      </header>
 
-<<<<<<< HEAD
-      {/* Modal Form */}
-      {showModal && <QuotationModal onClose={() => setShowModal(false)} />}
-    </>
-=======
         {/* Center: Search Bar */}
         <div className="relative flex-1 w-full max-w-md">
           <input
@@ -236,7 +165,6 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
         </div>
       </div>
     </header>
->>>>>>> 4483b6b78bac643d7475944ea7312393866ac889
   );
 };
 
