@@ -9,6 +9,8 @@ import LoginSystem from './components/LoginSystem';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
 import SignupModal from './components/SignupModal';
+import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
+import TestimonialCarousel from './components/TestimonialCarousel';
 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -17,19 +19,17 @@ import './index.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import About from './pages/About';
+import Services from './pages/Services';
+import Contact from './pages/Contact';
 
-
-
-// ✅ HomePage with modal triggers
 function HomePage({ onSignInClick, onSignUpClick }) {
   return (
     <>
-      <Navbar
-        onSignInClick={onSignInClick}
-        onSignUpClick={onSignUpClick}
-      />
+      <Navbar onSignInClick={onSignInClick} onSignUpClick={onSignUpClick} />
       <Hero />
       <BrandLogos />
+      <TestimonialCarousel />
       <Footer />
     </>
   );
@@ -38,14 +38,9 @@ function HomePage({ onSignInClick, onSignUpClick }) {
 function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignupModal] = useState(false);
-  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    AOS.init({
-      duration: 1200,
-      once: true,
-      offset: 100
-    });
+    AOS.init({ duration: 1200, once: true, offset: 100 });
   }, []);
 
   return (
@@ -60,13 +55,13 @@ function App() {
             />
           }
         />
-
-        {/* Dashboards */}
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/user" element={<UserDashboard />} />
       </Routes>
 
-      {/* ✅ Login Modal */}
       {showLogin && (
         <LoginSystem
           onClose={() => setShowLogin(false)}
@@ -77,7 +72,6 @@ function App() {
         />
       )}
 
-      {/* ✅ Signup Modal */}
       {showSignup && (
         <SignupModal
           onClose={() => setShowSignupModal(false)}
@@ -87,10 +81,11 @@ function App() {
           }}
         />
       )}
-    </div>
-    
-  );<ToastContainer position="top-center" autoClose={3000} />
 
+      <FloatingWhatsAppButton />
+      <ToastContainer position="top-center" autoClose={3000} />
+    </div>
+  );
 }
 
 export default App;

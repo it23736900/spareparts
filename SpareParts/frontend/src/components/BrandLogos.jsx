@@ -9,44 +9,6 @@ const cld = new Cloudinary({
   cloud: { cloudName: "dnk3tgxht" },
 });
 
-const testimonials = [
-  {
-    name: "Lakmal Perera",
-    location: "Colombo",
-    feedback:
-      "I needed original BMW parts urgently, and this direct European auto parts importer sourced them from the UK faster than I expected. Highly recommend for vehicle spares!",
-  },
-  {
-    name: "Sanduni Fernando",
-    location: "Nugegoda",
-    feedback:
-      "My 2018 Range Rover Autobiography needed SUV parts that weren’t available locally. They imported spare parts directly for me. Great service, friendly team, and quick delivery across Sri Lanka!",
-  },
-  {
-    name: "Nuwan Jayasinghe",
-    location: "Negombo",
-    feedback:
-      "Finding European auto parts for my Volvo XC90 was a real struggle until I discovered this company. They imported quality used car parts directly from the UK. Excellent European auto parts importer!",
-  },
-  {
-    name: "Dilan Appuhami",
-    location: "Kandy",
-    feedback:
-      "Great experience! I got original Mercedes‑Benz C200 spares at a reasonable price. They’re true specialists in European car parts and deliver island‑wide.",
-  },
-  {
-    name: "Harsha Senanayake",
-    location: "Galle",
-    feedback:
-      "Needed German spare parts for my Volkswagen Transporter 2007. They sourced them directly, with reliable island‑wide delivery. Best place in Colombo for European auto parts!",
-  },
-  {
-    name: "Hashan Costa",
-    location: "Katunayake",
-    feedback:
-      "I needed Renault spare parts in Sri Lanka and this European auto parts importer helped right away. Great service and reliable quality!",
-  },
-];
 
 const brands = [
   {
@@ -199,24 +161,7 @@ const BrandLogos = () => {
         </div>
       </section>
 
-      {/* Testimonials Slider */}
-      <section className="bg-[#111E21] py-20 px-4 text-white font-poppins">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
-          What Our Clients Say
-        </h2>
-        <div ref={sliderRef} className="keen-slider max-w-xl mx-auto">
-          {testimonials.map((t, idx) => (
-            <div key={idx} className="keen-slider__slide px-4">
-              <div className="bg-[#1F2D31] p-6 rounded-xl shadow-md border border-white/10 text-center">
-                <p className="text-sm text-white/90 mb-4">“{t.feedback}”</p>
-                <p className="text-sm font-semibold text-[#FFD700]">
-                  ⭐ {t.name} <span className="text-white/70">({t.location})</span>
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      
     </>
   );
 };

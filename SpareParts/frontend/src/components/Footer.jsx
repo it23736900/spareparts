@@ -85,7 +85,7 @@ const Footer = () => {
             },
             {
               icon: FaWhatsapp,
-              url: "https://wa.me/1234567890",
+              url: "https://wa.me/94785264854",
               label: "WhatsApp",
             },
             {

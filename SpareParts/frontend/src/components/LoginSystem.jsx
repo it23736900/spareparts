@@ -132,9 +132,9 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
               User Login
             </button>
           </div>
-          <div className="text-gray-400">
-            <div><span className="font-semibold">Admin:</span> admin_john / admin123</div>
-            <div><span className="font-semibold">User:</span> customer_mike / user123</div>
+          <div className="text-gray-400 space-y-1">
+            <div><span className="font-semibold text-white">Admin:</span> admin_john / admin123</div>
+            <div><span className="font-semibold text-white">User:</span> customer_mike / user123</div>
           </div>
         </div>
       </div>

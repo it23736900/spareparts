@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'keen-slider/keen-slider.min.css';
 
 .perspective {
   perspective: 1000px;
@@ -16,4 +17,8 @@
 
 .backface-hidden {
   backface-visibility: hidden;
+}
+
+body {
+  background-color: #0B1C1F;
 }
