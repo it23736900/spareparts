@@ -2,16 +2,14 @@ import React from 'react';
 
 export default function Contact() {
   return (
-    <div className="min-h-screen bg-[#0B1C1F] text-white pt-32 px-6">
+    <div className="min-h-screen bg-[#0B1C1F] text-white pt-32 px-6" data-aos="fade-up">
       <div className="max-w-4xl mx-auto space-y-16">
 
-        {/* Title */}
-        <h1 className="text-5xl font-extrabold text-yellow-400 drop-shadow mb-6 border-b border-yellow-500 pb-4 w-fit">
+        <h1 className="text-5xl font-extrabold text-yellow-400 drop-shadow mb-6 border-b border-yellow-500 pb-4 w-fit" data-aos="zoom-in">
           Contact Us
         </h1>
 
-        {/* Contact Details */}
-        <section className="bg-[#132a30] p-6 rounded-xl border border-yellow-500/10 shadow space-y-4">
+        <section className="bg-[#132a30] p-6 rounded-xl border border-yellow-500/10 shadow space-y-4" data-aos="fade-right">
           <p>
             📧 Email: <a href="mailto:inquiry@luxuryautoparts.com" className="text-green-400 hover:underline">inquiry@luxuryautoparts.com</a>
           </p>
@@ -23,8 +21,7 @@ export default function Contact() {
           </p>
         </section>
 
-        {/* Contact Form */}
-        <section>
+        <section data-aos="zoom-in-up">
           <h2 className="text-2xl font-bold text-white mb-4">Send Us a Message</h2>
           <form className="space-y-4">
             <input
@@ -50,15 +47,6 @@ export default function Contact() {
             </button>
           </form>
         </section>
-
-        {/* Optional: Map Placeholder */}
-        {/* <div className="mt-12">
-          <iframe
-            src="https://www.google.com/maps/embed?..."
-            className="w-full h-64 rounded-lg border-none"
-            loading="lazy"
-          ></iframe>
-        </div> */}
 
       </div>
     </div>

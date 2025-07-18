@@ -2,9 +2,7 @@ import React from 'react';
 
 export default function About() {
   return (
-
-    
-    <div className="min-h-screen bg-[#0B1C1F] text-white pt-32 px-6">
+    <div className="min-h-screen bg-[#0B1C1F] text-white pt-32 px-6" data-aos="fade-up">
       <div className="max-w-6xl mx-auto space-y-16">
 
         {/* Heading */}
@@ -13,7 +11,7 @@ export default function About() {
         </h1>
 
         {/* Company Background */}
-        <section className="space-y-4">
+        <section className="space-y-4" data-aos="fade-up">
           <h2 className="text-2xl font-bold text-white">📦 Company Background</h2>
           <p className="text-gray-300 leading-relaxed">
             Founded in 2000, our group has grown into a diversified leader in Sri Lanka’s business landscape.
@@ -24,7 +22,7 @@ export default function About() {
         </section>
 
         {/* Mission */}
-        <section className="space-y-4 border-l-4 border-yellow-400 pl-4">
+        <section className="space-y-4 border-l-4 border-yellow-400 pl-4" data-aos="fade-right">
           <h2 className="text-2xl font-bold text-white">🎯 Our Mission</h2>
           <p className="text-gray-300 italic">
             “To be Sri Lanka’s trusted direct importer of genuine, high‑quality used European vehicle parts and spares —
@@ -33,7 +31,7 @@ export default function About() {
         </section>
 
         {/* Values */}
-        <section>
+        <section data-aos="zoom-in">
           <h2 className="text-2xl font-bold text-white mb-4">💡 Our Values</h2>
           <ul className="grid sm:grid-cols-2 gap-4 text-gray-300">
             <li><span className="text-yellow-400 font-semibold">Transparency:</span> Clear sourcing, honest pricing, and open communication.</li>
@@ -44,7 +42,7 @@ export default function About() {
         </section>
 
         {/* Why Choose Us */}
-        <section className="bg-[#132a30] border border-yellow-500/20 rounded-xl p-6 shadow-md">
+        <section className="bg-[#132a30] border border-yellow-500/20 rounded-xl p-6 shadow-md" data-aos="fade-up">
           <h2 className="text-2xl font-bold text-yellow-400 mb-4">✅ Why Choose Us?</h2>
           <ul className="list-disc pl-6 text-gray-300 space-y-2">
             <li>Specialized in top European brands: Range Rover, BMW, Mercedes, Audi, Volvo, and more.</li>

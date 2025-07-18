@@ -15,20 +15,23 @@ const steps = [
 
 export default function Services() {
   return (
-    <div className="min-h-screen bg-[#0B1C1F] text-white pt-32 px-6">
+    <div className="min-h-screen bg-[#0B1C1F] text-white pt-32 px-6" data-aos="fade-up">
       <div className="max-w-6xl mx-auto space-y-16">
 
-        {/* Page Title */}
-        <h1 className="text-5xl font-extrabold text-yellow-400 drop-shadow mb-6 border-b border-yellow-500 pb-4 w-fit">
+        <h1 className="text-5xl font-extrabold text-yellow-400 drop-shadow mb-6 border-b border-yellow-500 pb-4 w-fit" data-aos="zoom-in">
           Our Services / How It Works
         </h1>
 
-        {/* Step-by-Step Process */}
-        <section>
+        <section data-aos="fade-up">
           <h2 className="text-2xl font-bold mb-6 text-white">🔧 Step-by-Step Process</h2>
           <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">
             {steps.map((step, index) => (
-              <div key={index} className="bg-[#132a30] rounded-xl border border-yellow-500/10 p-5 shadow hover:shadow-yellow-500/10 transition">
+              <div
+                key={index}
+                className="bg-[#132a30] rounded-xl border border-yellow-500/10 p-5 shadow hover:shadow-yellow-500/10 transition"
+                data-aos="zoom-in-up"
+                data-aos-delay={index * 100}
+              >
                 <div className="text-yellow-400 text-2xl mb-2">{step.icon}</div>
                 <h4 className="text-lg font-bold text-white mb-1">{step.title}</h4>
                 <p className="text-sm text-gray-300">{step.desc}</p>
@@ -37,8 +40,7 @@ export default function Services() {
           </div>
         </section>
 
-        {/* Shipping Methods */}
-        <section>
+        <section data-aos="fade-right">
           <h2 className="text-2xl font-bold text-white mb-4">🚚 Shipping & Delivery Methods</h2>
           <ul className="list-disc pl-6 text-gray-300 space-y-1">
             <li><span className="text-yellow-400">Sea Cargo</span> – For larger, cost-effective shipments</li>
@@ -47,8 +49,7 @@ export default function Services() {
           </ul>
         </section>
 
-        {/* Installation Support */}
-        <section>
+        <section data-aos="fade-up">
           <h2 className="text-2xl font-bold text-white mb-4">🔩 Installation Support</h2>
           <p className="text-gray-300">
             We work with <span className="text-yellow-400 font-semibold">recommended partner garages</span> across Sri Lanka.
