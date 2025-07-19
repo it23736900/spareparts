@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaFacebookF,
   FaInstagram,
@@ -9,15 +9,25 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import GetQuotationForm from './GetQuotationForm';
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Footer = () => {
-  const [showModal, setShowModal] = React.useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      once: true,
+    });
+  }, []);
+
   return (
     <footer className="bg-[#0B1C1F] text-white py-12 px-6">
       {/* Main Grid */}
       <div className="grid gap-8 pb-10 mx-auto border-b border-gray-700 max-w-7xl md:grid-cols-4">
         {/* Company Info */}
-        <div>
+        <div data-aos="fade-up" data-aos-delay="0">
           <h4 className="mb-4 text-lg font-semibold text-yellow-400">Company</h4>
           <p className="flex items-center gap-2 text-sm text-gray-300">
             <FaMapMarkerAlt className="text-yellow-400" />
@@ -40,7 +50,7 @@ const Footer = () => {
         </div>
 
         {/* Business Hours */}
-        <div>
+        <div data-aos="fade-up" data-aos-delay="100">
           <h4 className="mb-4 text-lg font-semibold text-yellow-400">Business Hours</h4>
           <p className="text-sm text-gray-300">Mon–Sat: 8.30 AM – 5.30 PM</p>
           <p className="mt-1 text-sm text-gray-300">Sun : Closed</p>
@@ -48,7 +58,7 @@ const Footer = () => {
         </div>
 
         {/* Quick Links */}
-        <div>
+        <div data-aos="fade-up" data-aos-delay="200">
           <h4 className="mb-4 text-lg font-semibold text-yellow-400">Quick Links</h4>
           <ul className="space-y-2 text-sm text-gray-300">
             <li><a href="/home" className="hover:text-yellow-400">Home</a></li>
@@ -59,7 +69,7 @@ const Footer = () => {
         </div>
 
         {/* Google Map Placeholder */}
-        <div>
+        <div data-aos="fade-up" data-aos-delay="300">
           <h4 className="mb-4 text-lg font-semibold text-yellow-400">Find Us</h4>
           <div className="w-full h-32 bg-gray-700 rounded-lg"></div>
           <button className="px-4 py-2 mt-3 text-sm text-white transition bg-gray-700 rounded hover:bg-yellow-500 hover:text-black">
@@ -69,7 +79,7 @@ const Footer = () => {
       </div>
 
       {/* Connect With Us */}
-      <div className="mt-10 text-center">
+      <div className="mt-10 text-center" data-aos="fade-up" data-aos-delay="400">
         <h4 className="mb-6 text-lg font-semibold text-yellow-400">Connect With Us</h4>
         <div className="flex items-center justify-center gap-6">
           {[
@@ -109,10 +119,14 @@ const Footer = () => {
       </div>
 
       {/* Bottom Footer Note */}
-      <div className="pt-6 mt-10 text-sm text-center text-gray-400 border-t border-gray-700">
+      <div
+        className="pt-6 mt-10 text-sm text-center text-gray-400 border-t border-gray-700"
+        data-aos="fade-up"
+        data-aos-delay="500"
+      >
         <p>© 2025 Luxury Auto Parts Inquiry. All Rights Reserved.</p>
-       
       </div>
+
       {/* Modal Form */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">

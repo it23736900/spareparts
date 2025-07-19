@@ -22,6 +22,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import About from './pages/About';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
+import BackToTopButton from "./components/BackToTopButton";
+
 
 function HomePage({ onSignInClick, onSignUpClick }) {
   return (
@@ -30,6 +32,7 @@ function HomePage({ onSignInClick, onSignUpClick }) {
       <Hero />
       <BrandLogos />
       <TestimonialCarousel />
+      <BackToTopButton />
       <Footer />
     </>
   );

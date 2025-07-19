@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 import "keen-slider/keen-slider.min.css";
 import { useKeenSlider } from "keen-slider/react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
+// ✅ Initialize Cloudinary
 const cld = new Cloudinary({
   cloud: { cloudName: "dnk3tgxht" },
 });
 
-
+// ✅ Brand Data
 const brands = [
   {
     title: "Range Rover",
@@ -98,71 +101,83 @@ const BrandLogos = () => {
     slides: { perView: 1, spacing: 15 },
   });
 
+  useEffect(() => {
+    AOS.init({ duration: 800, once: true });
+  }, []);
+
   return (
-    <>
-      <section className="bg-[#0B1C1F] py-20 px-4 text-white font-poppins min-h-screen">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
-          Our Supportive Brands
-        </h2>
+    <section
+      className="bg-[#0B1C1F] py-20 px-4 text-white font-poppins min-h-screen"
+      id="brands"
+    >
+      <h2
+        className="text-4xl md:text-5xl font-bold text-center mb-12"
+        data-aos="fade-up"
+        data-aos-duration="1000"
+      >
+        Our Supportive Brands
+      </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-7xl mx-auto">
-          {brands.map((brand, index) => {
-            const img = cld
-              .image(brand.imageId)
-              .format("auto")
-              .quality("auto")
-              .resize(auto().width(600));
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 max-w-7xl mx-auto">
+        {brands.map((brand, index) => {
+          const img = cld
+            .image(brand.imageId)
+            .format("auto")
+            .quality("auto")
+            .resize(auto().width(600));
 
-            const isFlipped = hoveredIndex === index;
+          const isFlipped = hoveredIndex === index;
 
-            return (
+          return (
+            <div
+              key={index}
+              className="relative w-full h-[400px] cursor-pointer"
+              style={{ perspective: "1000px" }}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+              data-aos="zoom-in"
+              data-aos-delay={index * 100}
+              data-aos-duration="800"
+            >
               <div
-                key={index}
-                className="relative w-full h-[400px] cursor-pointer"
-                style={{ perspective: "1000px" }}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
+                className="absolute w-full h-full transition-transform duration-700"
+                style={{
+                  transformStyle: "preserve-3d",
+                  transform: isFlipped
+                    ? "rotateY(180deg)"
+                    : "rotateY(0deg)",
+                }}
               >
+                {/* Front */}
                 <div
-                  className="absolute w-full h-full transition-transform duration-700"
+                  className="absolute w-full h-full bg-[#1B2A2F] rounded-2xl flex flex-col items-center justify-center p-6"
+                  style={{ backfaceVisibility: "hidden" }}
+                >
+                  <AdvancedImage
+                    cldImg={img}
+                    className="w-28 h-28 object-contain mb-4"
+                  />
+                  <h3 className="text-lg font-semibold text-center">
+                    {brand.title}
+                  </h3>
+                </div>
+
+                {/* Back */}
+                <div
+                  className="absolute w-full h-full bg-[#102024] rounded-2xl flex items-center justify-center p-6 text-sm text-center leading-relaxed text-white"
                   style={{
-                    transformStyle: "preserve-3d",
-                    transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                    transform: "rotateY(180deg)",
+                    backfaceVisibility: "hidden",
                   }}
                 >
-                  {/* Front */}
-                  <div
-                    className="absolute w-full h-full bg-[#1B2A2F] rounded-2xl flex flex-col items-center justify-center p-6"
-                    style={{ backfaceVisibility: "hidden" }}
-                  >
-                    <AdvancedImage
-                      cldImg={img}
-                      className="w-28 h-28 object-contain mb-4"
-                    />
-                    <h3 className="text-lg font-semibold text-center">
-                      {brand.title}
-                    </h3>
-                  </div>
-
-                  {/* Back */}
-                  <div
-                    className="absolute w-full h-full bg-[#102024] rounded-2xl flex items-center justify-center p-6 text-sm text-center leading-relaxed text-white"
-                    style={{
-                      transform: "rotateY(180deg)",
-                      backfaceVisibility: "hidden",
-                    }}
-                  >
-                    {brand.description}
-                  </div>
+                  {brand.description}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </section>
-
-      
-    </>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 };
 
