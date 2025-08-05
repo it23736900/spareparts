@@ -47,7 +47,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-[#0B1C1F]/90 backdrop-blur-md shadow-md text-white">
+<header className="fixed top-0 left-0 w-full z-50 bg-white/5 backdrop-blur-2xl shadow-lg text-white border-b border-white/10 transition-all duration-300">
       <div className="flex items-center justify-between px-4 py-4 mx-auto max-w-7xl">
         {/* Left: Logo and Flags */}
         <div className="flex items-center gap-4 min-w-fit">
@@ -64,7 +64,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
         </div>
 
         {/* Center: Desktop Nav Links */}
-        <nav className="hidden md:flex gap-8 text-sm font-semibold">
+        <nav className="hidden md:flex gap-8 text-sm font-semibold transition-all duration-300">
           <Link to="/" className="hover:text-yellow-400">Home</Link>
           <Link to="/about" className="hover:text-yellow-400">About Us</Link>
           <Link to="/services" className="hover:text-yellow-400">Services</Link>
@@ -79,10 +79,10 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
               placeholder="Track your orders"
               value={searchValue}
               onChange={handleSearchChange}
-              className="px-4 py-2.5 text-sm rounded-xl bg-white/10 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-white/10 backdrop-blur-md"
+              className="px-4 py-2.5 text-sm rounded-xl bg-white/10 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-white/10 backdrop-blur-md transition-all duration-300"
             />
             {searchValue && (
-              <div className="absolute top-full left-0 w-full mt-1 bg-[#1B2A2F] text-white rounded-xl shadow-lg border border-white/10 z-50">
+              <div className="absolute top-full left-0 w-full mt-1 bg-white/10 backdrop-blur-lg text-white rounded-xl shadow-lg border border-white/10 z-50 transition-all duration-300">
                 {matchedInquiry ? (
                   <div className="p-4 border bg-white/5 backdrop-blur-lg border-white/10 rounded-xl">
                     <p className="text-sm text-gray-300 mb-1">
@@ -115,7 +115,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
             <FaHome className="text-lg" />
           </Link>
 
-          <div>
+          <div className="relative">
             <button onClick={toggleDropdown}>
               <AdvancedImage
                 cldImg={profileAvatar}
@@ -124,7 +124,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
               />
             </button>
             {isDropdownOpen && (
-              <div className="absolute right-4 z-50 mt-2 text-black bg-white rounded-md shadow-lg w-44">
+              <div className="absolute right-0 z-50 mt-2 text-black bg-white/80 backdrop-blur-md border border-white/20 rounded-xl shadow-xl transition-all duration-300 w-44">
                 <button
                   onClick={() => {
                     onSignInClick();
@@ -158,7 +158,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
 
       {/* Mobile Menu (Below main bar) */}
       {isMobileMenuOpen && (
-        <div className="md:hidden px-4 pb-4 pt-2 space-y-2 bg-[#0B1C1F] text-sm font-semibold">
+        <div className="md:hidden px-4 pb-4 pt-2 space-y-2 bg-white/10 backdrop-blur-xl rounded-b-xl border-t border-white/10 text-sm font-semibold text-white">
           <Link to="/" className="block hover:text-yellow-400">Home</Link>
           <Link to="/about" className="block hover:text-yellow-400">About Us</Link>
           <Link to="/services" className="block hover:text-yellow-400">Services</Link>
