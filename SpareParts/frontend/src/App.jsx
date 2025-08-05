@@ -12,6 +12,8 @@ import SignupModal from './components/SignupModal';
 import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
 import TestimonialCarousel from './components/TestimonialCarousel';
 import BackToTopButton from './components/BackToTopButton';
+import IntroParagraph from './components/IntroParagraph.jsx';
+
 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -20,17 +22,22 @@ import './index.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
 import { AnimatePresence, motion } from 'framer-motion';
 
 import About from './pages/About';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
 
+
+
 function HomePage({ onSignInClick, onSignUpClick }) {
   return (
     <>
       <Navbar onSignInClick={onSignInClick} onSignUpClick={onSignUpClick} />
       <Hero />
+      <IntroParagraph />
+
       <BrandLogos />
       <TestimonialCarousel />
       <BackToTopButton />
