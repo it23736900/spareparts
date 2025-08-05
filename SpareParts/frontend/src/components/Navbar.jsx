@@ -2,13 +2,11 @@ import React, { useState } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaBars, FaTimes } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
 
 // Cloudinary config
-const cld = new Cloudinary({
-  cloud: { cloudName: "dnk3tgxht" },
-});
+const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
 
 const logo = cld.image("logo_e46o12").format("auto").quality("auto").resize(auto().width(120));
 const sriLankanFlag = cld.image("sri_lanka_elrjw8").format("png").quality("auto:best").resize(auto().width(32));
@@ -31,16 +29,17 @@ const statusColors = {
 
 const Navbar = ({ onSignInClick, onSignUpClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [matchedInquiry, setMatchedInquiry] = useState(null);
   const navigate = useNavigate();
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchValue(value);
-
     const found = mockInquiries.find(inq =>
       inq.ref.toLowerCase().includes(value.trim().toLowerCase())
     );
@@ -49,7 +48,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-[#0B1C1F]/90 backdrop-blur-md shadow-md text-white">
-      <div className="flex items-center justify-between gap-4 px-4 py-4 mx-auto max-w-7xl">
+      <div className="flex items-center justify-between px-4 py-4 mx-auto max-w-7xl">
         {/* Left: Logo and Flags */}
         <div className="flex items-center gap-4 min-w-fit">
           <AdvancedImage cldImg={logo} className="object-contain h-10" alt="Company Logo" />
@@ -57,17 +56,24 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
           <AdvancedImage cldImg={ukFlag} className="object-contain w-8 h-6 rounded-sm" alt="UK Flag" />
         </div>
 
-        {/* Center: Nav Links */}
-        <nav className="flex gap-8 text-sm font-semibold">
+        {/* Hamburger Icon */}
+        <div className="md:hidden">
+          <button onClick={toggleMobileMenu}>
+            {isMobileMenuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+          </button>
+        </div>
+
+        {/* Center: Desktop Nav Links */}
+        <nav className="hidden md:flex gap-8 text-sm font-semibold">
           <Link to="/" className="hover:text-yellow-400">Home</Link>
           <Link to="/about" className="hover:text-yellow-400">About Us</Link>
           <Link to="/services" className="hover:text-yellow-400">Services</Link>
           <Link to="/contact" className="hover:text-yellow-400">Contact Us</Link>
         </nav>
 
-        {/* Right: Search, Home, Profile */}
-        <div className="flex items-center gap-4 min-w-fit">
-          <div className="relative w-full max-w-md hidden md:block">
+        {/* Right: Search, Home, Profile (Desktop Only) */}
+        <div className="hidden md:flex items-center gap-4 min-w-fit">
+          <div className="relative w-full max-w-md">
             <input
               type="text"
               placeholder="Track your orders"
@@ -118,7 +124,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
               />
             </button>
             {isDropdownOpen && (
-              <div className="absolute right-0 z-50 mt-2 text-black bg-white rounded-md shadow-lg w-44">
+              <div className="absolute right-4 z-50 mt-2 text-black bg-white rounded-md shadow-lg w-44">
                 <button
                   onClick={() => {
                     onSignInClick();
@@ -149,6 +155,16 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu (Below main bar) */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden px-4 pb-4 pt-2 space-y-2 bg-[#0B1C1F] text-sm font-semibold">
+          <Link to="/" className="block hover:text-yellow-400">Home</Link>
+          <Link to="/about" className="block hover:text-yellow-400">About Us</Link>
+          <Link to="/services" className="block hover:text-yellow-400">Services</Link>
+          <Link to="/contact" className="block hover:text-yellow-400">Contact Us</Link>
+        </div>
+      )}
     </header>
   );
 };

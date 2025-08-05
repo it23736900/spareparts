@@ -16,10 +16,7 @@ const Footer = () => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    AOS.init({
-      duration: 800,
-      once: true,
-    });
+    AOS.init({ duration: 800, once: true });
   }, []);
 
   return (
@@ -27,7 +24,7 @@ const Footer = () => {
       {/* Main Grid */}
       <div className="grid gap-8 pb-10 mx-auto border-b border-gray-700 max-w-7xl md:grid-cols-4">
         {/* Company Info */}
-        <div data-aos="fade-up" data-aos-delay="0">
+        <div data-aos="fade-up">
           <h4 className="mb-4 text-lg font-semibold text-yellow-400">Company</h4>
           <p className="flex items-center gap-2 text-sm text-gray-300">
             <FaMapMarkerAlt className="text-yellow-400" />
@@ -39,7 +36,7 @@ const Footer = () => {
           </p>
           <p className="flex items-center gap-2 mt-3 text-sm text-gray-300">
             <FaEnvelope className="text-yellow-400" />
-            inquiry@luxuryautoparts.com
+            info@eurotec.lk 
           </p>
           <button
             onClick={() => setShowModal(true)}
@@ -68,14 +65,32 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Google Map Placeholder */}
-        <div data-aos="fade-up" data-aos-delay="300">
-          <h4 className="mb-4 text-lg font-semibold text-yellow-400">Find Us</h4>
-          <div className="w-full h-32 bg-gray-700 rounded-lg"></div>
-          <button className="px-4 py-2 mt-3 text-sm text-white transition bg-gray-700 rounded hover:bg-yellow-500 hover:text-black">
-            Get Directions
-          </button>
-        </div>
+        {/* Find Us - Updated Map */}
+        {/* Find Us - Updated Map with AOS + Responsiveness */}
+<div data-aos="zoom-in" data-aos-delay="300">
+  <h4 className="mb-4 text-lg font-semibold text-yellow-400">Find Us</h4>
+  <div className="w-full h-32 md:h-48 lg:h-64 rounded-lg overflow-hidden shadow-md">
+    <iframe
+      title="Map to Our Location"
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2162.1566709123817!2d79.900613267168!3d6.910282742519038!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae259f2755be2fd%3A0x42f57e57435a8ba8!2s63%20Buthgamuwa%20Rd%2C%20Sri%20Jayawardenepura%20Kotte!5e0!3m2!1sen!2slk!4v1754019294021!5m2!1sen!2slk"
+      width="100%"
+      height="100%"
+      style={{ border: 0 }}
+      allowFullScreen=""
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+    ></iframe>
+  </div>
+  <a
+    href="https://maps.google.com?q=No.63,+Buthgamuwa+Road,+Rajagiriya"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="block mt-3 px-4 py-2 text-sm text-white bg-gray-700 rounded hover:bg-yellow-500 hover:text-black transition"
+  >
+    Get Directions
+  </a>
+</div>
+
       </div>
 
       {/* Connect With Us */}
@@ -83,26 +98,10 @@ const Footer = () => {
         <h4 className="mb-6 text-lg font-semibold text-yellow-400">Connect With Us</h4>
         <div className="flex items-center justify-center gap-6">
           {[
-            {
-              icon: FaFacebookF,
-              url: "https://facebook.com",
-              label: "Facebook",
-            },
-            {
-              icon: FaInstagram,
-              url: "https://instagram.com",
-              label: "Instagram",
-            },
-            {
-              icon: FaWhatsapp,
-              url: "https://wa.me/94785264854",
-              label: "WhatsApp",
-            },
-            {
-              icon: FaTiktok,
-              url: "https://tiktok.com",
-              label: "TikTok",
-            },
+            { icon: FaFacebookF, url: "https://facebook.com", label: "Facebook" },
+            { icon: FaInstagram, url: "https://instagram.com", label: "Instagram" },
+            { icon: FaWhatsapp, url: "https://wa.me/94785264854", label: "WhatsApp" },
+            { icon: FaTiktok, url: "https://tiktok.com", label: "TikTok" },
           ].map(({ icon: Icon, url, label }, index) => (
             <a
               key={index}
@@ -119,11 +118,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom Footer Note */}
-      <div
-        className="pt-6 mt-10 text-sm text-center text-gray-400 border-t border-gray-700"
-        data-aos="fade-up"
-        data-aos-delay="500"
-      >
+      <div className="pt-6 mt-10 text-sm text-center text-gray-400 border-t border-gray-700" data-aos="fade-up" data-aos-delay="500">
         <p>© 2025 Luxury Auto Parts Inquiry. All Rights Reserved.</p>
       </div>
 
