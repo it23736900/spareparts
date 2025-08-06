@@ -1,37 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import 'keen-slider/keen-slider.min.css';
 
-.perspective {
-  perspective: 1000px;
-}
-
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
-.rotate-y-180 {
-  transform: rotateY(180deg);
-}
-
-.backface-hidden {
-  backface-visibility: hidden;
-}
-
-body {
-  background-color: #0B1C1F;
-}
 @keyframes scrollInline {
   0% {
     transform: translateX(0%);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-33.33%);
+  }
+}
+
+@keyframes scrollReverse {
+  0% {
+    transform: translateX(-33.33%);
+  }
+  100% {
+    transform: translateX(0%);
   }
 }
 
 .animate-scrollInline {
-  animation: scrollInline 35s linear infinite;
+  animation: scrollInline 60s linear infinite;
 }
 
+.animate-scrollReverse {
+  animation: scrollReverse 60s linear infinite;
+}

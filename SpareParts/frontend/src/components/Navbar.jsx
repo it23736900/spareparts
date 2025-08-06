@@ -73,47 +73,9 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
 
         {/* Right: Search, Home, Profile (Desktop Only) */}
         <div className="hidden md:flex items-center gap-4 min-w-fit">
-          <div className="relative w-full max-w-md">
-            <input
-              type="text"
-              placeholder="Track your orders"
-              value={searchValue}
-              onChange={handleSearchChange}
-              className="px-4 py-2.5 text-sm rounded-xl bg-white/10 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-white/10 backdrop-blur-md transition-all duration-300"
-            />
-            {searchValue && (
-              <div className="absolute top-full left-0 w-full mt-1 bg-white/10 backdrop-blur-lg text-white rounded-xl shadow-lg border border-white/10 z-50 transition-all duration-300">
-                {matchedInquiry ? (
-                  <div className="p-4 border bg-white/5 backdrop-blur-lg border-white/10 rounded-xl">
-                    <p className="text-sm text-gray-300 mb-1">
-                      <span className="font-semibold text-white">Reference:</span>{' '}
-                      <span className="font-bold text-yellow-400">{matchedInquiry.ref}</span>
-                    </p>
-                    <p className="text-sm text-gray-300 mb-1">
-                      <span className="font-semibold text-white">Name:</span> {matchedInquiry.name}
-                    </p>
-                    <p className="text-sm text-gray-300 mb-2">
-                      <span className="font-semibold text-white">Inquiry:</span> {matchedInquiry.message}
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-semibold text-white">Status:</span>{' '}
-                      <span className={`font-bold ${statusColors[matchedInquiry.status]}`}>{matchedInquiry.status}</span>
-                    </p>
-                  </div>
-                ) : (
-                  <div className="p-4 text-sm text-gray-400">No matching inquiry found</div>
-                )}
-              </div>
-            )}
-          </div>
+          
 
-          <Link
-            to="/"
-            className="p-2 text-black transition bg-yellow-400 rounded-full hover:bg-yellow-500"
-            aria-label="Home"
-          >
-            <FaHome className="text-lg" />
-          </Link>
+          
 
           <div className="relative">
             <button onClick={toggleDropdown}>
