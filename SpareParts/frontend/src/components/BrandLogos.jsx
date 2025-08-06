@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
@@ -22,6 +22,8 @@ const allBrands = [
 ];
 
 const BrandMarquee = () => {
+  const [pausedRow, setPausedRow] = useState(null); // "top", "bottom", or null
+
   const mid = Math.ceil(allBrands.length / 2);
   const topBrands = allBrands.slice(0, mid);
   const bottomBrands = allBrands.slice(mid);
@@ -29,20 +31,46 @@ const BrandMarquee = () => {
   const getCloudImage = (imageId) =>
     cld.image(imageId).format("auto").quality("auto").resize(auto().width(300));
 
+  const handleMouseEnter = (row) => {
+    setPausedRow(row);
+  };
+
+  const handleMouseLeave = () => {
+    setPausedRow(null);
+  };
+
   const renderBrandBox = (brand, index, row) => (
     <div
       key={`${row}-${index}`}
-      className="w-[280px] h-[280px] bg-[#1B2A2F] rounded-2xl flex flex-col items-center justify-center flex-shrink-0"
+      className="w-[280px] h-[280px] flex-shrink-0 group [perspective:1000px]"
+      onMouseEnter={() => handleMouseEnter(row)}
+      onMouseLeave={handleMouseLeave}
     >
-      <AdvancedImage
-        cldImg={getCloudImage(brand.imageId)}
-        className="w-24 h-24 object-contain mb-4"
-      />
-      <p className="text-lg font-semibold">{brand.title}</p>
+      <div className="relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+        {/* Front Side */}
+        <div className="absolute w-full h-full bg-[#1B2A2F] rounded-2xl flex flex-col items-center justify-center [backface-visibility:hidden]">
+          <AdvancedImage
+            cldImg={getCloudImage(brand.imageId)}
+            className="w-24 h-24 object-contain mb-4"
+          />
+          <p className="text-lg font-semibold">{brand.title}</p>
+        </div>
+
+        {/* Back Side */}
+        <div className="absolute w-full h-full bg-[#163035] rounded-2xl flex flex-col items-center justify-center [transform:rotateY(180deg)] [backface-visibility:hidden] px-4 text-center">
+          <AdvancedImage
+            cldImg={getCloudImage(brand.imageId)}
+            className="w-20 h-20 object-contain mb-2"
+          />
+          <p className="text-md font-semibold text-white">{brand.title}</p>
+          <p className="text-xs text-gray-300 mt-2">
+            Genuine spare parts imported from the UK.
+          </p>
+        </div>
+      </div>
     </div>
   );
 
-  // Repeat 3 times to ensure smooth animation
   const repeatedTop = [...topBrands, ...topBrands, ...topBrands];
   const repeatedBottom = [...bottomBrands, ...bottomBrands, ...bottomBrands];
 
@@ -54,8 +82,15 @@ const BrandMarquee = () => {
 
       {/* Top Row */}
       <div className="overflow-hidden">
-<div className="flex animate-scrollInline gap-x-6 w-max">
-          {repeatedTop.map((brand, index) => renderBrandBox(brand, index, "top"))}
+        <div
+          className="flex gap-x-6 w-max animate-scrollInline"
+          style={{
+            animationPlayState: pausedRow === "top" ? "paused" : "running",
+          }}
+        >
+          {repeatedTop.map((brand, index) =>
+            renderBrandBox(brand, index, "top")
+          )}
         </div>
       </div>
 
@@ -63,8 +98,15 @@ const BrandMarquee = () => {
 
       {/* Bottom Row */}
       <div className="overflow-hidden">
-<div className="flex animate-scrollReverse gap-x-6 w-max">
-          {repeatedBottom.map((brand, index) => renderBrandBox(brand, index, "bottom"))}
+        <div
+          className="flex gap-x-6 w-max animate-scrollReverse"
+          style={{
+            animationPlayState: pausedRow === "bottom" ? "paused" : "running",
+          }}
+        >
+          {repeatedBottom.map((brand, index) =>
+            renderBrandBox(brand, index, "bottom")
+          )}
         </div>
       </div>
     </section>
