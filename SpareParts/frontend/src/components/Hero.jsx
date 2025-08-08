@@ -51,14 +51,14 @@ const Hero = () => {
           </h1>
 
           {/* 📦 Subheading */}
-          <p className="text-lg text-green-300">
+          <p className="text-lg text-emerald-300">
             Fast, Reliable Island Wide Delivery.
           </p>
 
           {/* 🔘 CTA */}
           <a
             href="#brands"
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg inline-block"
+            className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold px-8 py-4 rounded-xl inline-block shadow-lg shadow-emerald-600/25 transition-all duration-300 transform hover:scale-105"
           >
             Explore Brands
           </a>

@@ -4,7 +4,7 @@ import { FaTools, FaShippingFast, FaCreditCard, FaClipboardCheck } from 'react-i
 const steps = [
   { icon: <FaClipboardCheck />, title: 'Submit Your Inquiry', desc: 'Share the required spare parts details with us.' },
   { icon: <FaTools />, title: 'We Get in Touch', desc: 'Our team reviews your request and confirms additional details.' },
-  { icon: <FaCreditCard />, title: 'Receive a Quotation', desc: 'We provide a detailed quote based on your request.' },
+  { icon: <FaCreditCard />, title: 'Receive a Quote', desc: 'We provide a detailed quote based on your request.' },
   { icon: <FaClipboardCheck />, title: 'Order Confirmation', desc: 'Confirm your order details with us.' },
   { icon: <FaCreditCard />, title: 'Advance Payment', desc: 'Make an initial payment to begin processing.' },
   { icon: <FaClipboardCheck />, title: 'Order Confirmation Receipt', desc: 'Receive official confirmation of your order.' },
@@ -15,10 +15,10 @@ const steps = [
 
 export default function Services() {
   return (
-    <div className="min-h-screen bg-[#0B1C1F] text-white pt-32 px-6" data-aos="fade-up">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white pt-32 px-6" data-aos="fade-up">
       <div className="max-w-6xl mx-auto space-y-16">
 
-        <h1 className="text-5xl font-extrabold text-yellow-400 drop-shadow mb-6 border-b border-yellow-500 pb-4 w-fit" data-aos="zoom-in">
+        <h1 className="text-5xl font-extrabold text-emerald-400 drop-shadow mb-6 border-b border-emerald-500 pb-4 w-fit" data-aos="zoom-in">
           Our Services / How It Works
         </h1>
 
@@ -28,11 +28,11 @@ export default function Services() {
             {steps.map((step, index) => (
               <div
                 key={index}
-                className="bg-[#132a30] rounded-xl border border-yellow-500/10 p-5 shadow hover:shadow-yellow-500/10 transition"
+                className="bg-gradient-to-br from-gray-900/50 to-black/50 rounded-xl border border-emerald-600/20 p-6 shadow-lg hover:shadow-emerald-600/20 transition-all duration-300 transform hover:scale-105"
                 data-aos="zoom-in-up"
                 data-aos-delay={index * 100}
               >
-                <div className="text-yellow-400 text-2xl mb-2">{step.icon}</div>
+                <div className="text-emerald-400 text-2xl mb-2">{step.icon}</div>
                 <h4 className="text-lg font-bold text-white mb-1">{step.title}</h4>
                 <p className="text-sm text-gray-300">{step.desc}</p>
               </div>
@@ -43,16 +43,16 @@ export default function Services() {
         <section data-aos="fade-right">
           <h2 className="text-2xl font-bold text-white mb-4">🚚 Shipping & Delivery Methods</h2>
           <ul className="list-disc pl-6 text-gray-300 space-y-1">
-            <li><span className="text-yellow-400">Sea Cargo</span> – For larger, cost-effective shipments</li>
-            <li><span className="text-yellow-400">Air Cargo</span> – Fast delivery for urgent orders</li>
-            <li><span className="text-yellow-400">Courier Service</span> – Ideal for smaller parts</li>
+            <li><span className="text-emerald-400">Sea Cargo</span> – For larger, cost-effective shipments</li>
+            <li><span className="text-emerald-400">Air Cargo</span> – Fast delivery for urgent orders</li>
+            <li><span className="text-emerald-400">Courier Service</span> – Ideal for smaller parts</li>
           </ul>
         </section>
 
         <section data-aos="fade-up">
           <h2 className="text-2xl font-bold text-white mb-4">🔩 Installation Support</h2>
           <p className="text-gray-300">
-            We work with <span className="text-yellow-400 font-semibold">recommended partner garages</span> across Sri Lanka.
+            We work with <span className="text-emerald-400 font-semibold">recommended partner garages</span> across Sri Lanka.
             Let us know your location and we’ll connect you to a trusted mechanic for professional installation of your parts.
           </p>
         </section>

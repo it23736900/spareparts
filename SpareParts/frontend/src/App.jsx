@@ -54,7 +54,7 @@ function App() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#1B2A2F] text-white">
+    <div className="relative min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
       {/* ✅ Landing screen over background */}
       {!started && <LandingScreen onStart={() => setStarted(true)} />}
 

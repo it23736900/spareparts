@@ -25,7 +25,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-black/50 backdrop-blur-md border-b border-white/10 text-white">
+    <header className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-black/95 via-gray-900/90 to-black/95 backdrop-blur-xl border-b border-emerald-600/30 shadow-2xl shadow-black/50 text-white">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         
         {/* Logo */}
@@ -35,32 +35,39 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex gap-10 text-sm font-semibold">
-          {navLinks.map((link) => (
+          {navLinks.map((link, index) => (
             <a
               key={link.href}
               href={link.href}
-              className="relative group transition-all duration-300"
+              className="relative group transition-all duration-500 hover:text-emerald-400 px-4 py-2 rounded-lg hover:bg-gradient-to-r hover:from-emerald-600/20 hover:to-emerald-700/20 backdrop-blur-sm hover:shadow-lg hover:shadow-emerald-600/30 transform hover:scale-105"
+              style={{animationDelay: `${index * 0.1}s`}}
             >
               {link.label}
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500 group-hover:w-full shadow-lg shadow-emerald-500/50 animate-glow"></span>
+              {/* Elegant background effect on hover */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-emerald-600/0 to-emerald-700/0 group-hover:from-emerald-600/8 group-hover:to-emerald-700/8 transition-all duration-500 blur-sm"></div>
             </a>
           ))}
         </nav>
 
         {/* Profile */}
         <div className="hidden md:flex relative items-center">
-          <button onClick={toggleDropdown}>
+          <button 
+            onClick={toggleDropdown}
+            className="relative group transition-all duration-300 hover:scale-110"
+          >
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
             <AdvancedImage
               cldImg={profileAvatar}
-              className="w-10 h-10 rounded-full border-2 border-yellow-400"
+              className="relative w-10 h-10 rounded-full border-2 border-emerald-600/60 group-hover:border-emerald-500 transition-all duration-300 shadow-lg group-hover:shadow-emerald-600/25"
               alt="Profile"
             />
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg z-50 w-40">
+            <div className="absolute right-0 mt-2 bg-gray-900/90 backdrop-blur-xl text-white rounded-xl shadow-2xl shadow-black/50 z-50 w-40 border border-white/20">
               <button
-                className="w-full text-left px-4 py-2 hover:bg-yellow-100"
+                className="w-full text-left px-4 py-3 hover:bg-yellow-500/20 hover:text-yellow-400 transition-colors duration-200 rounded-lg mx-2 my-1"
                 onClick={() => {
                   onSignInClick();
                   setIsDropdownOpen(false);
@@ -69,7 +76,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
                 Sign In
               </button>
               <button
-                className="w-full text-left px-4 py-2 hover:bg-yellow-100"
+                className="w-full text-left px-4 py-3 hover:bg-yellow-500/20 hover:text-yellow-400 transition-colors duration-200 rounded-lg mx-2 my-1"
                 onClick={() => {
                   onSignUpClick();
                   setIsDropdownOpen(false);
@@ -79,7 +86,7 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
               </button>
               <Link
                 to="/profile"
-                className="block px-4 py-2 hover:bg-yellow-100"
+                className="block px-4 py-3 hover:bg-yellow-500/20 hover:text-yellow-400 transition-colors duration-200 rounded-lg mx-2 my-1"
                 onClick={() => setIsDropdownOpen(false)}
               >
                 Profile
@@ -90,21 +97,28 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <button onClick={toggleMobileMenu}>
-            {isMobileMenuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+          <button 
+            onClick={toggleMobileMenu}
+            className="relative group transition-all duration-300 hover:scale-110 p-2 rounded-lg hover:bg-gradient-to-r hover:from-emerald-600/15 hover:to-emerald-700/15"
+          >
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
+            <div className="relative text-emerald-400 group-hover:text-white transition-colors duration-300">
+              {isMobileMenuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+            </div>
           </button>
         </div>
       </div>
 
       {/* Mobile Nav */}
       {isMobileMenuOpen && (
-        <div className="md:hidden px-4 pb-4 pt-2 bg-black/80 backdrop-blur-md text-white text-sm space-y-2">
-          {navLinks.map((link) => (
+        <div className="md:hidden px-4 pb-4 pt-2 bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-xl text-white text-sm space-y-2 border-t border-emerald-600/30 animate-slideDown">
+          {navLinks.map((link, index) => (
             <a
               key={link.href}
               href={link.href}
-              className="block hover:text-yellow-400"
+              className="block hover:text-emerald-400 px-3 py-3 rounded-lg hover:bg-gradient-to-r hover:from-emerald-600/15 hover:to-emerald-700/15 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-emerald-600/20"
               onClick={() => setIsMobileMenuOpen(false)}
+              style={{animationDelay: `${index * 0.1}s`}}
             >
               {link.label}
             </a>
