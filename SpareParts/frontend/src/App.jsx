@@ -12,8 +12,8 @@ import SignupModal from './components/SignupModal';
 import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
 import TestimonialCarousel from './components/TestimonialCarousel';
 import BackToTopButton from './components/BackToTopButton';
-import IntroParagraph from './components/IntroParagraph.jsx';
-
+import IntroParagraph from './components/IntroParagraph';
+import LandingScreen from './components/LandingScreen';
 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -22,14 +22,11 @@ import './index.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 import { AnimatePresence, motion } from 'framer-motion';
 
 import About from './pages/About';
 import Services from './pages/Services';
 import Contact from './pages/Contact';
-
-
 
 function HomePage({ onSignInClick, onSignUpClick }) {
   return (
@@ -37,7 +34,6 @@ function HomePage({ onSignInClick, onSignUpClick }) {
       <Navbar onSignInClick={onSignInClick} onSignUpClick={onSignUpClick} />
       <Hero />
       <IntroParagraph />
-
       <BrandLogos />
       <TestimonialCarousel />
       <BackToTopButton />
@@ -49,6 +45,7 @@ function HomePage({ onSignInClick, onSignUpClick }) {
 function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignupModal] = useState(false);
+  const [started, setStarted] = useState(false); // Landing screen state
 
   const location = useLocation();
 
@@ -57,7 +54,10 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#1B2A2F] text-white">
+    <div className="relative min-h-screen bg-[#1B2A2F] text-white">
+      {/* ✅ Landing screen over background */}
+      {!started && <LandingScreen onStart={() => setStarted(true)} />}
+
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route
@@ -76,74 +76,15 @@ function App() {
               </motion.div>
             }
           />
-          <Route
-            path="/about"
-            element={
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4 }}
-              >
-                <About />
-              </motion.div>
-            }
-          />
-          <Route
-            path="/services"
-            element={
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Services />
-              </motion.div>
-            }
-          />
-          <Route
-            path="/contact"
-            element={
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Contact />
-              </motion.div>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <AdminDashboard />
-              </motion.div>
-            }
-          />
-          <Route
-            path="/user"
-            element={
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <UserDashboard />
-              </motion.div>
-            }
-          />
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/user" element={<UserDashboard />} />
         </Routes>
       </AnimatePresence>
 
+      {/* 🔐 Auth modals */}
       {showLogin && (
         <LoginSystem
           onClose={() => setShowLogin(false)}
@@ -153,7 +94,6 @@ function App() {
           }}
         />
       )}
-
       {showSignup && (
         <SignupModal
           onClose={() => setShowSignupModal(false)}
