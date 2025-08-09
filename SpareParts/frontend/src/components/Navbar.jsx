@@ -5,6 +5,7 @@ import { auto } from "@cloudinary/url-gen/actions/resize";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
+
 const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
 const logo = cld.image("logo_e46o12").format("auto").quality("auto").resize(auto().width(100));
 const profileAvatar = cld.image("default_avatar_khvzvj").format("auto").quality("auto").resize(auto().width(40));
@@ -26,8 +27,8 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   const navLinks = [
+    { label: "Home", href: "#home" },
     { label: "About Us", href: "#about" },
-    { label: "Brands", href: "#brands" },
     { label: "Services", href: "#services" },
     { label: "Contact Us", href: "#contact" },
   ];
@@ -207,3 +208,4 @@ const Navbar = ({ onSignInClick, onSignUpClick }) => {
 };
 
 export default Navbar;
+
