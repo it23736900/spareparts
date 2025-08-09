@@ -2,44 +2,149 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =============================
+   THEME TOKENS (dark green + gold)
+   ============================= */
+:root {
+  --emerald-900: #0B1C1F;
+  --emerald-800: #0E2A24;
+  --emerald-700: #102A27;
+  --emerald-600: #145C4B;
+  --emerald-glow: rgba(20, 92, 75, 0.35);
+
+  --gold: #D4AF37;           /* soft metallic gold */
+  --gold-2: #B9922F;         /* darker gold for gradients */
+  --gold-border: rgba(212, 175, 55, 0.55);
+
+  --text-soft: #E6E6E0;      /* warm light (not pure white) */
+}
+
+/* =============================
+   Autofill override (Chrome/Safari/Firefox)
+   ============================= */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-soft);
+  caret-color: var(--text-soft);
+  -webkit-box-shadow: 0 0 0px 1000px var(--emerald-700) inset;
+  box-shadow: 0 0 0px 1000px var(--emerald-700) inset;
+  border-color: var(--gold-border) !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+input:-moz-autofill,
+textarea:-moz-autofill,
+select:-moz-autofill {
+  box-shadow: 0 0 0px 1000px var(--emerald-700) inset;
+  -moz-text-fill-color: var(--text-soft);
+}
+
+/* =============================
+   Text selection (subtle gold wash)
+   ============================= */
+::selection {
+  background: rgba(212, 175, 55, 0.25);
+  color: var(--text-soft);
+}
+
+/* =============================
+   Optional helpers (use when convenient)
+   ============================= */
+
+/* Elegant emerald button with gold text + glow */
+.btn-emerald {
+  color: var(--gold);
+  background-image: linear-gradient(90deg, var(--emerald-600), var(--emerald-600));
+  border: 1px solid rgba(27, 77, 67, 0.45);
+  transition: box-shadow 200ms, transform 200ms, background-color 200ms;
+}
+.btn-emerald:hover {
+  box-shadow: 0 0 30px 10px var(--emerald-glow);
+  transform: translateY(-1px);
+}
+.btn-emerald.is-loading {
+  box-shadow: 0 0 26px 10px var(--emerald-glow);
+}
+
+/* Gold top hairline you can apply to the navbar */
+.top-gold-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+/* Underline-on-hover utility for nav links (if you’re not using Framer Motion) */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2));
+  transition: width 300ms ease;
+  border-radius: 999px;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Optional: minimal dark scrollbar that fits the theme */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(16, 42, 39, 0.85);
+  border: 2px solid rgba(11, 28, 31, 0.7);
+  border-radius: 999px;
+}
+
+/* =============================
+   Your existing marquee animations
+   ============================= */
 @keyframes scrollInline {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-33.33%);
-  }
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-33.33%); }
 }
-
 @keyframes scrollReverse {
-  0% {
-    transform: translateX(-33.33%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
+  0%   { transform: translateX(-33.33%); }
+  100% { transform: translateX(0%); }
 }
-
 .animate-scrollInline {
   animation: scrollInline 60s linear infinite;
 }
-
 .animate-scrollReverse {
   animation: scrollReverse 60s linear infinite;
 }
-/* Flip Animation */
-.perspective {
-  perspective: 1000px;
-}
 
-.preserve-3d {
-  transform-style: preserve-3d;
-}
+/* =============================
+   Flip / 3D helpers (kept)
+   ============================= */
+.perspective { perspective: 1000px; }
+.preserve-3d { transform-style: preserve-3d; }
+.rotate-y-180 { transform: rotateY(180deg); }
+.backface-hidden { backface-visibility: hidden; }
 
-.rotate-y-180 {
-  transform: rotateY(180deg);
+/* =============================
+   Small drop-down slide animation (used by mobile nav)
+   ============================= */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
-.backface-hidden {
-  backface-visibility: hidden;
+.animate-slideDown {
+  animation: slideDown .25s ease forwards;
 }
