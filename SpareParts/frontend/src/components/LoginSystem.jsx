@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { setUser } from '../utils/auth'; // ✅ notify app about login
 
 const LoginSystem = ({ onClose, onSwitchToSignup }) => {
   const [username, setUsername] = useState('');
@@ -25,15 +26,20 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
       );
 
       if (foundUser) {
-        localStorage.setItem('sparePartsUser', JSON.stringify(foundUser));
+        // ✅ save & broadcast to the whole app (Navbar listens to 'userUpdated')
+        setUser(foundUser);
+
+        // ✅ route based on role
         navigate(foundUser.role === 'admin' ? '/admin' : '/user');
-        onClose();
+
+        // ✅ close modal
+        onClose?.();
       } else {
         setError('Wrong username or password! Try again.');
       }
 
       setLoading(false);
-    }, 1000);
+    }, 800);
   };
 
   const fillDemoCredentials = (type) => {
@@ -53,6 +59,7 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
         <button
           onClick={onClose}
           className="absolute text-2xl text-yellow-400 transition top-3 right-4 hover:text-yellow-300"
+          aria-label="Close"
         >
           &times;
         </button>
@@ -71,6 +78,7 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
               className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
             />
           </div>
 
@@ -82,6 +90,7 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
             />
           </div>
 
@@ -132,7 +141,7 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
               User Login
             </button>
           </div>
-          <div className="text-gray-400 space-y-1">
+          <div className="space-y-1 text-gray-400">
             <div><span className="font-semibold text-white">Admin:</span> admin_john / admin123</div>
             <div><span className="font-semibold text-white">User:</span> customer_mike / user123</div>
           </div>

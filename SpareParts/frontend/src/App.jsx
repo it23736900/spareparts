@@ -16,6 +16,7 @@ import BackToTopButton from "./components/BackToTopButton";
 import IntroParagraph from "./components/IntroParagraph";
 import LandingScreen from "./components/LandingScreen";
 import GetQuotationForm from "./components/GetQuotationForm";
+import Profile from "./pages/Profile";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -92,6 +93,7 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/user" element={<UserDashboard />} />
         </Routes>
       </AnimatePresence>
