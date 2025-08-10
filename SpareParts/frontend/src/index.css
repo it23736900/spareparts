@@ -148,3 +148,16 @@ select:-moz-autofill {
 .animate-slideDown {
   animation: slideDown .25s ease forwards;
 }
+
+@keyframes arrowShimmer { 
+  0% { opacity: .6; } 
+  50% { opacity: 1; } 
+  100% { opacity: .6; } 
+}
+@keyframes arrowShimmerY { 
+  0% { opacity: .6; } 
+  50% { opacity: 1; } 
+  100% { opacity: .6; } 
+}
+.animate-arrowShimmer { animation: arrowShimmer 2.2s ease-in-out infinite; }
+.animate-arrowShimmerY { animation: arrowShimmerY 2.2s ease-in-out infinite; }

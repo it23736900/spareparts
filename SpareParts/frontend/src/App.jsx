@@ -10,6 +10,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
 import SignupModal from "./components/SignupModal";
 import FloatingWhatsAppButton from "./components/FloatingWhatsAppButton";
+import ProcessFlow from "./components/ProcessFlow";
 import TestimonialCarousel from "./components/TestimonialCarousel";
 import BackToTopButton from "./components/BackToTopButton";
 import IntroParagraph from "./components/IntroParagraph";
@@ -36,9 +37,9 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
       <Hero />
       <IntroParagraph />
       <BrandLogos onInquire={onInquire} />
+      <ProcessFlow />
       <TestimonialCarousel />
       <BackToTopButton />
-      {/* ✅ pass global handler to Footer */}
       <Footer onInquire={() => onInquire("")} />
     </>
   );
@@ -65,7 +66,7 @@ function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
+    <div className="relative min-h-screen text-white bg-gradient-to-br from-black via-gray-900 to-black">
       {!started && <LandingScreen onStart={() => setStarted(true)} />}
 
       <AnimatePresence mode="wait">
