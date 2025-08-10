@@ -17,6 +17,7 @@ import IntroParagraph from "./components/IntroParagraph";
 import LandingScreen from "./components/LandingScreen";
 import GetQuotationForm from "./components/GetQuotationForm";
 import Profile from "./pages/Profile";
+import TrackOrderSearch from "./components/TrackOrderSearch";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -37,6 +38,7 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
       <Navbar onSignInClick={onSignInClick} onSignUpClick={onSignUpClick} />
       <Hero />
       <IntroParagraph />
+      <TrackOrderSearch />
       <BrandLogos onInquire={onInquire} />
       <ProcessFlow />
       <TestimonialCarousel />
@@ -94,6 +96,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/profile" element={<Profile />} />
+        
           <Route path="/user" element={<UserDashboard />} />
         </Routes>
       </AnimatePresence>
