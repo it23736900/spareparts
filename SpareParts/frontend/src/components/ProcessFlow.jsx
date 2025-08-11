@@ -1,8 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const GOLD = "#D4AF37";
+/* Theme */
+const BASE_GREEN = "#105E42";      // deep elegant green
+const ACCENT_GREEN = "#17A77A";    // brighter emerald for titles/icons
 
+/* Animation */
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
   show: (i = 0) => ({
@@ -12,19 +15,25 @@ const fadeUp = {
   }),
 };
 
-/* Outline icons (match your green reference) */
+/* Icons (slightly brighter green + subtle glow for visibility) */
+const iconStyle = {
+  stroke: ACCENT_GREEN,
+  strokeWidth: 1.7,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  filter: "drop-shadow(0 0 6px rgba(23,167,122,0.28))",
+};
+
 const Icon = {
   Image: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke={GOLD} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
       <rect x="3" y="3" width="18" height="18" rx="2" />
       <circle cx="8.5" cy="8.5" r="2" />
       <path d="M21 15l-5-5-7 7" />
     </svg>
   ),
   Headset: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke={GOLD} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
       <path d="M4 12a8 8 0 0 1 16 0" />
       <rect x="3" y="11" width="4" height="7" rx="2" />
       <rect x="17" y="11" width="4" height="7" rx="2" />
@@ -32,15 +41,13 @@ const Icon = {
     </svg>
   ),
   Check: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke={GOLD} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
       <circle cx="12" cy="12" r="9" />
       <path d="M8 12l2.5 2.5L16 9" />
     </svg>
   ),
   HandMoney: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke={GOLD} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
       <path d="M3 16s1.5-2 4-2h5a3 3 0 0 1 0 6H9" />
       <path d="M7 20H5a2 2 0 0 1-2-2" />
       <rect x="17" y="7" width="4.5" height="3.5" rx="1.2" />
@@ -48,8 +55,7 @@ const Icon = {
     </svg>
   ),
   Truck: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke={GOLD} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
       <rect x="1.5" y="7" width="12.5" height="9" rx="2" />
       <path d="M14 10h4l3 3v3h-7z" />
       <circle cx="6" cy="18.5" r="1.8" />
@@ -57,51 +63,13 @@ const Icon = {
     </svg>
   ),
   BoxCheck: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke={GOLD} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
       <path d="M3 7l9-4 9 4-9 4-9-4z" />
       <path d="M3 7v10l9 4 9-4V7" />
       <path d="M9 13l2 2 4-4" />
     </svg>
   ),
 };
-
-/* Premium number badge (fits inside the step; no overflow) */
-function NumberBadge({ n }) {
-  const num = String(n).padStart(2, "0");
-  return (
-    <div className="absolute top-0 -translate-x-1/2 select-none left-1/2">
-      <div
-        className="relative grid w-12 h-12 rounded-full place-items-center md:w-14 md:h-14"
-        style={{
-          background:
-            "radial-gradient(70% 70% at 50% 35%, rgba(212,175,55,0.16), rgba(0,0,0,0))",
-          border: "1px solid rgba(212,175,55,0.45)",
-          boxShadow:
-            "0 0 26px rgba(212,175,55,0.22), inset 0 0 0 1px rgba(255,255,255,0.06)",
-          backdropFilter: "blur(2px)",
-        }}
-      >
-        <span
-          className="text-base font-extrabold tracking-widest md:text-xl"
-          style={{ color: GOLD, textShadow: "0 0 12px rgba(212,175,55,0.35)" }}
-        >
-          {num}
-        </span>
-
-        {/* outer faint ring highlight */}
-        <span
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background:
-              "conic-gradient(from 230deg, rgba(212,175,55,0.38), rgba(212,175,55,0) 42%)",
-            mask: "radial-gradient(circle at 50% 50%, transparent 66%, black 68%)",
-          }}
-        />
-      </div>
-    </div>
-  );
-}
 
 const steps = [
   { icon: <Icon.Image />,     title: "Submit Your Inquiry",
@@ -123,60 +91,73 @@ export default function ProcessFlow() {
     <section
       className="relative px-6 py-16 sm:py-20"
       style={{
-        background:
-          "radial-gradient(60% 40% at 50% 0%, rgba(16,94,66,0.22), transparent 70%)",
+        /* dark navy base with subtle green tint to match testimonials */
+        background: `
+          radial-gradient(60% 40% at 50% 0%, rgba(16,94,66,0.16), transparent 60%),
+          linear-gradient(180deg, #020A12 0%, #061826 100%)
+        `,
       }}
     >
       {/* Heading */}
       <div className="max-w-6xl mx-auto mb-12 text-center">
-        <h2
-          className="text-3xl font-extrabold tracking-wide md:text-4xl"
-          style={{ color: GOLD }}
-        >
+        <h2 className="text-3xl font-extrabold md:text-4xl text-white">
           WE COMPLETE EVERY STEP CAREFULLY
         </h2>
-        <div className="relative mx-auto mt-4 h-[2px] w-64">
-          <div
-            className="absolute inset-0 rounded-full"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent, rgba(212,175,55,0.9), transparent)",
-              filter: "drop-shadow(0 0 10px rgba(212,175,55,0.5))",
-            }}
-          />
-        </div>
       </div>
 
       {/* Grid */}
-      <div className="grid max-w-6xl mx-auto gap-y-20 gap-x-24 lg:grid-cols-3">
+      <div className="grid max-w-6xl mx-auto gap-y-12 md:gap-y-16 gap-x-8 md:gap-x-12 lg:grid-cols-3">
         {steps.map((s, i) => (
           <motion.div
             key={s.title}
-            className="relative text-center pt-14"  /* reserve space for badge */
             custom={i}
             variants={fadeUp}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.35 }}
+            className="relative"
           >
-            <NumberBadge n={i + 1} />
-
-            <motion.div
-              whileHover={{ scale: 1.04 }}
-              transition={{ type: "spring", stiffness: 240, damping: 18 }}
-              className="inline-block mb-4"
+            {/* Card — dark glass with soft green wash (NOT full green) */}
+            <div
+              className="
+                group relative mx-auto pt-10 text-center rounded-2xl border
+                transition-transform hover:scale-[1.02]
+                backdrop-blur-[4px] hover:backdrop-blur-[8px]
+              "
+              style={{
+                maxWidth: 420,
+                background: `
+                  radial-gradient(120% 90% at 20% 10%, rgba(23,167,122,0.10), transparent 55%),
+                  radial-gradient(120% 90% at 80% 90%, rgba(16,94,66,0.10), transparent 55%),
+                  linear-gradient(180deg, rgba(9,20,26,0.92), rgba(6,16,22,0.92))
+                `,
+                borderColor: "rgba(23,167,122,0.35)",
+                boxShadow: "0 14px 34px rgba(0,0,0,0.45)",
+              }}
             >
-              {s.icon}
-            </motion.div>
+              <div className="inline-block mb-4">{s.icon}</div>
 
-            <h3 className="text-2xl md:text-[28px] font-extrabold"
-                style={{ color: GOLD }}>
-              {s.title}
-            </h3>
+              {/* Title — brighter emerald + subtle glow for readability */}
+              <h3
+                className="text-2xl md:text-[28px] font-extrabold"
+                style={{
+                  color: ACCENT_GREEN,
+                  textShadow: "0 0 10px rgba(23,167,122,0.28)",
+                }}
+              >
+                {s.title}
+              </h3>
 
-            <p className="mx-auto mt-3 max-w-md text-[1.06rem] leading-relaxed text-white/80">
-              {s.desc}
-            </p>
+              <p className="mx-auto mt-3 max-w-md px-6 pb-8 text-[1.06rem] leading-relaxed text-white/85">
+                {s.desc}
+              </p>
+
+              {/* Hover sheen (green, very subtle) */}
+              <span
+                className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition"
+                style={{ boxShadow: "0 0 32px 6px rgba(23,167,122,0.18)" }}
+              />
+            </div>
           </motion.div>
         ))}
       </div>
