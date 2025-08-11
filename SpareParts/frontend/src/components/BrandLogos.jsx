@@ -78,13 +78,18 @@ const BrandMarquee = ({ onInquire = () => {} }) => {
         </div>
 
         {/* Back */}
-        <div className="absolute w-full h-full bg-[#163035] rounded-2xl flex flex-col justify-between p-4 text-center text-sm leading-snug [transform:rotateY(180deg)] [backface-visibility:hidden] border border-white/5 shadow-[0_0_40px_-22px_rgba(16,94,66,0.35)]">
+        <div className="absolute w-full h-full bg-[#163035] rounded-2xl flex flex-col justify-between p-4 text-center [transform:rotateY(180deg)] [backface-visibility:hidden] border border-white/5 shadow-[0_0_40px_-22px_rgba(16,94,66,0.35)]">
           <div className="px-1">
-            <p className="text-yellow-400 font-semibold mb-2">{brand.title}</p>
-            <p className="text-gray-300 text-xs">{brand.description}</p>
+            {/* Brand name: emerald + a bit larger */}
+            <p className="text-emerald-400 font-semibold mb-2 text-lg">
+              {brand.title}
+            </p>
+            {/* Description: bigger + nicer leading */}
+            <p className="text-gray-200 text-sm md:text-base leading-relaxed">
+              {brand.description}
+            </p>
           </div>
 
-          {/* Button ONLY on back, after description */}
           <InquireBtn brand={brand.title} />
         </div>
       </div>
