@@ -10,19 +10,19 @@ const img = (id) =>
 
 // ---------- Data ----------
 const allBrands = [
-  { title: "Range Rover", imageId: "range_rover_logo", description: "Built for both rugged performance and refined luxury, Range Rover represents the very best of British automotive excellence. To keep these powerful machines running at their peak, we supply Range Rover parts for SUV’s, directly imported from the UK." },
+  { title: "Range Rover", imageId: "Land-Rover_dfugi3", description: "Built for both rugged performance and refined luxury, Range Rover represents the very best of British automotive excellence. To keep these powerful machines running at their peak, we supply Range Rover parts for SUV’s, directly imported from the UK." },
   { title: "BMW", imageId: "BMW_if2qdm", description: "Synonymous with precision German engineering and driving pleasure, BMW offers a perfect blend of sportiness and luxury. We supply genuine used BMW spare parts, directly imported from the UK." },
-  { title: "Mercedes-Benz", imageId: "mercedes_logo", description: "Celebrated worldwide for its luxury, innovation, and safety, Mercedes-Benz defines automotive excellence. We import authentic Mercedes-Benz European spare parts from the UK." },
-  { title: "Audi", imageId: "audi_logo", description: "With modern design and advanced technology, Audi stands for progressive German engineering. We help maintain that standard by importing Audi spares directly." },
-  { title: "Volvo", imageId: "volvo_logo", description: "Renowned for its Scandinavian safety, comfort, and reliability, Volvo vehicles are built to protect. We source used Volvo spare parts directly from the UK." },
+  { title: "Mercedes-Benz", imageId: "mercedesbenz_nvbkqv", description: "Celebrated worldwide for its luxury, innovation, and safety, Mercedes-Benz defines automotive excellence. We import authentic Mercedes-Benz European spare parts from the UK." },
+  { title: "Audi", imageId: "audi_yahk7u", description: "With modern design and advanced technology, Audi stands for progressive German engineering. We help maintain that standard by importing Audi spares directly." },
+  { title: "Volvo", imageId: "Volvo_iykd5e", description: "Renowned for its Scandinavian safety, comfort, and reliability, Volvo vehicles are built to protect. We source used Volvo spare parts directly from the UK." },
   { title: "Volkswagen", imageId: "vw_kxbbn3", description: "Combining timeless design with everyday practicality, Volkswagen is a symbol of German reliability. We import authentic Volkswagen spares from the UK." },
-  { title: "Porsche", imageId: "porsche_logo", description: "Blending racing heritage with luxury, Porsche creates truly thrilling driving experiences. We supply used Porsche spare parts directly sourced from the UK." },
-  { title: "MG", imageId: "mg_logo", description: "A British classic reborn with contemporary style, MG vehicles offer charm and affordability. We import used MG spares directly from the UK." },
-  { title: "Ford", imageId: "ford_logo", description: "Known for versatility and durability, Ford’s include cars, SUVs, and pickup trucks. We supply authentic Ford spare parts from trusted UK partners." },
-  { title: "Jaguar", imageId: "jaguar_logo", description: "Combining British elegance with powerful performance, Jaguar creates distinctive luxury vehicles. We import Jaguar spare parts from the UK." },
-  { title: "Renault", imageId: "renault_logo", description: "A trusted European brand known for efficiency and style, Renault makes cars that suit city and family life alike. We import Renault spare parts from the UK." },
-  { title: "Peugeot", imageId: "peugeot_logo", description: "With French flair and comfort, Peugeot vehicles bring European sophistication to everyday driving. We keep them in top shape with UK-imported parts." },
-  { title: "Mini Cooper", imageId: "mini_logo", description: "Iconic, compact, and full of character, Mini Cooper remains a symbol of British design and fun driving. We import used Mini Cooper parts from the UK." },
+  { title: "Porsche", imageId: "porsche_husop5", description: "Blending racing heritage with luxury, Porsche creates truly thrilling driving experiences. We supply used Porsche spare parts directly sourced from the UK." },
+  { title: "MG", imageId: "MG_jetn1d", description: "A British classic reborn with contemporary style, MG vehicles offer charm and affordability. We import used MG spares directly from the UK." },
+  { title: "Ford", imageId: "Untitled_design_12_pi7wbj", description: "Known for versatility and durability, Ford’s include cars, SUVs, and pickup trucks. We supply authentic Ford spare parts from trusted UK partners." },
+  { title: "Jaguar", imageId: "Untitled_design_15_bgbbwf", description: "Combining British elegance with powerful performance, Jaguar creates distinctive luxury vehicles. We import Jaguar spare parts from the UK." },
+  { title: "Renault", imageId: "Untitled_design_16_kbhzqz", description: "A trusted European brand known for efficiency and style, Renault makes cars that suit city and family life alike. We import Renault spare parts from the UK." },
+  { title: "Peugeot", imageId: "Untitled_design_13_voryto", description: "With French flair and comfort, Peugeot vehicles bring European sophistication to everyday driving. We keep them in top shape with UK-imported parts." },
+  { title: "Mini Cooper", imageId: "Untitled_design_17_yrnkrf", description: "Iconic, compact, and full of character, Mini Cooper remains a symbol of British design and fun driving. We import used Mini Cooper parts from the UK." },
 ];
 
 // ---------- drag-to-scroll hook ----------
