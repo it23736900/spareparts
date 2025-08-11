@@ -98,11 +98,21 @@ export default function ProcessFlow() {
         `,
       }}
     >
-      {/* Heading */}
+      {/* Heading + gold underline */}
       <div className="max-w-6xl mx-auto mb-12 text-center">
         <h2 className="text-3xl font-extrabold md:text-4xl text-white">
           WE COMPLETE EVERY STEP CAREFULLY
         </h2>
+        <div
+          className="mx-auto mt-4 h-[2px] w-36 rounded-full"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(0,0,0,0), #FFD45A 20%, #D4AF37 60%, rgba(0,0,0,0))",
+            boxShadow:
+              "0 0px 12px rgba(212,175,55,0.6), 0 0 36px rgba(212,175,55,0.35)",
+            filter: "blur(0.3px)",
+          }}
+        />
       </div>
 
       {/* Grid */}

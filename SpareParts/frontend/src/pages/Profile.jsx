@@ -2,123 +2,231 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { getUser, updateUser } from "../utils/auth";
-import { useNavigate } from "react-router-dom";
 
-const GOLD = "#D4AF37";
+const COLORS = {
+  gold: "#FFD700",
+  deep: "#0B1C1F",
+  panel: "rgba(255,255,255,0.06)",
+  stroke: "rgba(255,255,255,0.10)",
+  textDim: "rgba(255,255,255,0.70)",
+  textSub: "rgba(255,255,255,0.55)",
+};
 
 export default function Profile() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(getUser());
-  const [preview, setPreview] = useState(user?.avatarUrl || "");
+  const [admin, setAdmin] = useState(null);
+  const [avatar, setAvatar] = useState("");
+  const [dirty, setDirty] = useState(false);
+  const [flip, setFlip] = useState(false);
   const fileRef = useRef(null);
 
   useEffect(() => {
-    const u = getUser();
-    if (!u) {
-      navigate("/"); // or open sign-in modal
-      return;
-    }
-    setUser(u);
-    setPreview(u.avatarUrl || "");
-  }, [navigate]);
+    const u =
+      getUser?.() || {
+        fullName: "Admin (Nicol)",
+        role: "Admin",
+        email: "admin@nicol.lk",
+        phone: "+94 7X XXX XXXX",
+        memberSince: "Jan 2024",
+        lastLogin: "2 hours ago",
+        avatarUrl: "",
+      };
+    setAdmin(u);
+    setAvatar(u.avatarUrl || "");
+  }, []);
+
+  if (!admin) return null;
 
   const pick = () => fileRef.current?.click();
 
   const onFile = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const dataUrl = await readAsDataURL(file);
-    const resized = await downscaleImage(dataUrl, 512);
-    setPreview(resized);
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (!/image\/(png|jpe?g|webp)/i.test(f.type)) return alert("Use JPG/PNG/WEBP");
+    if (f.size > 2 * 1024 * 1024) return alert("Max 2MB");
+    const dataUrl = await readAsDataURL(f);
+    const resized = await downscaleImage(dataUrl, 540);
+    setAvatar(resized);
+    setDirty(true);
   };
 
-  const onSave = () => {
-    if (!preview) return;
-    updateUser({ avatarUrl: preview }); // persists + notifies Navbar
-    setUser(getUser());
+  const onSave = async () => {
+    await Promise.resolve(updateUser?.({ ...admin, avatarUrl: avatar }));
+    setDirty(false);
   };
 
-  if (!user) return null;
+  const onCancel = () => {
+    setAvatar(admin.avatarUrl || "");
+    setDirty(false);
+    if (fileRef.current) fileRef.current.value = "";
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B1C1F] via-[#13272A] to-[#0B1C1F] text-white pt-28 px-6">
-      <motion.div
-        className="max-w-4xl p-8 mx-auto border bg-white/5 border-white/10 rounded-2xl backdrop-blur-md"
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-      >
-        {/* Header */}
-        <div className="flex items-center gap-6">
-          <div className="relative">
-            <img
-              src={preview || "/favicon.ico"}
-              alt="avatar"
-              className="object-cover border-2 rounded-full w-28 h-28"
-              style={{ borderColor: "rgba(212,175,55,0.65)", boxShadow: "0 0 28px rgba(212,175,55,0.25)" }}
-              onError={(e) => { e.currentTarget.src = "/favicon.ico"; }}
-            />
+    <div className="min-h-screen text-white">
+      {/* background */}
+      <div
+        className="fixed inset-0 -z-10 animate-[bgShift_18s_ease-in-out_infinite]"
+        style={{
+          background:
+            "radial-gradient(1200px 600px at -10% -10%, #16423A 0%, transparent 60%), radial-gradient(1200px 800px at 120% 120%, #0E3A2F 0%, transparent 60%), linear-gradient(135deg, #0B1C1F 0%, #102526 55%, #0B1C1F 100%)",
+        }}
+      />
+      <div
+        className="fixed inset-0 pointer-events-none -z-10"
+        style={{
+          background: "radial-gradient(600px 240px at 50% 0%, rgba(255,215,0,0.08), transparent 70%)",
+        }}
+      />
+      <style>{`
+        @keyframes bgShift {
+          0% { filter: hue-rotate(0deg); }
+          50% { filter: hue-rotate(-8deg); }
+          100% { filter: hue-rotate(0deg); }
+        }
+      `}</style>
+
+      {/* header */}
+      <div className="max-w-6xl px-5 pt-10 mx-auto">
+        <div
+          className="flex items-center justify-between px-5 py-4 border rounded-2xl backdrop-blur-xl"
+          style={{ background: COLORS.panel, borderColor: COLORS.stroke }}
+        >
+          <h1 className="text-2xl font-semibold">My Profile</h1>
+          <div className="flex gap-2">
             <button
-              onClick={pick}
-              className="absolute px-3 py-1 text-xs -translate-x-1/2 rounded-full -bottom-2 left-1/2 bg-emerald-700 hover:bg-emerald-600"
+              onClick={onCancel}
+              className="px-4 py-2 border rounded-lg"
+              style={{ borderColor: COLORS.stroke }}
             >
-              Change Photo
+              Cancel
             </button>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={onFile}
-            />
-          </div>
-
-          <div>
-            <h1 className="text-3xl font-bold" style={{ color: GOLD }}>
-              {user.username}
-            </h1>
-            <p className="capitalize text-white/60">Role: {user.role}</p>
+            <button
+              disabled={!dirty}
+              onClick={onSave}
+              className="px-4 py-2 font-semibold rounded-lg disabled:opacity-50"
+              style={{ background: COLORS.gold, color: COLORS.deep }}
+            >
+              Save Changes
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Info cards (extend as needed) */}
-        <div className="grid gap-6 mt-8 md:grid-cols-2">
-          <div className="bg-[#0B1C1F]/70 rounded-xl p-4 border border-white/10">
-            <p className="text-sm text-white/60">Username</p>
-            <p className="text-lg">{user.username}</p>
+      {/* body */}
+      <div className="max-w-6xl px-5 py-10 mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-[380px,1fr] gap-6">
+          {/* profile card */}
+          <div style={{ perspective: 1200 }}>
+            <motion.div
+              onClick={() => setFlip((v) => !v)}
+              className="relative border shadow-lg cursor-pointer rounded-2xl backdrop-blur-xl"
+              style={{
+                background: COLORS.panel,
+                borderColor: COLORS.stroke,
+                transformStyle: "preserve-3d",
+                minHeight: 420,
+              }}
+              animate={{ rotateY: flip ? 180 : 0 }}
+              transition={{ duration: 0.7 }}
+            >
+              {/* front */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6" style={{ backfaceVisibility: "hidden" }}>
+                <img
+                  src={avatar || "/favicon.ico"}
+                  alt="admin avatar"
+                  className="object-cover w-40 h-40 border-2 rounded-full"
+                  style={{
+                    borderColor: "rgba(255,215,0,0.65)",
+                    boxShadow: "0 0 32px rgba(255,215,0,0.22)",
+                  }}
+                />
+                <div className="mt-4 text-xl font-semibold">{admin.fullName}</div>
+                <div
+                  className="px-3 py-1 mt-2 text-xs font-medium rounded-full"
+                  style={{
+                    background: "linear-gradient(90deg, #0f9b0f, #00b09b)",
+                    color: "#fff",
+                  }}
+                >
+                  {admin.role || "Admin"}
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    pick();
+                  }}
+                  className="px-4 py-2 mt-5 border rounded-lg"
+                  style={{ borderColor: COLORS.stroke }}
+                >
+                  Change Photo
+                </button>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
+              </div>
+
+              {/* back */}
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center p-6"
+                style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}
+              >
+                <div className="mb-2 text-lg font-semibold">Profile Actions</div>
+                <div className="flex gap-3">
+                  <button
+                    disabled={!dirty}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSave();
+                    }}
+                    className="px-4 py-2 font-semibold rounded-lg disabled:opacity-50"
+                    style={{ background: COLORS.gold, color: COLORS.deep }}
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFlip(false);
+                    }}
+                    className="px-4 py-2 border rounded-lg"
+                    style={{ borderColor: COLORS.stroke }}
+                  >
+                    Back
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <div className="bg-[#0B1C1F]/70 rounded-xl p-4 border border-white/10">
-            <p className="text-sm text-white/60">Account Type</p>
-            <p className="text-lg capitalize">{user.role}</p>
+
+          {/* details */}
+          <div className="p-6 border rounded-2xl backdrop-blur-xl" style={{ background: COLORS.panel, borderColor: COLORS.stroke }}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Info label="Email" value={admin.email} />
+              <Info label="Phone" value={admin.phone} />
+              <Info label="Member Since" value={admin.memberSince} />
+              <Info label="Last Login" value={admin.lastLogin} />
+            </div>
           </div>
         </div>
-
-        {/* Actions */}
-        <div className="flex gap-4 mt-8">
-          <button
-            onClick={onSave}
-            className="px-6 py-3 font-semibold rounded-xl"
-            style={{
-              color: "#0B1C1F",
-              backgroundColor: GOLD,
-              boxShadow: "0 0 22px rgba(212,175,55,0.35)",
-            }}
-          >
-            Save Changes
-          </button>
-          <button
-            onClick={() => { setPreview(user.avatarUrl || ""); if (fileRef.current) fileRef.current.value = ""; }}
-            className="px-6 py-3 font-semibold border rounded-xl bg-white/10 border-white/10"
-          >
-            Reset
-          </button>
-        </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
 
-/* helpers */
+function Info({ label, value }) {
+  return (
+    <motion.div
+      initial={{ y: 10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.35 }}
+      className="px-3 py-2 border rounded-xl"
+      style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}
+    >
+      <div className="text-[11px] mb-0.5 uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.55)" }}>
+        {label}
+      </div>
+      <div className="text-sm">{value || "-"}</div>
+    </motion.div>
+  );
+}
+
 function readAsDataURL(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
@@ -128,18 +236,18 @@ function readAsDataURL(file) {
   });
 }
 
-function downscaleImage(dataUrl, maxSize = 512) {
+function downscaleImage(dataUrl, max = 540) {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
-      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      const scale = Math.min(1, max / Math.max(img.width, img.height));
       const w = Math.round(img.width * scale);
       const h = Math.round(img.height * scale);
       const canvas = document.createElement("canvas");
       canvas.width = w; canvas.height = h;
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL("image/jpeg", 0.85));
+      resolve(canvas.toDataURL("image/jpeg", 0.9));
     };
     img.src = dataUrl;
   });
