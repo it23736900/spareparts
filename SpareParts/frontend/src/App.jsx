@@ -12,7 +12,7 @@ import SignupModal from "./components/SignupModal";
 import FloatingWhatsAppButton from "./components/FloatingWhatsAppButton";
 import ProcessFlow from "./components/ProcessFlow";
 import TestimonialCarousel from "./components/TestimonialCarousel";
-import BackToTopButton from "./components/BackToTopButton";
+// import BackToTopButton from "./components/BackToTopButton"; // removed
 import IntroParagraph from "./components/IntroParagraph";
 import LandingScreen from "./components/LandingScreen";
 import GetQuotationForm from "./components/GetQuotationForm";
@@ -42,7 +42,7 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
       <BrandLogos onInquire={onInquire} />
       <ProcessFlow />
       <TestimonialCarousel />
-      <BackToTopButton />
+      {/* <BackToTopButton /> */} {/* removed */}
       <Footer onInquire={() => onInquire("")} />
     </>
   );
@@ -96,7 +96,6 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/profile" element={<Profile />} />
-        
           <Route path="/user" element={<UserDashboard />} />
         </Routes>
       </AnimatePresence>
