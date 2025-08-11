@@ -18,6 +18,7 @@ import LandingScreen from "./components/LandingScreen";
 import GetQuotationForm from "./components/GetQuotationForm";
 import Profile from "./pages/Profile";
 import TrackOrderSearch from "./components/TrackOrderSearch";
+import GlobeConnect from "./components/GlobeConnect";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -37,7 +38,29 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
     <>
       <Navbar onSignInClick={onSignInClick} onSignUpClick={onSignUpClick} />
       <Hero />
-      <IntroParagraph />
+
+      {/* === Globe (left) + Text block (right) — seamless === */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+          {/* Globe panel - no border, no box, transparent canvas */}
+          <div data-aos="fade-up">
+            {/* Parent controls size; globe fills it */}
+            <div className="w-full h-[320px] sm:h-[420px] md:h-[500px] lg:h-[520px] xl:h-[560px]">
+              <GlobeConnect />
+            </div>
+          </div>
+
+          {/* Text panel */}
+          <div
+            className="text-slate-100/90 leading-relaxed"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            <IntroParagraph />
+          </div>
+        </div>
+      </section>
+
       <TrackOrderSearch />
       <BrandLogos onInquire={onInquire} />
       <ProcessFlow />
@@ -96,7 +119,6 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/profile" element={<Profile />} />
-        
           <Route path="/user" element={<UserDashboard />} />
         </Routes>
       </AnimatePresence>
