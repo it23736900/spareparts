@@ -12,7 +12,6 @@ import SignupModal from "./components/SignupModal";
 import FloatingWhatsAppButton from "./components/FloatingWhatsAppButton";
 import ProcessFlow from "./components/ProcessFlow";
 import TestimonialCarousel from "./components/TestimonialCarousel";
-// import BackToTopButton from "./components/BackToTopButton"; // removed
 import IntroParagraph from "./components/IntroParagraph";
 import LandingScreen from "./components/LandingScreen";
 import GetQuotationForm from "./components/GetQuotationForm";
@@ -33,26 +32,26 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import Contact from "./pages/Contact";
 
+/* ---------------- Home page composition ---------------- */
 function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
   return (
     <>
       <Navbar onSignInClick={onSignInClick} onSignUpClick={onSignUpClick} />
       <Hero />
 
-      {/* === Globe (left) + Text block (right) — seamless === */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+      {/* Globe (transparent) + Intro text */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 bg-transparent">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-          {/* Globe panel - no border, no box, transparent canvas */}
-          <div data-aos="fade-up">
-            {/* Parent controls size; globe fills it */}
-            <div className="w-full h-[320px] sm:h-[420px] md:h-[500px] lg:h-[520px] xl:h-[560px]">
+          {/* Globe column — no background */}
+          <div data-aos="fade-up" className="globe-transparent !bg-transparent" style={{ background: "transparent" }}>
+            <div className="w-full h-[320px] sm:h-[420px] md:h-[500px] lg:h-[520px] xl:h-[560px] !bg-transparent" style={{ background: "transparent" }}>
               <GlobeConnect />
             </div>
           </div>
 
-          {/* Text panel */}
+          {/* Text column */}
           <div
-            className="text-slate-100/90 leading-relaxed"
+            className="text-soft leading-relaxed"
             data-aos="fade-up"
             data-aos-delay="100"
           >
@@ -65,18 +64,17 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
       <BrandLogos onInquire={onInquire} />
       <ProcessFlow />
       <TestimonialCarousel />
-      {/* <BackToTopButton /> */} {/* removed */}
       <Footer onInquire={() => onInquire("")} />
     </>
   );
 }
 
+/* ---------------- App root ---------------- */
 function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignupModal] = useState(false);
   const [started, setStarted] = useState(false);
 
-  // Inquiry modal state
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState("");
 
@@ -92,7 +90,8 @@ function App() {
   };
 
   return (
-    <div className="relative min-h-screen text-white bg-gradient-to-br from-black via-gray-900 to-black">
+    // ✅ Global rich dark-emerald background + soft text
+    <div className="relative min-h-screen bg-app text-soft">
       {!started && <LandingScreen onStart={() => setStarted(true)} />}
 
       <AnimatePresence mode="wait">
@@ -123,27 +122,6 @@ function App() {
         </Routes>
       </AnimatePresence>
 
-      {/* Auth modals */}
-      {showLogin && (
-        <LoginSystem
-          onClose={() => setShowLogin(false)}
-          onSwitchToSignup={() => {
-            setShowLogin(false);
-            setShowSignupModal(true);
-          }}
-        />
-      )}
-      {showSignup && (
-        <SignupModal
-          onClose={() => setShowSignupModal(false)}
-          onSwitchToLogin={() => {
-            setShowSignupModal(false);
-            setShowLogin(true);
-          }}
-        />
-      )}
-
-      {/* Shared Inquiry Modal (prefilled with selected brand) */}
       <GetQuotationForm
         isOpen={isInquiryOpen}
         onClose={() => setIsInquiryOpen(false)}

@@ -45,10 +45,16 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* 🏷️ Heading */}
-          <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight">
-            Premium Used<br />Vehicle Parts
-          </h1>
+          {/* 🏷️ Heading (Premium Used බහුලව) */}
+          <h1 className="font-bold text-white leading-[1.05] tracking-tight">
+  <span className="block whitespace-nowrap text-[clamp(2rem,8vw,5.5rem)]">
+    Premium&nbsp;Used
+  </span>
+  <span className="block text-[clamp(1.6rem,6vw,3.75rem)] text-white/90">
+    Vehicle Parts
+  </span>
+</h1>
+
 
           {/* 📦 Subheading */}
           <p className="text-lg text-emerald-300">

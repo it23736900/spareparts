@@ -35,8 +35,7 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
   const doSearch = async () => {
     if (!q.trim()) return;
     setLoading(true);
-    // If you wire a real API later, call it here and set `selected` with the response.
-    // const res = await fetch(`/api/orders/${q}`)...
+    // Wire your real API here later if needed.
     await new Promise((r) => setTimeout(r, 400)); // tiny UX delay
     const result = findByRef(q);
     setSelected(result);
@@ -46,31 +45,33 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
   };
 
   return (
-    <section
-      className="px-6 py-16 sm:py-20 bg-gradient-to-b from-transparent via-[#0E2A24]/40 to-transparent"
-      aria-label="Track your order"
-    >
-      <div className="max-w-4xl mx-auto text-center">
+    <section className="px-6 py-16 sm:py-20 bg-transparent" aria-label="Track your order">
+      <div className="max-w-4xl mx-auto text-center text-soft">
         <h2 className="text-3xl font-extrabold md:text-4xl" style={{ color: GOLD }}>
           Track Your Order
         </h2>
 
         {/* subtle gold divider */}
-        <div className="h-[2px] w-48 mx-auto my-4 rounded-full"
-             style={{ background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.9), transparent)" }} />
+        <div
+          className="h-[2px] w-48 mx-auto my-4 rounded-full"
+          style={{ background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.9), transparent)" }}
+        />
 
         {/* Input group */}
         <div className="relative max-w-2xl mx-auto mt-6">
-          <div className="absolute -inset-1 rounded-2xl blur-xl opacity-70"
-               style={{ background: "radial-gradient(50% 60% at 50% 0%, rgba(16,94,66,0.35), transparent 70%)" }} />
-          <div className="relative flex items-center gap-2 p-2 border rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl">
+          {/* soft emerald aura */}
+          <div
+            className="absolute -inset-1 rounded-2xl blur-xl opacity-70"
+            style={{ background: "radial-gradient(50% 60% at 50% 0%, rgba(16,94,66,0.35), transparent 70%)" }}
+          />
+          <div className="relative flex items-center gap-2 p-2 border rounded-2xl border-white/10 bg-card backdrop-blur-xl">
             <FaSearch className="ml-2 shrink-0 text-white/70" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && doSearch()}
               placeholder="Search to track your order (Enter your reference number)"
-              className="w-full px-2 py-3 text-white bg-transparent outline-none placeholder-white/50"
+              className="w-full px-2 py-3 text-soft bg-transparent outline-none placeholder-white/50"
             />
             <button
               onClick={doSearch}
@@ -105,7 +106,7 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
               transition={{ duration: 0.35 }}
               className="max-w-2xl mx-auto mt-10"
             >
-              <div className="p-6 text-left border rounded-2xl border-white/10 bg-white/5 backdrop-blur-md">
+              <div className="p-6 text-left border rounded-2xl border-white/10 bg-card backdrop-blur-md">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <FaBoxOpen className="text-white/80" />
@@ -125,7 +126,7 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
                     <FaUser className="text-white/70" />
                     <div>
                       <p className="text-sm text-white/60">Name</p>
-                      <p className="text-white">{selected.name}</p>
+                      <p className="text-soft">{selected.name}</p>
                     </div>
                   </div>
 
@@ -133,7 +134,7 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
                     <FaAt className="text-white/70" />
                     <div>
                       <p className="text-sm text-white/60">Email</p>
-                      <p className="text-white">{selected.email}</p>
+                      <p className="text-soft">{selected.email}</p>
                     </div>
                   </div>
 
@@ -141,7 +142,7 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
                     <FaInfoCircle className="text-white/70" />
                     <div>
                       <p className="text-sm text-white/60">Item</p>
-                      <p className="text-white">{selected.item}</p>
+                      <p className="text-soft">{selected.item}</p>
                     </div>
                   </div>
                 </div>

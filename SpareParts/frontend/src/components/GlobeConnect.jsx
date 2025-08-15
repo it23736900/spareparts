@@ -33,13 +33,13 @@ export default function GlobeConnect({ className = "" }) {
     [places]
   );
 
-  // Controls & renderer setup
+  // Controls + renderer
   useEffect(() => {
     const g = globeRef.current;
     if (!g) return;
 
     const controls = g.controls();
-    controls.enableZoom = false;   // no zoom → fixed size
+    controls.enableZoom = false;
     controls.enablePan = false;
     controls.enableRotate = true;
     controls.autoRotate = true;
@@ -47,14 +47,16 @@ export default function GlobeConnect({ className = "" }) {
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
 
-    // Make canvas background transparent (so it blends with the section)
-    g.renderer().setClearColor(0x000000, 0); // alpha = 0
-    g.renderer().domElement.style.background = "transparent";
+    // Transparent so background shows through
+    const r = g.renderer();
+    r.setClearColor(0x000000, 0); // fully transparent
+    r.setClearAlpha?.(0);
+    r.domElement.style.background = "transparent";
     g.scene().fog = null;
-    g.renderer().setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+    r.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
   }, []);
 
-  // Resize → set width/height + fit camera
+  // Resize → sync width/height + camera
   useEffect(() => {
     const wrap = wrapRef.current;
     const g = globeRef.current;
@@ -62,33 +64,38 @@ export default function GlobeConnect({ className = "" }) {
 
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
-      setSize({ w: Math.max(1, width | 0), h: Math.max(1, height | 0) });
-      const minSide = Math.min(width, height);
-      g.pointOfView({ lat: 25, lng: 25, altitude: fitAltitude(minSide) }, 200);
+      const w = Math.max(1, width | 0);
+      const h = Math.max(1, height | 0);
+      setSize({ w, h });
+      g.pointOfView({ lat: 25, lng: 25, altitude: fitAltitude(Math.min(w, h)) }, 200);
     });
     ro.observe(wrap);
 
-    // run once immediately
+    // Initial run
     const rect = wrap.getBoundingClientRect();
-    setSize({ w: Math.max(1, rect.width | 0), h: Math.max(1, rect.height | 0) });
-    g.pointOfView({ lat: 25, lng: 25, altitude: fitAltitude(Math.min(rect.width, rect.height)) }, 0);
+    const w = Math.max(1, rect.width | 0);
+    const h = Math.max(1, rect.height | 0);
+    setSize({ w, h });
+    g.pointOfView({ lat: 25, lng: 25, altitude: fitAltitude(Math.min(w, h)) }, 0);
 
     return () => ro.disconnect();
   }, []);
 
   return (
-    <div ref={wrapRef} className={`relative w-full h-full ${className}`}>
+    <div
+      className={`relative w-full h-full bg-app ${className}`}
+      ref={wrapRef}
+    >
       <Suspense fallback={<div className="grid place-items-center h-full text-white/70">Loading globe…</div>}>
         <Globe
           ref={globeRef}
           width={size.w}
           height={size.h}
-          rendererConfig={{ alpha: true, antialias: true }}  // ← allow transparency
+          rendererConfig={{ alpha: true, antialias: true, premultipliedAlpha: true }}
           globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
           bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
-          backgroundImageUrl={null}
+          backgroundImageUrl={null} // no space background
 
-          // labels
           labelsData={places}
           labelText="name"
           labelLat="lat"
@@ -98,7 +105,6 @@ export default function GlobeConnect({ className = "" }) {
           labelColor={() => "rgba(255,255,255,0.9)"}
           labelResolution={2}
 
-          // rings
           ringsData={places}
           ringLat="lat"
           ringLng="lng"
@@ -107,7 +113,6 @@ export default function GlobeConnect({ className = "" }) {
           ringPropagationSpeed={1}
           ringRepeatPeriod={1200}
 
-          // arcs
           arcsData={arcs}
           arcColor={(d) => d.color}
           arcAltitude={() => 0.2}

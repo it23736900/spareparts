@@ -17,7 +17,14 @@
   --gold-border: rgba(212, 175, 55, 0.55);
 
   --text-soft: #E6E6E0;      /* warm light (not pure white) */
+
+  /* App bg tokens (used for canvas helpers) */
+  --app-bg-top: #081614;
+  --app-bg-bottom: #020A12;
 }
+
+/* Make sure the root doesn’t override our app bg */
+html, body, #root { background: transparent; }
 
 /* =============================
    Autofill override (Chrome/Safari/Firefox)
@@ -80,32 +87,21 @@ select:-moz-autofill {
 }
 
 /* Underline-on-hover utility for nav links (if you’re not using Framer Motion) */
-.nav-link {
-  position: relative;
-}
+.nav-link { position: relative; }
 .nav-link::after {
   content: "";
   position: absolute;
-  left: 0;
-  bottom: -4px;
-  height: 2px;
-  width: 0;
+  left: 0; bottom: -4px;
+  height: 2px; width: 0;
   background: linear-gradient(90deg, var(--gold), var(--gold-2));
   transition: width 300ms ease;
   border-radius: 999px;
 }
-.nav-link:hover::after {
-  width: 100%;
-}
+.nav-link:hover::after { width: 100%; }
 
 /* Optional: minimal dark scrollbar that fits the theme */
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
   background: rgba(16, 42, 39, 0.85);
   border: 2px solid rgba(11, 28, 31, 0.7);
@@ -113,25 +109,21 @@ select:-moz-autofill {
 }
 
 /* =============================
-   Your existing marquee animations
+   Marquee animations
    ============================= */
 @keyframes scrollInline {
-  0%   { transform: translateX(0%); }
+  0% { transform: translateX(0%); }
   100% { transform: translateX(-33.33%); }
 }
 @keyframes scrollReverse {
-  0%   { transform: translateX(-33.33%); }
+  0% { transform: translateX(-33.33%); }
   100% { transform: translateX(0%); }
 }
-.animate-scrollInline {
-  animation: scrollInline 60s linear infinite;
-}
-.animate-scrollReverse {
-  animation: scrollReverse 60s linear infinite;
-}
+.animate-scrollInline { animation: scrollInline 60s linear infinite; }
+.animate-scrollReverse { animation: scrollReverse 60s linear infinite; }
 
 /* =============================
-   Flip / 3D helpers (kept)
+   Flip / 3D helpers
    ============================= */
 .perspective { perspective: 1000px; }
 .preserve-3d { transform-style: preserve-3d; }
@@ -139,29 +131,61 @@ select:-moz-autofill {
 .backface-hidden { backface-visibility: hidden; }
 
 /* =============================
-   Small drop-down slide animation (used by mobile nav)
+   Small drop-down slide animation
    ============================= */
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.animate-slideDown {
-  animation: slideDown .25s ease forwards;
-}
+.animate-slideDown { animation: slideDown .25s ease forwards; }
 
-@keyframes arrowShimmer { 
-  0% { opacity: .6; } 
-  50% { opacity: 1; } 
-  100% { opacity: .6; } 
-}
-@keyframes arrowShimmerY { 
-  0% { opacity: .6; } 
-  50% { opacity: 1; } 
-  100% { opacity: .6; } 
-}
+@keyframes arrowShimmer { 0% {opacity:.6;} 50% {opacity:1;} 100% {opacity:.6;} }
+@keyframes arrowShimmerY { 0% {opacity:.6;} 50% {opacity:1;} 100% {opacity:.6;} }
 .animate-arrowShimmer { animation: arrowShimmer 2.2s ease-in-out infinite; }
 .animate-arrowShimmerY { animation: arrowShimmerY 2.2s ease-in-out infinite; }
 
-/* index.css */
+/* Hide custom scrollbars when needed */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* =============================
+   Globe background controls
+   ============================= */
+
+/* 1) Relaxed: keep only wrapper transparent so the canvas can own its bg */
+.globe-transparent { background: transparent !important; }
+
+/* 2) Give the canvas a SOLID site color */
+.globe-has-solid-bg canvas {
+  background: var(--app-bg-top) !important;
+}
+
+/* 3) Or give the canvas the full site GRADIENT */
+.globe-has-gradient-bg canvas {
+  background:
+    radial-gradient(70% 55% at 50% 0%, var(--emerald-900) 0%, transparent 60%),
+    linear-gradient(180deg, var(--app-bg-top) 0%, var(--app-bg-bottom) 100%) !important;
+  background-attachment: fixed;
+}
+
+/* =========================================================
+   Shared site background + helpers
+   ========================================================= */
+@layer utilities {
+  /* One shared rich background for the whole site */
+  .bg-app {
+    background:
+      radial-gradient(70% 55% at 50% 0%, var(--emerald-900) 0%, transparent 60%),
+      linear-gradient(180deg, var(--app-bg-top) 0%, var(--app-bg-bottom) 100%);
+    background-attachment: fixed; /* prevents zooming effect on scroll */
+    color-scheme: dark;
+  }
+
+  /* Reusable glass card surface (for cards/panels) */
+  .bg-card {
+    background: linear-gradient(180deg, rgba(9,20,26,0.92), rgba(6,16,22,0.92));
+  }
+
+  /* Soft light text color to match theme */
+  .text-soft { color: var(--text-soft); }
+}

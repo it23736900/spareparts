@@ -8,7 +8,7 @@ const Highlight = ({ children }) => (
 
 const IntroParagraph = () => {
   return (
-    <section className="px-6 py-16 max-w-6xl mx-auto text-white space-y-10">
+    <section className="px-6 py-16 max-w-6xl mx-auto text-soft space-y-10 bg-transparent">
       {/* 🔧 Paragraph 1 */}
       <div className="flex items-start gap-4">
         <FaCogs className="text-yellow-400 text-3xl mt-1" />

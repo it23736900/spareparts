@@ -1,9 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-/* Theme */
-const BASE_GREEN = "#105E42";      // deep elegant green
-const ACCENT_GREEN = "#17A77A";    // brighter emerald for titles/icons
+/* Theme accent */
+const ACCENT_GREEN = "#17A77A";
 
 /* Animation */
 const fadeUp = {
@@ -15,7 +14,7 @@ const fadeUp = {
   }),
 };
 
-/* Icons (slightly brighter green + subtle glow for visibility) */
+/* Icons with subtle glow */
 const iconStyle = {
   stroke: ACCENT_GREEN,
   strokeWidth: 1.7,
@@ -72,44 +71,25 @@ const Icon = {
 };
 
 const steps = [
-  { icon: <Icon.Image />,     title: "Submit Your Inquiry",
-    desc: "Share the details of the necessary spare parts with us." },
-  { icon: <Icon.Headset />,   title: "We Get in Touch",
-    desc: "Our team reviews your request and contacts you within a working day to confirm additional details." },
-  { icon: <Icon.Check />,     title: "Receive a Quotation",
-    desc: "We provide a detailed quote based on your request." },
-  { icon: <Icon.HandMoney />, title: "Advance Payment",
-    desc: "Make an initial payment to begin processing." },
-  { icon: <Icon.Truck />,     title: "Logistics Coordination",
-    desc: "We arrange safe and efficient import from the UK." },
-  { icon: <Icon.BoxCheck />,  title: "Parts Delivered",
-    desc: "Receive your spare parts quickly and securely (typically 3–4 days)." },
+  { icon: <Icon.Image />,     title: "Submit Your Inquiry",  desc: "Share the details of the necessary spare parts with us." },
+  { icon: <Icon.Headset />,   title: "We Get in Touch",      desc: "Our team reviews your request and contacts you within a working day to confirm additional details." },
+  { icon: <Icon.Check />,     title: "Receive a Quotation",  desc: "We provide a detailed quote based on your request." },
+  { icon: <Icon.HandMoney />, title: "Advance Payment",      desc: "Make an initial payment to begin processing." },
+  { icon: <Icon.Truck />,     title: "Logistics Coordination", desc: "We arrange safe and efficient import from the UK." },
+  { icon: <Icon.BoxCheck />,  title: "Parts Delivered",      desc: "Receive your spare parts quickly and securely (typically 3–4 days)." },
 ];
 
 export default function ProcessFlow() {
   return (
-    <section
-      className="relative px-6 py-16 sm:py-20"
-      style={{
-        /* dark navy base with subtle green tint to match testimonials */
-        background: `
-          radial-gradient(60% 40% at 50% 0%, rgba(16,94,66,0.16), transparent 60%),
-          linear-gradient(180deg, #020A12 0%, #061826 100%)
-        `,
-      }}
-    >
+    <section className="relative px-6 py-16 sm:py-20 bg-transparent">
       {/* Heading + gold underline */}
       <div className="max-w-6xl mx-auto mb-12 text-center">
-        <h2 className="text-3xl font-extrabold md:text-4xl text-white">
-          WE COMPLETE EVERY STEP CAREFULLY
-        </h2>
+        <h2 className="text-3xl font-extrabold md:text-4xl text-white">WE COMPLETE EVERY STEP CAREFULLY</h2>
         <div
           className="mx-auto mt-4 h-[2px] w-36 rounded-full"
           style={{
-            background:
-              "linear-gradient(90deg, rgba(0,0,0,0), #FFD45A 20%, #D4AF37 60%, rgba(0,0,0,0))",
-            boxShadow:
-              "0 0px 12px rgba(212,175,55,0.6), 0 0 36px rgba(212,175,55,0.35)",
+            background: "linear-gradient(90deg, rgba(0,0,0,0), #FFD45A 20%, #D4AF37 60%, rgba(0,0,0,0))",
+            boxShadow: "0 0px 12px rgba(212,175,55,0.6), 0 0 36px rgba(212,175,55,0.35)",
             filter: "blur(0.3px)",
           }}
         />
@@ -127,33 +107,16 @@ export default function ProcessFlow() {
             viewport={{ once: true, amount: 0.35 }}
             className="relative"
           >
-            {/* Card — dark glass with soft green wash (NOT full green) */}
+            {/* Card — unified glass surface */}
             <div
-              className="
-                group relative mx-auto pt-10 text-center rounded-2xl border
-                transition-transform hover:scale-[1.02]
-                backdrop-blur-[4px] hover:backdrop-blur-[8px]
-              "
-              style={{
-                maxWidth: 420,
-                background: `
-                  radial-gradient(120% 90% at 20% 10%, rgba(23,167,122,0.10), transparent 55%),
-                  radial-gradient(120% 90% at 80% 90%, rgba(16,94,66,0.10), transparent 55%),
-                  linear-gradient(180deg, rgba(9,20,26,0.92), rgba(6,16,22,0.92))
-                `,
-                borderColor: "rgba(23,167,122,0.35)",
-                boxShadow: "0 14px 34px rgba(0,0,0,0.45)",
-              }}
+              className="group relative mx-auto pt-10 text-center rounded-2xl border bg-card transition-transform hover:scale-[1.02] backdrop-blur-[4px] hover:backdrop-blur-[8px]"
+              style={{ maxWidth: 420, borderColor: "rgba(23,167,122,0.35)", boxShadow: "0 14px 34px rgba(0,0,0,0.45)" }}
             >
               <div className="inline-block mb-4">{s.icon}</div>
 
-              {/* Title — brighter emerald + subtle glow for readability */}
               <h3
                 className="text-2xl md:text-[28px] font-extrabold"
-                style={{
-                  color: ACCENT_GREEN,
-                  textShadow: "0 0 10px rgba(23,167,122,0.28)",
-                }}
+                style={{ color: ACCENT_GREEN, textShadow: "0 0 10px rgba(23,167,122,0.28)" }}
               >
                 {s.title}
               </h3>
@@ -162,11 +125,7 @@ export default function ProcessFlow() {
                 {s.desc}
               </p>
 
-              {/* Hover sheen (green, very subtle) */}
-              <span
-                className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition"
-                style={{ boxShadow: "0 0 32px 6px rgba(23,167,122,0.18)" }}
-              />
+              <span className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition" style={{ boxShadow: "0 0 32px 6px rgba(23,167,122,0.18)" }} />
             </div>
           </motion.div>
         ))}
