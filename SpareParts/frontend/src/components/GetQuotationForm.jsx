@@ -1,14 +1,33 @@
 import { useEffect, useState, useRef } from "react";
 
-// Palette
-const GOLD = "#D4AF37";          // soft luxury gold
-const GOLD_BORDER = "rgba(212,175,55,0.55)";
-const EMERALD_900 = "#0B1C1F";    // deep background
-const EMERALD_800 = "#0E2A24";
-const EMERALD_700 = "#102A27";    // input bg (kept for consistency)
-const EMERALD_GRAD_1 = "#0D3D34"; // button gradient start
-const EMERALD_GRAD_2 = "#145C4B"; // button gradient end
-const TEXT_SOFT = "#E6E6E0";      // warm light text (not pure white)
+/* ===== Palette (luxury dark-green + metallic gold) ===== */
+const GOLD = "#D4AF37";                 // true metallic gold
+const GOLD_SOFT = "rgba(212,175,55,0.65)";
+const GOLD_BORDER = "rgba(212,175,55,0.45)";
+const TEXT_SOFT = "#E6E6E0";
+
+/* Metallic dark-green surfaces */
+const METALLIC_GREEN = `
+  linear-gradient(
+    135deg,
+    rgba(3,8,6,0.98) 0%,
+    rgba(8,20,15,0.96) 45%,
+    rgba(3,8,6,0.98) 100%
+  )
+`;
+const METALLIC_GREEN_SOFT = `
+  linear-gradient(
+    135deg,
+    rgba(5,14,11,0.92) 0%,
+    rgba(10,26,20,0.90) 45%,
+    rgba(5,14,11,0.92) 100%
+  )
+`;
+
+const INPUT_BG = "rgba(10,26,20,0.92)";
+const INPUT_BORDER = "rgba(35,72,58,0.65)";
+const INPUT_BORDER_FOCUS = GOLD_SOFT;
+const INPUT_RING = "0 0 0 4px rgba(212,175,55,0.12)";
 
 const vehicleOptions = [
   "Range Rover",
@@ -30,7 +49,7 @@ const vehicleOptions = [
 export default function GetQuotationForm({
   isOpen = false,
   onClose = () => {},
-  prefill = {}, // e.g., { brand: "Audi" }
+  prefill = {},
 }) {
   const [form, setForm] = useState({
     fullName: "",
@@ -117,9 +136,7 @@ export default function GetQuotationForm({
   };
 
   const inputBase =
-    "w-full p-4 rounded-xl text-base transition backdrop-blur-sm border focus:outline-none placeholder-gray-400";
-  const inputTheme =
-    "bg-[#102A27] border-[#2A4F47] focus:ring-2 focus:ring-[rgba(212,175,55,0.55)] focus:border-[rgba(212,175,55,0.65)]";
+    "w-full p-4 rounded-lg text-base transition shadow-sm placeholder-gray-400 focus:outline-none";
   const textSoft = { color: TEXT_SOFT };
 
   if (!isOpen) return null;
@@ -131,36 +148,64 @@ export default function GetQuotationForm({
       aria-modal="true"
       role="dialog"
     >
-      {/* overlay */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      {/* Backdrop with gold-tinted vignette */}
+      <div
+        className="absolute inset-0 backdrop-blur-sm"
+        style={{
+          background:
+            "radial-gradient(60% 35% at 50% 0%, rgba(212,175,55,0.08), transparent 60%), rgba(0,0,0,0.72)",
+        }}
+      />
 
-      {/* modal card */}
+      {/* Modal Card */}
       <div
         ref={modalRef}
         onMouseDown={(e) => e.stopPropagation()}
         className="
           relative w-full max-w-lg sm:max-w-xl rounded-2xl p-5 sm:p-6 border
-          shadow-[0_0_60px_-18px_rgba(16,94,66,0.55)]
-          animate-[fadeIn_.2s_ease]
+          shadow-[0_10px_60px_-10px_rgba(0,0,0,0.75)]
         "
-        style={{ backgroundColor: `${EMERALD_800}B3`, borderColor: "rgba(27,77,67,0.4)" }}
+        style={{
+          background: METALLIC_GREEN,
+          borderColor: GOLD_BORDER,
+          boxShadow:
+            "0 0 0 1px rgba(255,255,255,0.04) inset, 0 30px 80px rgba(0,0,0,0.55)",
+        }}
       >
+        {/* Top gold accent hairline */}
+        <div
+          className="absolute left-4 right-4 top-0 h-[2px] rounded-full"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(212,175,55,0.85), transparent)",
+            transform: "translateY(-1px)",
+          }}
+        />
+
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-white/80 hover:text-white text-2xl leading-none"
+          className="absolute text-2xl leading-none text-white/80 hover:text-white"
           aria-label="Close"
           type="button"
+          style={{ top: 12, right: 16 }}
         >
           ×
         </button>
 
         {/* Header */}
-        <div className="text-center mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2" style={{ color: GOLD }}>
+        <div className="mb-6 text-center sm:mb-8">
+          <h2
+            className="mb-2 text-2xl font-extrabold tracking-tight sm:text-3xl"
+            style={{
+              color: GOLD,
+              textShadow: "0 0 16px rgba(212,175,55,0.25)",
+              letterSpacing: "0.02em",
+            }}
+          >
             Parts Inquiry Form
           </h2>
-          <p className="text-xs sm:text-sm" style={{ color: "rgba(230,230,224,0.75)" }}>
+          <p className="text-xs sm:text-sm" style={{ color: "rgba(230,230,224,0.78)" }}>
             Tell us about your vehicle and requirements
           </p>
         </div>
@@ -168,46 +213,96 @@ export default function GetQuotationForm({
         {/* Body */}
         {successCode ? (
           <div
-            className="rounded-2xl p-6 sm:p-8 text-center flex flex-col items-center backdrop-blur-sm shadow-[0_12px_40px_-20px_rgba(0,0,0,0.8)]"
-            style={{ backgroundColor: `${EMERALD_800}B3`, border: `1px solid rgba(27,77,67,0.4)` }}
+            className="flex flex-col items-center p-6 text-center rounded-xl sm:p-7"
+            style={{
+              background: METALLIC_GREEN_SOFT,
+              border: `1px solid ${GOLD_BORDER}`,
+              boxShadow:
+                "inset 0 0 24px rgba(255,255,255,0.04), 0 16px 60px rgba(0,0,0,0.6)",
+            }}
           >
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
-              style={{ backgroundColor: "rgba(212,175,55,0.12)", border: `1px solid ${GOLD_BORDER}` }}
+              className="flex items-center justify-center w-16 h-16 mb-5 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle at 30% 30%, rgba(212,175,55,0.18), rgba(10,26,20,0.85))",
+                border: `1px solid ${GOLD_BORDER}`,
+                boxShadow: "0 0 22px rgba(212,175,55,0.28)",
+              }}
             >
-              <svg className="w-8 h-8" style={{ color: GOLD }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-8 h-8"
+                style={{ color: GOLD }}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-bold mb-3" style={textSoft}>
+            <h3 className="mb-3 text-xl font-bold sm:text-2xl" style={textSoft}>
               Inquiry Submitted Successfully!
             </h3>
-            <p className="text-sm sm:text-base mb-6" style={{ color: "rgba(230,230,224,0.8)" }}>
+            <p className="mb-6 text-sm sm:text-base" style={{ color: "rgba(230,230,224,0.85)" }}>
               Thank you for reaching out to us. Your inquiry has been received and we'll get back to you within 24 hours.
             </p>
 
-            <div className="rounded-xl p-4 mb-5 w-full max-w-sm" style={{ backgroundColor: `${EMERALD_900}B3`, border: `1px solid ${GOLD_BORDER}` }}>
+            <div
+              className="w-full max-w-sm p-4 mb-5 rounded-xl"
+              style={{
+                background: METALLIC_GREEN_SOFT,
+                border: `1px solid ${GOLD_BORDER}`,
+              }}
+            >
               <div className="flex items-center justify-center mb-2">
-                <svg className="w-5 h-5 mr-2" style={{ color: GOLD }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  style={{ color: GOLD }}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <span className="font-semibold text-sm" style={{ color: GOLD }}>Email Confirmation Sent</span>
+                <span className="text-sm font-semibold" style={{ color: GOLD }}>
+                  Email Confirmation Sent
+                </span>
               </div>
-              <p className="text-xs" style={{ color: "rgba(230,230,224,0.75)" }}>
+              <p className="text-xs" style={{ color: "rgba(230,230,224,0.8)" }}>
                 A confirmation email with your reference number has been sent to{" "}
-                <span className="font-semibold" style={{ color: GOLD }}>{submittedEmail}</span>.
+                <span className="font-semibold" style={{ color: GOLD }}>
+                  {submittedEmail}
+                </span>.
               </p>
             </div>
 
-            <div className="rounded-xl px-6 py-4 mt-1 mb-4 w-full max-w-xs" style={{ backgroundColor: `${EMERALD_900}B3`, border: "1px solid rgba(27,77,67,0.5)" }}>
-              <span className="block font-semibold text-sm mb-1" style={{ color: GOLD }}>Your Reference Code:</span>
-              <span className="font-bold text-xl tracking-wider" style={textSoft}>{successCode}</span>
+            <div
+              className="w-full max-w-xs px-6 py-4 mt-1 mb-4 rounded-xl"
+              style={{
+                background: "rgba(6,16,12,0.92)",
+                border: "1px solid rgba(27,77,67,0.5)",
+              }}
+            >
+              <span className="block mb-1 text-sm font-semibold" style={{ color: GOLD }}>
+                Your Reference Code:
+              </span>
+              <span className="text-xl font-bold tracking-wider" style={textSoft}>
+                {successCode}
+              </span>
             </div>
 
-            <div className="mt-2 p-4 rounded-xl" style={{ backgroundColor: `${EMERALD_800}80`, border: "1px solid rgba(27,77,67,0.4)" }}>
-              <h4 className="font-semibold text-sm mb-2" style={{ color: GOLD }}>What happens next?</h4>
-              <ul className="text-xs space-y-1 text-left" style={{ color: "rgba(230,230,224,0.8)" }}>
+            <div
+              className="p-4 mt-2 rounded-xl"
+              style={{
+                background: "rgba(10,26,20,0.75)",
+                border: "1px solid rgba(27,77,67,0.4)",
+              }}
+            >
+              <h4 className="mb-2 text-sm font-semibold" style={{ color: GOLD }}>
+                What happens next?
+              </h4>
+              <ul className="space-y-1 text-xs text-left" style={{ color: "rgba(230,230,224,0.85)" }}>
                 <li>• Our team will review your inquiry within 24 hours</li>
                 <li>• You'll receive a detailed quote via email</li>
                 <li>• We'll contact you to discuss further details</li>
@@ -218,24 +313,41 @@ export default function GetQuotationForm({
           <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
             {/* Full Name */}
             <div>
-              <label htmlFor="fullName" className="block text-sm font-semibold mb-2" style={{ color: GOLD }}>
+              <label
+                htmlFor="fullName"
+                className="block mb-2 text-sm font-semibold"
+                style={{ color: GOLD }}
+              >
                 Full Name
               </label>
               <input
                 id="fullName"
                 name="fullName"
                 placeholder="Enter your full name"
-                className={`${inputBase} ${inputTheme}`}
+                className={`${inputBase}`}
                 value={form.fullName}
                 onChange={handleChange}
-                style={textSoft}
+                style={{
+                  ...textSoft,
+                  background: INPUT_BG,
+                  border: `1px solid ${INPUT_BORDER}`,
+                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
+                  e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER;
+                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                }}
                 ref={firstFieldRef}
               />
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold mb-2" style={{ color: GOLD }}>
+              <label htmlFor="email" className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
                 Email
               </label>
               <input
@@ -243,47 +355,87 @@ export default function GetQuotationForm({
                 name="email"
                 type="email"
                 placeholder="Enter your email"
-                className={`${inputBase} ${inputTheme}`}
+                className={`${inputBase}`}
                 value={form.email}
                 onChange={handleChange}
-                style={textSoft}
+                style={{
+                  ...textSoft,
+                  background: INPUT_BG,
+                  border: `1px solid ${INPUT_BORDER}`,
+                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
+                  e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER;
+                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                }}
               />
             </div>
 
             {/* Phone */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-semibold mb-2" style={{ color: GOLD }}>
+              <label htmlFor="phone" className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
                 Phone
               </label>
               <input
                 id="phone"
                 name="phone"
                 placeholder="Enter your phone number"
-                className={`${inputBase} ${inputTheme}`}
+                className={`${inputBase}`}
                 value={form.phone}
                 onChange={handleChange}
-                style={textSoft}
+                style={{
+                  ...textSoft,
+                  background: INPUT_BG,
+                  border: `1px solid ${INPUT_BORDER}`,
+                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
+                  e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER;
+                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                }}
               />
             </div>
 
             {/* Vehicle Brand */}
             <div>
-              <label htmlFor="vehicleBrand" className="block text-sm font-semibold mb-2" style={{ color: GOLD }}>
+              <label htmlFor="vehicleBrand" className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
                 Vehicle Brand
               </label>
               <select
                 id="vehicleBrand"
                 name="vehicleBrand"
-                className={`${inputBase} ${inputTheme}`}
+                className={`${inputBase}`}
                 value={form.vehicleBrand}
                 onChange={handleChange}
-                style={textSoft}
+                style={{
+                  ...textSoft,
+                  background: INPUT_BG,
+                  border: `1px solid ${INPUT_BORDER}`,
+                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+                  appearance: "none",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
+                  e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER;
+                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                }}
               >
-                <option value="" className="bg-[#102A27]" style={textSoft}>
+                <option value="" style={{ background: INPUT_BG, color: TEXT_SOFT }}>
                   Select Vehicle Brand
                 </option>
                 {vehicleOptions.map((brand, idx) => (
-                  <option key={idx} value={brand} className="bg-[#102A27]" style={textSoft}>
+                  <option key={idx} value={brand} style={{ background: INPUT_BG, color: TEXT_SOFT }}>
                     {brand}
                   </option>
                 ))}
@@ -294,37 +446,63 @@ export default function GetQuotationForm({
                   type="text"
                   name="customBrand"
                   placeholder="Enter your vehicle brand/model"
-                  className={`mt-3 ${inputBase} ${inputTheme}`}
+                  className={`${inputBase} mt-3`}
                   value={form.customBrand}
                   onChange={handleChange}
-                  style={textSoft}
+                  style={{
+                    ...textSoft,
+                    background: INPUT_BG,
+                    border: `1px solid ${INPUT_BORDER}`,
+                    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
+                    e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = INPUT_BORDER;
+                    e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                  }}
                 />
               )}
             </div>
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="block text-sm font-semibold mb-2" style={{ color: GOLD }}>
+              <label htmlFor="description" className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
                 Description
               </label>
               <textarea
                 id="description"
                 name="description"
                 placeholder="Describe your inquiry"
-                className={`${inputBase} ${inputTheme} min-h-[100px] resize-none`}
+                className={`${inputBase} min-h-[110px] resize-none`}
                 value={form.description}
                 onChange={handleChange}
-                style={textSoft}
+                style={{
+                  ...textSoft,
+                  background: INPUT_BG,
+                  border: `1px solid ${INPUT_BORDER}`,
+                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
+                  e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = INPUT_BORDER;
+                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                }}
               />
             </div>
 
             {/* Error */}
             {error && (
               <p
-                className="rounded-xl p-4 text-center backdrop-blur-sm"
+                className="p-4 text-center rounded-lg"
                 style={{
                   color: "rgba(255,120,120,0.9)",
-                  backgroundColor: "rgba(60,10,10,0.25)",
+                  background: "rgba(60,10,10,0.25)",
                   border: "1px solid rgba(255,120,120,0.35)",
                 }}
               >
@@ -332,24 +510,32 @@ export default function GetQuotationForm({
               </p>
             )}
 
-            {/* Submit */}
+            {/* Submit — Square, metallic, premium */}
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition 
-                          focus:outline-none focus:ring-2 
-                          ${loading ? "shadow-[0_0_26px_10px_rgba(20,92,75,0.35)]" : "hover:shadow-[0_0_30px_10px_rgba(20,92,75,0.35)]"}`}
+              className="w-full py-4 text-lg font-bold transition transform rounded-lg focus:outline-none"
               style={{
                 color: GOLD,
-                backgroundImage: `linear-gradient(90deg, ${EMERALD_GRAD_1}, ${EMERALD_GRAD_2})`,
-                boxShadow: loading ? "0 0 26px 10px rgba(20,92,75,0.35)" : undefined,
-                border: `1px solid rgba(27,77,67,0.45)`,
+                background: METALLIC_GREEN,
+                border: `1.5px solid ${GOLD_BORDER}`,
                 letterSpacing: "0.02em",
+                boxShadow: loading
+                  ? "0 0 26px 10px rgba(20,92,75,0.35), inset 0 0 28px rgba(212,175,55,0.18)"
+                  : "0 12px 26px rgba(0,0,0,0.45), inset 0 0 18px rgba(212,175,55,0.14)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow =
+                  "0 14px 30px rgba(0,0,0,0.55), 0 0 24px rgba(212,175,55,0.28), inset 0 0 22px rgba(212,175,55,0.22)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow =
+                  "0 12px 26px rgba(0,0,0,0.45), inset 0 0 18px rgba(212,175,55,0.14)";
               }}
             >
               {loading ? (
                 <span className="flex items-center justify-center" style={{ color: GOLD }}>
-                  <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke={GOLD} strokeWidth="4"></circle>
                     <path className="opacity-75" fill={GOLD} d="M4 12a8 8 0 018-8v8z"></path>
                   </svg>

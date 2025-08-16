@@ -9,11 +9,30 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
+// Metallic dark-green gradient
+const METALLIC_GREEN = `
+  linear-gradient(
+    135deg,
+    rgba(3,8,6,0.97) 0%,
+    rgba(8,20,15,0.95) 45%,
+    rgba(3,8,6,0.97) 100%
+  )
+`;
+
 export default function Footer({ onInquire }) {
   return (
-    <footer className="bg-gradient-to-br from-black via-[#0B1C1F] to-black text-white py-8 px-6 border-t border-emerald-600/20 relative overflow-hidden">
+    <footer
+      className="relative px-6 py-8 overflow-hidden text-white border-t"
+      style={{
+        background: METALLIC_GREEN,
+        borderColor: "rgba(212,175,55,0.5)", // subtle gold divider at top
+      }}
+    >
       {/* Main Grid */}
-      <div className="grid max-w-6xl gap-6 pb-6 mx-auto border-b border-gray-700 md:grid-cols-4">
+      <div
+        className="grid max-w-6xl gap-6 pb-6 mx-auto border-b md:grid-cols-4"
+        style={{ borderColor: "rgba(212,175,55,0.4)" }} // gold dividing line
+      >
         {/* Company Info */}
         <div>
           <h4 className="mb-3 text-base font-semibold luxury-gold">Company</h4>
@@ -102,34 +121,36 @@ export default function Footer({ onInquire }) {
           </a>
         </div>
       </div>
-
-      {/* Connect */}
-      <div className="mt-6 text-center">
-        <h4 className="mb-4 text-base font-semibold luxury-gold">Connect With Us</h4>
-        <div className="flex items-center justify-center gap-5">
-          {[
-            { icon: FaFacebookF, url: "https://facebook.com", label: "Facebook" },
-            { icon: FaInstagram, url: "https://instagram.com", label: "Instagram" },
-            { icon: FaWhatsapp, url: "https://wa.me/94785264854", label: "WhatsApp" },
-            { icon: FaTiktok, url: "https://tiktok.com", label: "TikTok" },
-          ].map(({ icon: Icon, url, label }, i) => (
-            <a
-              key={i}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="flex items-center justify-center transition border rounded-full w-9 h-9 border-yellow-500/40 hover:bg-yellow-500/10"
-            >
-              <Icon className="text-lg luxury-gold-icon" />
-            </a>
-          ))}
-        </div>
-      </div>
+{/* Connect */}
+<div className="mt-6 text-center">
+  <h4 className="mb-4 text-base font-semibold luxury-gold">Connect With Us</h4>
+  <div className="flex items-center justify-center gap-5">
+    {[
+      { icon: FaFacebookF, url: "https://facebook.com", label: "Facebook" },
+      { icon: FaInstagram, url: "https://instagram.com", label: "Instagram" },
+      { icon: FaWhatsapp, url: "https://wa.me/94785264854", label: "WhatsApp" },
+      { icon: FaTiktok, url: "https://tiktok.com", label: "TikTok" },
+    ].map(({ icon: Icon, url, label }, i) => (
+      <a
+        key={i}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
+        className="flex items-center justify-center transition border rounded-full w-9 h-9 border-yellow-500/40 hover:bg-yellow-500/10"
+      >
+        <Icon className="text-lg luxury-gold-icon" />
+      </a>
+    ))}
+  </div>
+</div>
 
       {/* Bottom */}
-      <div className="pt-4 mt-6 text-xs text-center text-gray-400 border-t border-gray-700">
-        <p>
+      <div
+        className="pt-4 mt-6 text-xs text-center"
+        style={{ borderTop: "1px solid rgba(212,175,55,0.4)" }} // gold line at bottom
+      >
+        <p className="text-gray-400">
           © 2025 <span className="luxury-gold">EuroTech</span>. All Rights Reserved.
         </p>
       </div>

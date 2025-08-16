@@ -26,18 +26,28 @@ const testimonials = [
   },
 ];
 
-const TestimonialCarousel = () => {
+export default function TestimonialCarousel() {
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
   }, []);
 
   return (
-    <section className="max-w-6xl mx-auto py-12 px-4 bg-transparent" id="testimonials">
-      <h2 className="text-3xl sm:text-4xl font-extrabold text-white text-center" data-aos="fade-up">
+    <section
+      id="testimonials"
+      className="max-w-6xl px-4 py-12 mx-auto bg-transparent"
+    >
+      <h2
+        className="text-3xl font-extrabold text-center text-white sm:text-4xl"
+        data-aos="fade-up"
+      >
         What Our Clients Say
       </h2>
 
-      <div className="mx-auto mt-4 mb-8 h-[2px] w-28 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent" data-aos="fade-up" data-aos-delay="100" />
+      <div
+        className="mx-auto mt-4 mb-8 h-[2px] w-28 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"
+        data-aos="fade-up"
+        data-aos-delay="100"
+      />
 
       <div data-aos="fade-up" data-aos-delay="200">
         <Swiper
@@ -46,34 +56,38 @@ const TestimonialCarousel = () => {
           autoplay={{ delay: 5200, disableOnInteraction: false }}
           spaceBetween={24}
           slidesPerView={1}
-          breakpoints={{ 768: { slidesPerView: 2, spaceBetween: 28 }, 1024: { slidesPerView: 2, spaceBetween: 32 } }}
+          breakpoints={{
+            768: { slidesPerView: 2, spaceBetween: 28 },
+            1024: { slidesPerView: 2, spaceBetween: 32 },
+          }}
           className="w-full"
         >
           {testimonials.map((t, i) => (
-            <SwiperSlide key={i}>
-              {/* Card with unified glass surface */}
+            <SwiperSlide key={i} className="h-full">
               <div
                 className="
-                  relative h-full overflow-hidden p-6
-                  flex flex-col justify-between rounded-2xl border
-                  bg-card border-emerald-700/40 backdrop-blur
-                  shadow-[0_0_50px_-24px_rgba(9,121,77,0.35)]
-                  hover:shadow-[0_0_70px_-18px_rgba(9,121,77,0.5)]
+                  relative h-full min-h-[240px] sm:min-h-[260px]
+                  flex flex-col p-6 rounded-2xl
+                  bg-[#07140F]  /* solid dark green */
+                  border border-[#D4AF37]/70  /* gold border */
+                  shadow-[0_0_30px_-12px_rgba(212,175,55,0.35)]
+                  hover:shadow-[0_0_50px_-10px_rgba(212,175,55,0.55)]
                   transition-shadow duration-300
                 "
               >
-                {/* soft gold vignette on the face */}
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_40%_at_20%_0%,rgba(212,175,55,0.10),transparent)]" />
+                <div className="relative mb-3 text-4xl leading-none text-[#D4AF37]/80 select-none">
+                  “
+                </div>
 
-                <p className="relative mb-5 text-base leading-relaxed text-white/90 italic">
-                  <span className="text-[#D4AF37]">“</span>
+                <p className="relative text-base italic leading-relaxed text-white/90">
                   {t.message}
-                  <span className="text-[#D4AF37]">”</span>
                 </p>
 
-                <div className="relative mt-auto flex items-center gap-3">
+                <div className="relative flex items-center gap-3 mt-6">
                   <span className="block h-[1px] w-8 bg-gradient-to-r from-[#D4AF37] to-transparent" />
-                  <span className="text-sm font-semibold text-[#D4AF37]">{t.name}</span>
+                  <span className="text-sm font-semibold text-[#D4AF37]">
+                    {t.name}
+                  </span>
                   <span className="text-sm text-white/70">({t.location})</span>
                 </div>
               </div>
@@ -83,6 +97,4 @@ const TestimonialCarousel = () => {
       </div>
     </section>
   );
-};
-
-export default TestimonialCarousel;
+}

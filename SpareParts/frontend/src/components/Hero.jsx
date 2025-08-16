@@ -18,7 +18,7 @@ const ukFlag = cld.image("UK_j0lfab")
 
 const Hero = () => {
   return (
-    <section className="relative h-screen w-full overflow-hidden group">
+    <section className="relative w-full h-screen overflow-hidden group">
       {/* 🔲 Background Video */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <AdvancedVideo
@@ -27,7 +27,7 @@ const Hero = () => {
           muted
           loop
           playsInline
-          className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+          className="object-cover w-full h-full transition-transform duration-700 ease-in-out group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent" />
       </div>
@@ -38,10 +38,10 @@ const Hero = () => {
           {/* 🇱🇰🇬🇧 Flags Row */}
           <div className="flex items-center gap-4">
             <div className="w-8 h-6">
-              <AdvancedImage cldImg={sriLankanFlag} className="w-full h-full object-cover rounded-sm" alt="Sri Lanka" />
+              <AdvancedImage cldImg={sriLankanFlag} className="object-cover w-full h-full rounded-sm" alt="Sri Lanka" />
             </div>
             <div className="w-8 h-6">
-              <AdvancedImage cldImg={ukFlag} className="w-full h-full object-cover rounded-sm" alt="UK" />
+              <AdvancedImage cldImg={ukFlag} className="object-cover w-full h-full rounded-sm" alt="UK" />
             </div>
           </div>
 
@@ -61,13 +61,41 @@ const Hero = () => {
             Fast, Reliable Island Wide Delivery.
           </p>
 
-          {/* 🔘 CTA */}
-          <a
-            href="#brands"
-            className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold px-8 py-4 rounded-xl inline-block shadow-lg shadow-emerald-600/25 transition-all duration-300 transform hover:scale-105"
-          >
-            Explore Brands
-          </a>
+         {/* 🔘 CTA */}
+<a
+  href="#brands"
+  className="
+    relative inline-block px-8 py-4 rounded-xl font-semibold
+    text-[clamp(0.95rem,2.5vw,1.1rem)]
+    transition-all duration-300
+    hover:scale-105
+  "
+  style={{
+    background: `
+      linear-gradient(
+        135deg,
+        rgba(5,15,12,0.98) 0%,
+        rgba(12,36,28,0.96) 45%,
+        rgba(5,15,12,0.98) 100%
+      )
+    `, // metallic dark green inside
+    border: "2px solid #D4AF37", // metallic gold border
+    color: "#FFD95A", // golden text
+    boxShadow: "0 0 16px rgba(212,175,55,0.35)", // outer glow
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.boxShadow =
+      "0 0 28px rgba(212,175,55,0.65)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.boxShadow =
+      "0 0 16px rgba(212,175,55,0.35)";
+  }}
+>
+  Explore Brands
+</a>
+
+
         </div>
       </div>
     </section>
