@@ -9,7 +9,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-// Metallic dark-green gradient
+
 const METALLIC_GREEN = `
   linear-gradient(
     135deg,
