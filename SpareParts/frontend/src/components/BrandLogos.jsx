@@ -4,21 +4,33 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 
-/* Surfaces tuned for dark theme */
+/* === Theme (darker green + thin gold, premium) === */
+const GOLD = "#D4AF37";
 const COLORS = {
-  cardFront: "#0E1B1F",
-  cardBack:  "#0C171B",
-  border: "rgba(255,255,255,0.06)",
-  shadow: "0 0 40px -22px rgba(16,94,66,0.35)",
+  // FRONT: metallic gradient (slightly brighter than back)
+  cardFrontGradient: `
+    linear-gradient(
+      135deg,
+      rgba(6,18,15,0.98) 0%,
+      rgba(12,36,28,0.96) 45%,
+      rgba(6,18,15,0.98) 100%
+    )
+  `,
+  // BACK: darker solid green
+  cardBackSolid: "#08110F",
+  // fine border + soft gold glow
+  border: "rgba(212,175,55,0.28)",
+  shadow: "0 18px 40px -16px rgba(0,0,0,0.55)",
+  text: "#E8ECEA",
 };
 
 /* Cloudinary */
 const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
-const img = (id) => cld.image(id).format("auto").quality("auto").resize(auto().width(400));
+const img = (id) => cld.image(id).format("auto").quality("auto").resize(auto().width(500));
 
 /* Data */
 const allBrands = [
-  { title: "Range Rover", imageId: "Land-Rover_dfugi3", description: "Built for both rugged performance and refined luxury, Range Rover represents the very best of British automotive excellence. To keep these powerful machines running at their peak, we supply Range Rover parts for SUV’s, directly imported from the UK." },
+  { title: "Range Rover", imageId: "Land-Rover_dfugi3", description: "Built for both rugged performance and refined luxury, Range Rover represents the very best of British automotive excellence. To keep these powerful machines running at their peak, we supply Range Rover parts for SUVs, directly imported from the UK." },
   { title: "BMW", imageId: "BMW_if2qdm", description: "Synonymous with precision German engineering and driving pleasure, BMW offers a perfect blend of sportiness and luxury. We supply genuine used BMW spare parts, directly imported from the UK." },
   { title: "Mercedes-Benz", imageId: "mercedesbenz_nvbkqv", description: "Celebrated worldwide for its luxury, innovation, and safety, Mercedes-Benz defines automotive excellence. We import authentic Mercedes-Benz European spare parts from the UK." },
   { title: "Audi", imageId: "audi_yahk7u", description: "With modern design and advanced technology, Audi stands for progressive German engineering. We help maintain that standard by importing Audi spares directly." },
@@ -36,7 +48,7 @@ const allBrands = [
 /* Utils */
 const mod = (n, m) => ((n % m) + m) % m;
 
-/* Marquee hook */
+/* Marquee hook (endless horizontal + manual drag + wheel) */
 function useMarqueeRow({ speedPxPerSec = 40, reverse = false }) {
   const wrapRef = useRef(null);
   const trackRef = useRef(null);
@@ -85,22 +97,25 @@ function useMarqueeRow({ speedPxPerSec = 40, reverse = false }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [paused, reverse, speedPxPerSec]);
 
+  // Manual drag (mouse/touch)
   const onPointerDown = (e) => {
     if (e.button !== undefined && e.button !== 0) return;
     if (e.target.closest('[data-no-drag], button, a, input, textarea, select')) return;
     mayDrag.current = true; dragging.current = false; wasDragging.current = false;
-    dragStartX.current = e.clientX; dragStartOffset.current = offsetRef.current;
+    dragStartX.current = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+    dragStartOffset.current = offsetRef.current;
+    setPaused(true);
   };
   const onPointerMove = (e) => {
     if (!mayDrag.current) return;
-    const dx = e.clientX - dragStartX.current;
+    const cx = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+    const dx = cx - dragStartX.current;
     const absDx = Math.abs(dx);
     const width = widthRef.current;
     if (!dragging.current && absDx >= DRAG_THRESHOLD) {
       dragging.current = true; wasDragging.current = true;
       wrapRef.current?.setPointerCapture?.(e.pointerId);
       if (wrapRef.current) wrapRef.current.style.cursor = "grabbing";
-      setPaused(true);
     }
     if (dragging.current && width > 0) {
       offsetRef.current = mod(dragStartOffset.current - dx, width);
@@ -111,16 +126,27 @@ function useMarqueeRow({ speedPxPerSec = 40, reverse = false }) {
     if (dragging.current) {
       try { wrapRef.current?.releasePointerCapture?.(e.pointerId); } catch {}
       if (wrapRef.current) wrapRef.current.style.cursor = "";
-      setPaused(false);
     }
     dragging.current = false; mayDrag.current = false;
+    setTimeout(() => setPaused(false), 400); // resume after a moment
   };
-  const onClickCapture = (e) => {
-    if (wasDragging.current) { e.preventDefault(); e.stopPropagation(); wasDragging.current = false; }
+
+  // Horizontal wheel support
+  const onWheel = (e) => {
+    if (!trackRef.current || widthRef.current <= 0) return;
+    // Use deltaY for vertical wheels to nudge horizontally
+    const delta = (e.deltaX || e.deltaY) * 0.8;
+    if (!delta) return;
+    setPaused(true);
+    offsetRef.current = mod(offsetRef.current + delta, widthRef.current);
+    trackRef.current.style.transform = `translate3d(${-offsetRef.current}px,0,0)`;
+    // resume later
+    clearTimeout(onWheel._t);
+    onWheel._t = setTimeout(() => setPaused(false), 500);
   };
 
   return { wrapRef, trackRef, firstCycleFirstRef, secondCycleFirstRef,
-           setPaused, onPointerDown, onPointerMove, endDrag, onClickCapture };
+           setPaused, onPointerDown, onPointerMove, endDrag, onWheel };
 }
 
 /* Component */
@@ -137,10 +163,15 @@ const BrandLogos = ({ onInquire = (b) => alert(`Inquire: ${b}`) }) => {
       data-no-drag
       type="button"
       onClick={() => onInquire({ brand })}
-      className="mt-3 self-center text-[11px] sm:text-xs font-semibold px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full
-                 bg-emerald-900/70 hover:bg-emerald-900/85 active:bg-emerald-900
-                 border border-emerald-500/30 text-white shadow-[0_0_16px_rgba(16,94,66,0.45)]
-                 hover:shadow-[0_0_24px_rgba(16,94,66,0.65)] focus:outline-none focus:ring-2 focus:ring-emerald-600/50"
+      className="mt-4 self-center text-[12px] sm:text-[13px] font-semibold px-4 py-2 rounded-full transition-transform"
+      style={{
+        color: "#FFD95A",
+        background: "linear-gradient(135deg, rgba(5,15,12,0.98) 0%, rgba(12,36,28,0.96) 45%, rgba(5,15,12,0.98) 100%)",
+        border: `1.5px solid ${GOLD}`,
+        boxShadow: "0 0 14px rgba(212,175,55,0.35)",
+      }}
+      onMouseEnter={(e)=> e.currentTarget.style.boxShadow = "0 0 24px rgba(212,175,55,0.6)"}
+      onMouseLeave={(e)=> e.currentTarget.style.boxShadow = "0 0 14px rgba(212,175,55,0.35)"}
       aria-label={`Inquire now about ${brand}`}
     >
       Inquire Now
@@ -150,76 +181,132 @@ const BrandLogos = ({ onInquire = (b) => alert(`Inquire: ${b}`) }) => {
   const Card = (brand, i, rowKey) => (
     <div
       key={`${rowKey}-${i}-${brand.title}`}
-      className="w-[240px] h-[240px] sm:w-[260px] sm:h-[260px] md:w-[280px] md:h-[280px]
+      className="w-[340px] h-[340px] sm:w-[360px] sm:h-[360px] md:w-[400px] md:h-[400px]
                  flex-shrink-0 group [perspective:1000px] select-none
-                 transition-transform hover:scale-[1.015] hover:z-10"
+                 transition-transform duration-300 hover:scale-[1.04] hover:z-10"
       onMouseEnter={() => (rowKey === "top" ? rowTop.setPaused(true) : rowBottom.setPaused(true))}
       onMouseLeave={() => (rowKey === "top" ? rowTop.setPaused(false) : rowBottom.setPaused(false))}
+      style={{ padding: "2px" }}
     >
       <div className="relative w-full h-full duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-        {/* FRONT */}
+        {/* FRONT (metallic gradient) */}
         <div
-          className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center p-4 border [backface-visibility:hidden]"
-          style={{ background: COLORS.cardFront, borderColor: COLORS.border, boxShadow: COLORS.shadow }}
+          className="absolute inset-0 rounded-[22px] flex flex-col items-center justify-center p-6 border [backface-visibility:hidden]"
+          style={{
+            background: COLORS.cardFrontGradient,
+            borderColor: COLORS.border,
+            boxShadow: `${COLORS.shadow}, 0 0 0 1px rgba(255,255,255,0.03) inset, 0 0 18px rgba(212,175,55,0.10)`,
+          }}
         >
           <AdvancedImage
             cldImg={img(brand.imageId)}
-            style={{ width: "150px", height: "150px" }}
-            className="object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-xl"
+            style={{
+              width: "clamp(260px, 30vw, 340px)",
+              height: "clamp(260px, 30vw, 340px)",
+            }}
+            className="object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-2xl"
             alt={brand.title}
           />
-          <p className="text-base font-semibold text-center mt-2">{brand.title}</p>
+
+          <p className="mt-3 text-center text-[18px] font-semibold" style={{ color: "#FFD95A" }}>
+            {brand.title}
+          </p>
         </div>
 
-        {/* BACK */}
-        <div
-          className="absolute inset-0 rounded-2xl flex flex-col justify-between p-5 md:p-6 text-center border [transform:rotateY(180deg)] [backface-visibility:hidden]"
-          style={{ background: COLORS.cardBack, borderColor: COLORS.border, boxShadow: COLORS.shadow }}
-        >
-          <div className="px-1 flex-1 flex flex-col">
-            <p className="text-emerald-300 font-semibold mb-2 text-[15px] md:text-[16px]">{brand.title}</p>
-            <div className="relative flex-1">
-              <p
-                className="text-gray-200 leading-relaxed text-[12px] md:text-[13px] overflow-hidden"
-                style={{ display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 5 }}
-              >
-                {brand.description}
-              </p>
-              <div
-                className="pointer-events-none absolute bottom-0 left-0 w-full h-6"
-                style={{ background: `linear-gradient(to top, ${COLORS.cardBack}, transparent)` }}
-              />
-            </div>
-          </div>
-          <InquireBtn brand={brand.title} />
-        </div>
+<div
+  className="absolute inset-0 rounded-[22px] flex flex-col border [transform:rotateY(180deg)] [backface-visibility:hidden] overflow-hidden" 
+  style={{
+    background: COLORS.cardBackSolid,  // ✅ solid metallic dark green
+    borderColor: COLORS.border,
+    boxShadow: `${COLORS.shadow}, 0 0 14px rgba(212,175,55,0.12)`,
+    padding: "24px",   // ⬅️ margin inside card (space for text)
+  }}
+>
+  {/* Title */}
+  <p
+    className="text-[20px] md:text-[22px] font-bold mb-3 text-center"
+    style={{ color: "#FFD95A" }}
+  >
+    {brand.title}
+  </p>
+
+  {/* Description fills card with margin around */}
+  <div
+    className="flex-1 overflow-auto"
+    style={{ scrollbarWidth: "none" }}
+  >
+    <p
+      style={{
+        fontSize: "clamp(18px, 2.4vw, 20px)",
+        lineHeight: 1.5,
+        textAlign: "justify",
+        color: COLORS.text,
+      }}
+    >
+      {brand.description}
+    </p>
+  </div>
+
+  {/* Premium Inquiry button at bottom center */}
+<div className="flex justify-center pt-6 pb-2">
+  <button
+    className="px-8 py-3 font-semibold transition-all duration-300"
+    style={{
+      background: "linear-gradient(145deg, #05120E, #0B1C1F)", 
+      border: "1.5px solid #E6C84F",                           
+      color: "#E6C84F",                                        
+      fontSize: "16px",
+      borderRadius: "50px",                                    
+      boxShadow: "0 0 6px rgba(230,200,79,0.15)",              
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.boxShadow =
+        "0 0 18px rgba(230,200,79,0.55), inset 0 0 10px rgba(0,0,0,0.4)";
+      e.currentTarget.style.transform = "scale(1.05)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.boxShadow = "0 0 6px rgba(230,200,79,0.15)";
+      e.currentTarget.style.transform = "scale(1)";
+    }}
+  >
+    Inquire Now
+  </button>
+</div>
+
+</div>
+
+
       </div>
     </div>
   );
 
+  /* Row: endless horizontal loop + manual control */
   const Row = ({ brands, rowHook, rowKey }) => {
     const { wrapRef, trackRef, firstCycleFirstRef, secondCycleFirstRef,
-            onPointerDown, onPointerMove, endDrag, onClickCapture } = rowHook;
-    const doubled = useMemo(() => [...brands, ...brands], [brands]);
+            onPointerDown, onPointerMove, endDrag, onWheel } = rowHook;
+
+    // Repeat 3x so you never see ends while looping horizontally (mobile + desktop)
+    const tripled = useMemo(() => [...brands, ...brands, ...brands], [brands]);
 
     return (
       <div
         ref={wrapRef}
-        className="overflow-hidden select-none cursor-grab"
+        className="py-4 overflow-x-hidden overflow-y-visible select-none cursor-grab"
         style={{ touchAction: "pan-y" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onPointerLeave={endDrag}
-        onClickCapture={onClickCapture}
+        onWheel={onWheel}
       >
         <div
           ref={trackRef}
-          className="flex w-max will-change-transform gap-4 md:gap-6"
+          className="flex gap-6 md:gap-8 w-max will-change-transform"
           style={{ transform: "translate3d(0,0,0)" }}
         >
-          {doubled.map((b, i) => {
+          {tripled.map((b, i) => {
+            // markers to measure one logical cycle width
             const refProp =
               i === 0 ? { ref: firstCycleFirstRef }
               : i === brands.length ? { ref: secondCycleFirstRef }
@@ -236,13 +323,19 @@ const BrandLogos = ({ onInquire = (b) => alert(`Inquire: ${b}`) }) => {
   };
 
   return (
-    <section className="bg-page -mt-px py-16 sm:py-20 px-4 text-white font-poppins">
-      <h2 className="text-3xl md:text-5xl font-bold text-center mb-8 md:mb-10">
+    <section
+      className="relative z-0 px-4 py-20 text-white sm:py-24 font-poppins"
+      style={{ overflow: "visible" }}
+    >
+      <h2
+        className="mb-10 text-3xl font-bold text-center md:text-5xl md:mb-12"
+        style={{ color: "#FFD95A", textShadow: "0 0 14px rgba(212,175,55,0.25)" }}
+      >
         Our Supportive Brands
       </h2>
 
       <Row brands={topBrands} rowHook={rowTop} rowKey="top" />
-      <div className="h-8 sm:h-10" />
+      <div className="h-10 sm:h-12" />
       <Row brands={bottomBrands} rowHook={rowBottom} rowKey="bottom" />
     </section>
   );
