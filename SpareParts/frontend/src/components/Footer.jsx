@@ -9,31 +9,51 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-const Footer = ({ onInquire }) => {
+export default function Footer({ onInquire }) {
   return (
-    <footer className="bg-gradient-to-br from-black via-gray-900 to-black text-white py-8 px-6 border-t border-emerald-600/20">
+    <footer className="bg-gradient-to-br from-black via-[#0B1C1F] to-black text-white py-8 px-6 border-t border-emerald-600/20 relative overflow-hidden">
       {/* Main Grid */}
-      <div className="grid gap-6 pb-6 mx-auto border-b border-gray-700 max-w-6xl md:grid-cols-4">
+      <div className="grid max-w-6xl gap-6 pb-6 mx-auto border-b border-gray-700 md:grid-cols-4">
         {/* Company Info */}
         <div>
-          <h4 className="mb-3 text-base font-semibold text-emerald-400">Company</h4>
-          <p className="flex items-center gap-2 text-sm text-gray-300">
-            <FaMapMarkerAlt className="text-emerald-400" />
+          <h4 className="mb-3 text-base font-semibold luxury-gold">Company</h4>
+
+          {/* Clickable Address */}
+          <a
+            href="https://maps.google.com/?q=No.63,+Buthgamuwa+Road,+Rajagiriya,+10100,+Sri+Lanka"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-yellow-300"
+            aria-label="View address in Google Maps"
+          >
+            <FaMapMarkerAlt className="luxury-gold-icon" />
             No.63, Buthgamuwa Road, Rajagiriya, 10100, Sri Lanka.
-          </p>
-          <p className="flex items-center gap-2 mt-2 text-sm text-gray-300">
-            <FaPhoneAlt className="text-emerald-400" />
-            +1 (888) 555-PART
-          </p>
-          <p className="flex items-center gap-2 mt-2 text-sm text-gray-300">
-            <FaEnvelope className="text-emerald-400" />
+          </a>
+
+          {/* Tappable Phone */}
+          <a
+            href="tel:+94759687372"
+            className="flex items-center gap-2 mt-2 text-sm text-gray-300 transition-colors hover:text-yellow-300"
+            aria-label="Call +94 75 968 7372"
+          >
+            <FaPhoneAlt className="luxury-gold-icon" />
+            +94 75 968 7372
+          </a>
+
+          {/* Clickable Email */}
+          <a
+            href="mailto:info@eurotec.lk"
+            className="flex items-center gap-2 mt-2 text-sm text-gray-300 transition-colors hover:text-yellow-300"
+            aria-label="Email info@eurotec.lk"
+          >
+            <FaEnvelope className="luxury-gold-icon" />
             info@eurotec.lk
-          </p>
+          </a>
 
           <button
             type="button"
             onClick={() => onInquire?.("")}
-            className="mt-5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-3.5 py-2.5 rounded-lg w-full font-semibold text-sm transition-all duration-200 shadow-md shadow-emerald-600/20"
+            className="mt-4 text-sm underline underline-offset-4 decoration-yellow-500/50 hover:decoration-yellow-500/90 luxury-gold"
           >
             Inquire Now
           </button>
@@ -41,27 +61,26 @@ const Footer = ({ onInquire }) => {
 
         {/* Business Hours */}
         <div>
-          <h4 className="mb-3 text-base font-semibold text-emerald-400">Business Hours</h4>
+          <h4 className="mb-3 text-base font-semibold luxury-gold">Business Hours</h4>
           <p className="text-sm text-gray-300">Mon–Sat: 8.30 AM – 5.30 PM</p>
           <p className="mt-1 text-sm text-gray-300">Sun : Closed</p>
-          <p className="mt-1 text-sm text-gray-300">Emergency services available 24/7</p>
         </div>
 
         {/* Quick Links */}
         <div>
-          <h4 className="mb-3 text-base font-semibold text-emerald-400">Quick Links</h4>
+          <h4 className="mb-3 text-base font-semibold luxury-gold">Quick Links</h4>
           <ul className="space-y-1.5 text-sm text-gray-300">
-            <li><a href="/home" className="hover:text-emerald-400 transition-colors">Home</a></li>
-            <li><a href="/about" className="hover:text-emerald-400 transition-colors">About</a></li>
-            <li><a href="/services" className="hover:text-emerald-400 transition-colors">Services</a></li>
-            <li><a href="/contact" className="hover:text-emerald-400 transition-colors">Contact</a></li>
+            <li><a href="/home" className="transition-colors hover:text-yellow-400">Home</a></li>
+            <li><a href="/about" className="transition-colors hover:text-yellow-400">About</a></li>
+            <li><a href="/services" className="transition-colors hover:text-yellow-400">Services</a></li>
+            <li><a href="/contact" className="transition-colors hover:text-yellow-400">Contact</a></li>
           </ul>
         </div>
 
-        {/* Find Us */}
+        {/* Find Us (Map Embed) */}
         <div>
-          <h4 className="mb-3 text-base font-semibold text-emerald-400">Find Us</h4>
-          <div className="w-full h-28 md:h-40 lg:h-48 rounded-md overflow-hidden shadow">
+          <h4 className="mb-3 text-base font-semibold luxury-gold">Find Us</h4>
+          <div className="w-full overflow-hidden rounded-md shadow h-28 md:h-40 lg:h-48">
             <iframe
               title="Map to Our Location"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2162.1566709123817!2d79.900613267168!3d6.910282742519038!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae259f2755be2fd%3A0x42f57e57435a8ba8!2s63%20Buthgamuwa%20Rd%2C%20Sri%20Jayawardenepura%20Kotte!5e0!3m2!1sen!2slk!4v1754019294021!5m2!1sen!2slk"
@@ -77,16 +96,16 @@ const Footer = ({ onInquire }) => {
             href="https://maps.google.com?q=No.63,+Buthgamuwa+Road,+Rajagiriya"
             target="_blank"
             rel="noopener noreferrer"
-            className="block mt-2.5 px-3 py-2 text-xs text-white bg-gray-700 rounded-md hover:bg-gradient-to-r hover:from-emerald-600 hover:to-emerald-700 transition-colors"
+            className="block mt-2.5 px-3 py-2 text-xs text-white bg-white/10 rounded-md hover:bg-white/15 transition-colors"
           >
             Get Directions
           </a>
         </div>
       </div>
 
-      {/* Connect With Us */}
+      {/* Connect */}
       <div className="mt-6 text-center">
-        <h4 className="mb-4 text-base font-semibold text-emerald-400">Connect With Us</h4>
+        <h4 className="mb-4 text-base font-semibold luxury-gold">Connect With Us</h4>
         <div className="flex items-center justify-center gap-5">
           {[
             { icon: FaFacebookF, url: "https://facebook.com", label: "Facebook" },
@@ -100,20 +119,46 @@ const Footer = ({ onInquire }) => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={label}
-              className="flex items-center justify-center w-9 h-9 text-emerald-400 transition border border-emerald-400 rounded-full hover:bg-emerald-400 hover:text-black"
+              className="flex items-center justify-center transition border rounded-full w-9 h-9 border-yellow-500/40 hover:bg-yellow-500/10"
             >
-              <Icon className="text-sm" />
+              <Icon className="text-lg luxury-gold-icon" />
             </a>
           ))}
         </div>
       </div>
 
-      {/* Bottom Footer Note */}
+      {/* Bottom */}
       <div className="pt-4 mt-6 text-xs text-center text-gray-400 border-t border-gray-700">
-        <p>© 2025 Luxury Auto Parts Inquiry. All Rights Reserved.</p>
+        <p>
+          © 2025 <span className="luxury-gold">EuroTech</span>. All Rights Reserved.
+        </p>
       </div>
+
+      {/* Gold Text + Icon CSS */}
+      <style>{`
+        .luxury-gold {
+          background: linear-gradient(90deg, #f7e98e, #d4af37, #f7e98e);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-fill-color: transparent;
+          animation: shine 5s linear infinite;
+        }
+
+        .luxury-gold-icon {
+          background: linear-gradient(135deg, #f7e98e, #d4af37, #f7e98e);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          display: inline-block;
+          animation: shine 5s linear infinite;
+        }
+
+        @keyframes shine {
+          0% { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+      `}</style>
     </footer>
   );
-};
-
-export default Footer;
+}

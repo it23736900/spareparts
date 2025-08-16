@@ -189,3 +189,19 @@ select:-moz-autofill {
   /* Soft light text color to match theme */
   .text-soft { color: var(--text-soft); }
 }
+
+.luxury-gold {
+  background: linear-gradient(90deg, #f7e98e, #d4af37, #f7e98e);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.luxury-gold-icon {
+  background: linear-gradient(135deg, #f7e98e, #d4af37, #f7e98e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
