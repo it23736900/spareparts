@@ -37,7 +37,7 @@ const allBrands = [
   { title: "Volvo", imageId: "Volvo_iykd5e", description: "Renowned for its Scandinavian safety, comfort, and reliability, Volvo vehicles are built to protect. We source used Volvo spare parts directly from the UK." },
   { title: "Volkswagen", imageId: "vw_kxbbn3", description: "Combining timeless design with everyday practicality, Volkswagen is a symbol of German reliability. We import authentic Volkswagen spares from the UK." },
   { title: "Porsche", imageId: "porsche_husop5", description: "Blending racing heritage with luxury, Porsche creates truly thrilling driving experiences. We supply used Porsche spare parts directly sourced from the UK." },
-  { title: "MG", imageId: "MG_jetn1d", description: "A British classic reborn with contemporary style, MG vehicles offer charm and affordability. We import used MG spares directly from the UK." },
+  { title: "Morris Garages", imageId: "MG_jetn1d", description: "A British classic reborn with contemporary style, MG vehicles offer charm and affordability. We import used MG spares directly from the UK." },
   { title: "Ford", imageId: "Untitled_design_12_pi7wbj", description: "Known for versatility and durability, Ford’s include cars, SUVs, and pickup trucks. We supply authentic Ford spare parts from trusted UK partners." },
   { title: "Jaguar", imageId: "Untitled_design_15_bgbbwf", description: "Combining British elegance with powerful performance, Jaguar creates distinctive luxury vehicles. We import Jaguar spare parts from the UK." },
   { title: "Renault", imageId: "Untitled_design_16_kbhzqz", description: "A trusted European brand known for efficiency and style, Renault makes cars that suit city and family life alike. We import Renault spare parts from the UK." },
