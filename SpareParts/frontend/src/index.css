@@ -27,7 +27,7 @@
 html, body, #root { background: transparent; }
 
 /* =============================
-   Autofill override (Chrome/Safari/Firefox)
+   Autofill override
    ============================= */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -54,7 +54,7 @@ select:-moz-autofill {
 }
 
 /* =============================
-   Text selection (subtle gold wash)
+   Text selection
    ============================= */
 ::selection {
   background: rgba(212, 175, 55, 0.25);
@@ -62,10 +62,8 @@ select:-moz-autofill {
 }
 
 /* =============================
-   Optional helpers (use when convenient)
+   Button / Navbar helpers
    ============================= */
-
-/* Elegant emerald button with gold text + glow */
 .btn-emerald {
   color: var(--gold);
   background-image: linear-gradient(90deg, var(--emerald-600), var(--emerald-600));
@@ -80,13 +78,11 @@ select:-moz-autofill {
   box-shadow: 0 0 26px 10px var(--emerald-glow);
 }
 
-/* Gold top hairline you can apply to the navbar */
 .top-gold-line {
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
 }
 
-/* Underline-on-hover utility for nav links (if you’re not using Framer Motion) */
 .nav-link { position: relative; }
 .nav-link::after {
   content: "";
@@ -99,7 +95,9 @@ select:-moz-autofill {
 }
 .nav-link:hover::after { width: 100%; }
 
-/* Optional: minimal dark scrollbar that fits the theme */
+/* =============================
+   Scrollbar
+   ============================= */
 *::-webkit-scrollbar { width: 8px; height: 8px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
@@ -123,6 +121,26 @@ select:-moz-autofill {
 .animate-scrollReverse { animation: scrollReverse 60s linear infinite; }
 
 /* =============================
+   Futuristic scanlines (for map bg)
+   ============================= */
+@keyframes scan {
+  0%   { transform: translateY(-8px); opacity: .18; }
+  50%  { transform: translateY(0);     opacity: .28; }
+  100% { transform: translateY(-8px); opacity: .18; }
+}
+.animate-scanlines {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(23,167,122,.08) 0px,
+      rgba(23,167,122,.08) 2px,
+      transparent 3px,
+      transparent 6px
+    );
+  animation: scan 3.6s ease-in-out infinite;
+}
+
+/* =============================
    Flip / 3D helpers
    ============================= */
 .perspective { perspective: 1000px; }
@@ -131,7 +149,7 @@ select:-moz-autofill {
 .backface-hidden { backface-visibility: hidden; }
 
 /* =============================
-   Small drop-down slide animation
+   Slide down
    ============================= */
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-8px); }
@@ -144,23 +162,19 @@ select:-moz-autofill {
 .animate-arrowShimmer { animation: arrowShimmer 2.2s ease-in-out infinite; }
 .animate-arrowShimmerY { animation: arrowShimmerY 2.2s ease-in-out infinite; }
 
-/* Hide custom scrollbars when needed */
+/* Hide scrollbars when needed */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* =============================
    Globe background controls
    ============================= */
-
-/* 1) Relaxed: keep only wrapper transparent so the canvas can own its bg */
 .globe-transparent { background: transparent !important; }
 
-/* 2) Give the canvas a SOLID site color */
 .globe-has-solid-bg canvas {
   background: var(--app-bg-top) !important;
 }
 
-/* 3) Or give the canvas the full site GRADIENT */
 .globe-has-gradient-bg canvas {
   background:
     radial-gradient(70% 55% at 50% 0%, var(--emerald-900) 0%, transparent 60%),
@@ -169,24 +183,19 @@ select:-moz-autofill {
 }
 
 /* =========================================================
-   Shared site background + helpers
+   Shared site background
    ========================================================= */
 @layer utilities {
-  /* One shared rich background for the whole site */
   .bg-app {
     background:
       radial-gradient(70% 55% at 50% 0%, var(--emerald-900) 0%, transparent 60%),
       linear-gradient(180deg, var(--app-bg-top) 0%, var(--app-bg-bottom) 100%);
-    background-attachment: fixed; /* prevents zooming effect on scroll */
+    background-attachment: fixed;
     color-scheme: dark;
   }
-
-  /* Reusable glass card surface (for cards/panels) */
   .bg-card {
     background: linear-gradient(180deg, rgba(9,20,26,0.92), rgba(6,16,22,0.92));
   }
-
-  /* Soft light text color to match theme */
   .text-soft { color: var(--text-soft); }
 }
 
@@ -198,10 +207,63 @@ select:-moz-autofill {
   background-clip: text;
   text-fill-color: transparent;
 }
-
 .luxury-gold-icon {
   background: linear-gradient(135deg, #f7e98e, #d4af37, #f7e98e);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
+}
+
+/* =========================================================
+   🆕 EXTRA ADDITIONS FOR FLAGS + ROUTE
+   ========================================================= */
+
+/* Flag chips, replace img src with waving GIFs if you get them */
+.flag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(20,92,75,0.22);
+  border: 1px solid rgba(212,175,55,0.35);
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  backdrop-filter: blur(6px);
+}
+.flag-chip img {
+  width: 24px; height: 16px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+/* Simple waving animation for static PNG flags */
+@keyframes flagWave {
+  0% { transform: rotate(0deg) skewY(0deg); }
+  25% { transform: rotate(1deg) skewY(2deg); }
+  50% { transform: rotate(0deg) skewY(0deg); }
+  75% { transform: rotate(-1deg) skewY(-2deg); }
+  100% { transform: rotate(0deg) skewY(0deg); }
+}
+.flag-chip img {
+  animation: flagWave 2.6s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+/* Route line between UK & Sri Lanka */
+.route-line {
+  stroke: var(--gold);
+  stroke-width: 2px;
+  fill: none;
+  stroke-dasharray: 5 6;
+  animation: dashmove 6s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(212,175,55,0.65));
+}
+@keyframes dashmove {
+  to { stroke-dashoffset: -40; }
+}
+
+/* Shift info box further right */
+.info-box {
+  margin-left: 2.5rem; /* adjust as needed */
 }

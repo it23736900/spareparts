@@ -5,19 +5,20 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import BrandLogos from "./components/BrandLogos";
 import Footer from "./components/Footer";
-import LoginSystem from "./components/LoginSystem";
+import LoginSystem from "./components/LoginSystem"; // if used elsewhere
 import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
-import SignupModal from "./components/SignupModal";
+import SignupModal from "./components/SignupModal"; // if used elsewhere
 import FloatingWhatsAppButton from "./components/FloatingWhatsAppButton";
 import ProcessFlow from "./components/ProcessFlow";
 import TestimonialCarousel from "./components/TestimonialCarousel";
-import IntroParagraph from "./components/IntroParagraph";
+import IntroParagraph from "./components/IntroParagraph"; // still available if you want it elsewhere
 import LandingScreen from "./components/LandingScreen";
 import GetQuotationForm from "./components/GetQuotationForm";
 import Profile from "./pages/Profile";
 import TrackOrderSearch from "./components/TrackOrderSearch";
-import GlobeConnect from "./components/GlobeConnect";
+// import GlobeConnect from "./components/GlobeConnect"; // ⛔️ not used anymore
+import WorldMapShowcase from "./components/WorldMapShowcase"; // ✅ new map section
 
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -39,26 +40,13 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
       <Navbar onSignInClick={onSignInClick} onSignUpClick={onSignUpClick} />
       <Hero />
 
-      {/* Globe (transparent) + Intro text */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 bg-transparent">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-          {/* Globe column — no background */}
-          <div data-aos="fade-up" className="globe-transparent !bg-transparent" style={{ background: "transparent" }}>
-            <div className="w-full h-[320px] sm:h-[420px] md:h-[500px] lg:h-[520px] xl:h-[560px] !bg-transparent" style={{ background: "transparent" }}>
-              <GlobeConnect />
-            </div>
-          </div>
+      {/* 🌍 Futuristic interactive world map with right-side copy */}
+      <WorldMapShowcase />
 
-          {/* Text column */}
-          <div
-            className="text-soft leading-relaxed"
-            data-aos="fade-up"
-            data-aos-delay="100"
-          >
-            <IntroParagraph />
-          </div>
-        </div>
-      </section>
+      {/* Optional: keep the intro paragraph somewhere else if you still want it */}
+      {/* <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <IntroParagraph />
+      </section> */}
 
       <TrackOrderSearch />
       <BrandLogos onInquire={onInquire} />
