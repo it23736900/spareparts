@@ -26,15 +26,12 @@ const METALLIC_GREEN = `
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeHref, setActiveHref] = useState("");
-  const [user] = useState(getUser());
   const [avatarSrc, setAvatarSrc] = useState(getUser()?.avatarUrl || null);
-  const [isFormOpen, setIsFormOpen] = useState(false); // ⬅️ Inquiry Form state
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const location = useLocation();
   const avatarBtnRef = useRef(null);
 
-  useEffect(() => setActiveHref(window.location.hash || ""), []);
   useEffect(() => {
     const handler = () => {
       const u = getUser();
@@ -47,15 +44,17 @@ export default function Navbar() {
       window.removeEventListener("storage", handler);
     };
   }, []);
+
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // ✅ Use real routes instead of hash anchors
   const navLinks = [
-    { label: "Home", href: "#home" },
-    { label: "About Us", href: "#about" },
-    { label: "Services", href: "#services" },
-    { label: "Contact Us", href: "#contact" },
+    { label: "Home", to: "/" },
+    { label: "About Us", to: "/about" },
+    { label: "Services", to: "/services" },
+    { label: "Contact Us", to: "/contact" },
   ];
 
   return (
@@ -78,12 +77,11 @@ export default function Navbar() {
           {/* Desktop Nav */}
           <nav className="hidden gap-10 text-sm font-semibold md:flex">
             {navLinks.map((link) => {
-              const isActive = activeHref === link.href;
+              const isActive = location.pathname === link.to;
               return (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setActiveHref(link.href)}
+                <Link
+                  key={link.to}
+                  to={link.to}
                   className="relative px-4 py-2 transition-colors duration-300"
                   style={{ color: isActive ? GOLD : "#E9EDEB" }}
                 >
@@ -94,21 +92,21 @@ export default function Navbar() {
                       style={{ background: GOLD }}
                     />
                   )}
-                </a>
+                </Link>
               );
             })}
           </nav>
 
-          {/* Right cluster (slightly more spacing, nudged left a touch) */}
+          {/* Right cluster (spacing unchanged) */}
           <div className="items-center hidden md:flex gap-5 -translate-x-[2px]">
-            {/* Inquire Now — square, metallic, premium */}
+            {/* Inquire Now — opens form */}
             <button
               onClick={() => setIsFormOpen(true)}
               className="relative inline-flex h-11 items-center justify-center px-7 text-sm font-semibold transition-all duration-300 focus:outline-none hover:scale-[1.03]"
               style={{
                 color: GOLD,
                 border: `2px solid ${GOLD}`,
-                borderRadius: "0.6rem", // square-ish like your Explore button
+                borderRadius: "0.6rem",
                 background: METALLIC_GREEN,
                 boxShadow: "0 0 12px rgba(230,200,79,0.45), inset 0 0 8px rgba(230,200,79,0.25)",
               }}
@@ -159,18 +157,15 @@ export default function Navbar() {
         {isMobileMenuOpen && (
           <div className="px-4 pt-2 pb-4 space-y-2 text-sm md:hidden bg-gradient-to-b from-[#021C15]/95 to-[#083E2D]/95">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => {
-                  setActiveHref(link.href);
-                  setIsMobileMenuOpen(false);
-                }}
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-3 py-2 transition rounded-lg"
-                style={{ color: activeHref === link.href ? GOLD : "#E9EDEB" }}
+                style={{ color: location.pathname === link.to ? GOLD : "#E9EDEB" }}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
 
             {/* Inquire Now (mobile) */}
@@ -194,11 +189,11 @@ export default function Navbar() {
         )}
       </header>
 
-      
+      {/* Inquiry Form Modal */}
       <GetQuotationForm
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        prefill={{}} // set { brand: "Audi" } if you want to open prefilled
+        prefill={{}}
       />
     </>
   );
