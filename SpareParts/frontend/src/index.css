@@ -267,3 +267,4 @@ select:-moz-autofill {
 .info-box {
   margin-left: 2.5rem; /* adjust as needed */
 }
+html { scroll-behavior: smooth; }

@@ -1,134 +1,132 @@
-import React from "react";
-import { motion } from "framer-motion";
+// src/components/ServicesShowcase.jsx
+import React, { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-/* Theme accent */
-const ACCENT_GREEN = "#17A77A";
-
-/* Animation */
-const fadeUp = {
-  hidden: { opacity: 0, y: 18 },
-  show: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08, duration: 0.45, ease: "easeOut" },
-  }),
+// --- Demo stock loops (free GIFs/WEBPs hosted externally) ---
+// You can later replace these with Cloudinary links if you want full control
+const DEMO_MEDIA = {
+  inquiry: "https://media.giphy.com/media/Ll22OhMLAlVDb8UQWe/giphy.gif", // writing
+  touch: "https://media.giphy.com/media/f3CtEsJ72j86DIumaJ/giphy.gif", // talking headset
+  quote: "https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif", // document/price
+  payment: "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif", // credit card
+  logistics: "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif", // truck
+  delivered: "https://media.giphy.com/media/26gsvzPj6nUjRr0IU/giphy.gif", // package delivery
 };
 
-/* Icons with subtle glow */
-const iconStyle = {
-  stroke: ACCENT_GREEN,
-  strokeWidth: 1.7,
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
-  filter: "drop-shadow(0 0 6px rgba(23,167,122,0.28))",
-};
-
-const Icon = {
-  Image: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <circle cx="8.5" cy="8.5" r="2" />
-      <path d="M21 15l-5-5-7 7" />
-    </svg>
-  ),
-  Headset: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
-      <path d="M4 12a8 8 0 0 1 16 0" />
-      <rect x="3" y="11" width="4" height="7" rx="2" />
-      <rect x="17" y="11" width="4" height="7" rx="2" />
-      <path d="M13 21h-2a2 2 0 0 1-2-2" />
-    </svg>
-  ),
-  Check: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M8 12l2.5 2.5L16 9" />
-    </svg>
-  ),
-  HandMoney: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
-      <path d="M3 16s1.5-2 4-2h5a3 3 0 0 1 0 6H9" />
-      <path d="M7 20H5a2 2 0 0 1-2-2" />
-      <rect x="17" y="7" width="4.5" height="3.5" rx="1.2" />
-      <path d="M19.25 7v3.5" />
-    </svg>
-  ),
-  Truck: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
-      <rect x="1.5" y="7" width="12.5" height="9" rx="2" />
-      <path d="M14 10h4l3 3v3h-7z" />
-      <circle cx="6" cy="18.5" r="1.8" />
-      <circle cx="17.5" cy="18.5" r="1.8" />
-    </svg>
-  ),
-  BoxCheck: ({ size = 72 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...iconStyle }}>
-      <path d="M3 7l9-4 9 4-9 4-9-4z" />
-      <path d="M3 7v10l9 4 9-4V7" />
-      <path d="M9 13l2 2 4-4" />
-    </svg>
-  ),
-};
-
-const steps = [
-  { icon: <Icon.Image />,     title: "Submit Your Inquiry",  desc: "Share the details of the necessary spare parts with us." },
-  { icon: <Icon.Headset />,   title: "We Get in Touch",      desc: "Our team reviews your request and contacts you within a working day to confirm additional details." },
-  { icon: <Icon.Check />,     title: "Receive a Quotation",  desc: "We provide a detailed quote based on your request." },
-  { icon: <Icon.HandMoney />, title: "Advance Payment",      desc: "Make an initial payment to begin processing." },
-  { icon: <Icon.Truck />,     title: "Logistics Coordination", desc: "We arrange safe and efficient import from the UK." },
-  { icon: <Icon.BoxCheck />,  title: "Parts Delivered",      desc: "Receive your spare parts quickly and securely (typically 3–4 days)." },
+const SERVICES = [
+  {
+    id: "inquiry",
+    title: "Submit Your Inquiry",
+    blurb: "Share part details or photos. VIN/Chassis welcome.",
+    details: ["Upload part images if possible", "VIN helps exact fitment", "Response within a working day"],
+  },
+  {
+    id: "touch",
+    title: "We Get in Touch",
+    blurb: "A specialist confirms specs, availability, and options.",
+    details: ["Check compatibility", "Suggest alternatives", "Friendly WhatsApp/phone support"],
+  },
+  {
+    id: "quote",
+    title: "Receive a Quotation",
+    blurb: "Transparent pricing with ETA. No surprises.",
+    details: ["Itemized quote", "ETA & shipping included", "Valid for limited time"],
+  },
+  {
+    id: "payment",
+    title: "Advance Payment",
+    blurb: "Secure payment, stock reserved instantly.",
+    details: ["Multiple methods", "Instant confirmation", "Stock locked"],
+  },
+  {
+    id: "logistics",
+    title: "Logistics Coordination",
+    blurb: "UK pickup → customs → dispatch.",
+    details: ["Tracked shipping", "Customs handling", "Safe packing"],
+  },
+  {
+    id: "delivered",
+    title: "Parts Delivered",
+    blurb: "Island-wide delivery in 3–4 days.",
+    details: ["Door-to-door", "Return options", "After-sales support"],
+  },
 ];
 
-export default function ProcessFlow() {
+function ServiceCard({ item, active, onToggle }) {
+  const isOpen = active === item.id;
+  const cardRef = useRef(null);
+
   return (
-    <section className="relative px-6 py-16 sm:py-20 bg-transparent">
-      {/* Heading + gold underline */}
-      <div className="max-w-6xl mx-auto mb-12 text-center">
-        <h2 className="text-3xl font-extrabold md:text-4xl text-white">WE COMPLETE EVERY STEP CAREFULLY</h2>
-        <div
-          className="mx-auto mt-4 h-[2px] w-36 rounded-full"
-          style={{
-            background: "linear-gradient(90deg, rgba(0,0,0,0), #FFD45A 20%, #D4AF37 60%, rgba(0,0,0,0))",
-            boxShadow: "0 0px 12px rgba(212,175,55,0.6), 0 0 36px rgba(212,175,55,0.35)",
-            filter: "blur(0.3px)",
-          }}
-        />
+    <motion.div
+      ref={cardRef}
+      whileHover={{ translateY: -4, boxShadow: "0 18px 60px -24px rgba(23,167,122,0.45)" }}
+      transition={{ type: "spring", stiffness: 260, damping: 22 }}
+      className="group relative overflow-hidden rounded-2xl p-6 bg-card border border-emerald-500/25"
+    >
+      {/* Media circle */}
+      <div className="relative h-28 flex items-center justify-center">
+        <div className="relative w-24 h-24 rounded-full overflow-hidden border border-emerald-400/30 shadow-lg">
+          <img
+            src={DEMO_MEDIA[item.id]}
+            alt={item.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
 
-      {/* Grid */}
-      <div className="grid max-w-6xl mx-auto gap-y-12 md:gap-y-16 gap-x-8 md:gap-x-12 lg:grid-cols-3">
-        {steps.map((s, i) => (
+      {/* Title */}
+      <h3 className="mt-2 text-xl font-extrabold text-emerald-300 text-center">{item.title}</h3>
+      <p className="mt-2 text-center text-sm text-[#cfe2df] leading-relaxed">{item.blurb}</p>
+
+      {/* Button */}
+      <div className="mt-4 flex items-center justify-center gap-3">
+        <button
+          onClick={() => onToggle(isOpen ? null : item.id)}
+          className="px-4 py-2 rounded-full text-sm font-semibold border border-emerald-400/45 text-[#cfe2df] hover:text-emerald-300 transition-all"
+        >
+          {isOpen ? "Hide details" : "View details"}
+        </button>
+      </div>
+
+      {/* Expandable details */}
+      <AnimatePresence initial={false}>
+        {isOpen && (
           <motion.div
-            key={s.title}
-            custom={i}
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.35 }}
-            className="relative"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
           >
-            {/* Card — unified glass surface */}
-            <div
-              className="group relative mx-auto pt-10 text-center rounded-2xl border bg-card transition-transform hover:scale-[1.02] backdrop-blur-[4px] hover:backdrop-blur-[8px]"
-              style={{ maxWidth: 420, borderColor: "rgba(23,167,122,0.35)", boxShadow: "0 14px 34px rgba(0,0,0,0.45)" }}
-            >
-              <div className="inline-block mb-4">{s.icon}</div>
-
-              <h3
-                className="text-2xl md:text-[28px] font-extrabold"
-                style={{ color: ACCENT_GREEN, textShadow: "0 0 10px rgba(23,167,122,0.28)" }}
-              >
-                {s.title}
-              </h3>
-
-              <p className="mx-auto mt-3 max-w-md px-6 pb-8 text-[1.06rem] leading-relaxed text-white/85">
-                {s.desc}
-              </p>
-
-              <span className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition" style={{ boxShadow: "0 0 32px 6px rgba(23,167,122,0.18)" }} />
-            </div>
+            <ul className="mt-4 space-y-2 text-[14px] text-[#d9eee9]">
+              {item.details.map((d, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span className="mt-[6px] block w-[6px] h-[6px] rounded-full bg-emerald-400" />
+                  <span>{d}</span>
+                </li>
+              ))}
+            </ul>
           </motion.div>
-        ))}
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+export default function ServicesShowcase() {
+  const [active, setActive] = useState(null);
+  return (
+    <section className="relative py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl px-4">
+        <h2 className="text-center text-3xl md:text-4xl font-extrabold mb-10">
+          We Complete Every Step <span className="luxury-gold">Carefully</span>
+        </h2>
+
+        <div className="grid gap-6 sm:gap-7 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {SERVICES.map((s) => (
+            <ServiceCard key={s.id} item={s} active={active} onToggle={setActive} />
+          ))}
+        </div>
       </div>
     </section>
   );

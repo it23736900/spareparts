@@ -14,6 +14,7 @@ import ProcessFlow from "./components/ProcessFlow";
 import TestimonialCarousel from "./components/TestimonialCarousel";
 import IntroParagraph from "./components/IntroParagraph"; // still available if you want it elsewhere
 import LandingScreen from "./components/LandingScreen";
+import ServicesSection from "./components/ServicesSection";
 import GetQuotationForm from "./components/GetQuotationForm";
 import Profile from "./pages/Profile";
 import TrackOrderSearch from "./components/TrackOrderSearch";
@@ -50,6 +51,7 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
 
       <TrackOrderSearch />
       <BrandLogos onInquire={onInquire} />
+      <ServicesSection onInquire={onInquire} />
       <ProcessFlow />
       <TestimonialCarousel />
       <Footer onInquire={() => onInquire("")} />
