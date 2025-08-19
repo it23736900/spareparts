@@ -53,7 +53,6 @@ export default function Navbar() {
   const navLinks = [
     { label: "Home", to: "/" },
     { label: "About Us", to: "/about" },
-    { label: "Services", to: "/services" },
     { label: "Contact Us", to: "/contact" },
   ];
 
