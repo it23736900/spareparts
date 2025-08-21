@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 
 /* ===== Palette (luxury dark-green + metallic gold) ===== */
-const GOLD = "#D4AF37";                 // true metallic gold
+const GOLD = "#D4AF37";
 const GOLD_SOFT = "rgba(212,175,55,0.65)";
 const GOLD_BORDER = "rgba(212,175,55,0.45)";
 const TEXT_SOFT = "#E6E6E0";
@@ -45,6 +45,18 @@ const vehicleOptions = [
   "Mini Cooper",
   "Other (please specify)",
 ];
+
+/** Works with/without CRA proxy.
+ *  - Dev: talks to http://127.0.0.1:5000/api
+ *  - Prod (behind reverse proxy): uses /api
+ *  - Or set REACT_APP_API_BASE to override.
+ */
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  ((window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1")
+    ? "http://127.0.0.1:5000/api"
+    : "/api");
 
 export default function GetQuotationForm({
   isOpen = false,
@@ -100,14 +112,39 @@ export default function GetQuotationForm({
     if (modalRef.current && !modalRef.current.contains(e.target)) onClose();
   };
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  // Format Zod validation messages if present
+  const zodToMessage = (errBody) => {
+    if (!errBody?.errors || !Array.isArray(errBody.errors)) {
+      return errBody?.message || "Failed to submit inquiry";
+    }
+    try {
+      const msgs = errBody.errors
+        .map((e) => (e?.path?.[0] ? `${e.path[0]}: ${e.message}` : e.message))
+        .filter(Boolean);
+      return msgs.join(" • ");
+    } catch {
+      return "Validation failed";
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const required = ["fullName", "email", "phone", "vehicleBrand", "description"];
+    const required = [
+      "fullName",
+      "email",
+      "phone",
+      "vehicleBrand",
+      "description",
+    ];
     let isEmpty = required.some((f) => !form[f].trim());
-    if (form.vehicleBrand === "Other (please specify)" && !form.customBrand.trim()) {
+    if (
+      form.vehicleBrand === "Other (please specify)" &&
+      !form.customBrand.trim()
+    ) {
       isEmpty = true;
     }
     if (isEmpty) {
@@ -117,12 +154,42 @@ export default function GetQuotationForm({
 
     setLoading(true);
     setError("");
-    setSubmittedEmail(form.email);
+    setSubmittedEmail(form.email.trim());
 
-    // TODO: replace mock with your real API call
-    setTimeout(() => {
-      const mockRef = "REF-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-      setSuccessCode(mockRef);
+    const resolvedBrand =
+      form.vehicleBrand === "Other (please specify)" &&
+      form.customBrand.trim()
+        ? form.customBrand.trim()
+        : form.vehicleBrand;
+
+    try {
+      const res = await fetch(`${API_BASE}/inquiries`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: form.fullName.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          vehicleBrand: resolvedBrand,
+          description: form.description.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        // Try to parse JSON; fall back to text
+        const raw = await res.text();
+        let errBody = {};
+        try {
+          errBody = JSON.parse(raw);
+        } catch {
+          errBody = { message: raw };
+        }
+        throw new Error(zodToMessage(errBody) || `HTTP ${res.status}`);
+      }
+
+      const data = await res.json(); // { message, refCode, inquiryId }
+      setSuccessCode(data.refCode || null);
+
       setForm({
         fullName: "",
         email: "",
@@ -131,8 +198,12 @@ export default function GetQuotationForm({
         description: "",
         customBrand: "",
       });
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Something went wrong");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const inputBase =
@@ -205,7 +276,10 @@ export default function GetQuotationForm({
           >
             Parts Inquiry Form
           </h2>
-          <p className="text-xs sm:text-sm" style={{ color: "rgba(230,230,224,0.78)" }}>
+          <p
+            className="text-xs sm:text-sm"
+            style={{ color: "rgba(230,230,224,0.78)" }}
+          >
             Tell us about your vehicle and requirements
           </p>
         </div>
@@ -237,15 +311,24 @@ export default function GetQuotationForm({
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
 
             <h3 className="mb-3 text-xl font-bold sm:text-2xl" style={textSoft}>
               Inquiry Submitted Successfully!
             </h3>
-            <p className="mb-6 text-sm sm:text-base" style={{ color: "rgba(230,230,224,0.85)" }}>
-              Thank you for reaching out to us. Your inquiry has been received and we'll get back to you within 24 hours.
+            <p
+              className="mb-6 text-sm sm:text-base"
+              style={{ color: "rgba(230,230,224,0.85)" }}
+            >
+              Thank you for reaching out to us. Your inquiry has been received
+              and we'll get back to you within 24 hours.
             </p>
 
             <div
@@ -263,7 +346,12 @@ export default function GetQuotationForm({
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
                 </svg>
                 <span className="text-sm font-semibold" style={{ color: GOLD }}>
                   Email Confirmation Sent
@@ -273,7 +361,8 @@ export default function GetQuotationForm({
                 A confirmation email with your reference number has been sent to{" "}
                 <span className="font-semibold" style={{ color: GOLD }}>
                   {submittedEmail}
-                </span>.
+                </span>
+                .
               </p>
             </div>
 
@@ -284,7 +373,10 @@ export default function GetQuotationForm({
                 border: "1px solid rgba(27,77,67,0.5)",
               }}
             >
-              <span className="block mb-1 text-sm font-semibold" style={{ color: GOLD }}>
+              <span
+                className="block mb-1 text-sm font-semibold"
+                style={{ color: GOLD }}
+              >
                 Your Reference Code:
               </span>
               <span className="text-xl font-bold tracking-wider" style={textSoft}>
@@ -299,10 +391,16 @@ export default function GetQuotationForm({
                 border: "1px solid rgba(27,77,67,0.4)",
               }}
             >
-              <h4 className="mb-2 text-sm font-semibold" style={{ color: GOLD }}>
+              <h4
+                className="mb-2 text-sm font-semibold"
+                style={{ color: GOLD }}
+              >
                 What happens next?
               </h4>
-              <ul className="space-y-1 text-xs text-left" style={{ color: "rgba(230,230,224,0.85)" }}>
+              <ul
+                className="space-y-1 text-xs text-left"
+                style={{ color: "rgba(230,230,224,0.85)" }}
+              >
                 <li>• Our team will review your inquiry within 24 hours</li>
                 <li>• You'll receive a detailed quote via email</li>
                 <li>• We'll contact you to discuss further details</li>
@@ -339,7 +437,8 @@ export default function GetQuotationForm({
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                  e.currentTarget.style.boxShadow =
+                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
                 }}
                 ref={firstFieldRef}
               />
@@ -347,7 +446,11 @@ export default function GetQuotationForm({
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
+              <label
+                htmlFor="email"
+                className="block mb-2 text-sm font-semibold"
+                style={{ color: GOLD }}
+              >
                 Email
               </label>
               <input
@@ -370,14 +473,19 @@ export default function GetQuotationForm({
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                  e.currentTarget.style.boxShadow =
+                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
                 }}
               />
             </div>
 
             {/* Phone */}
             <div>
-              <label htmlFor="phone" className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
+              <label
+                htmlFor="phone"
+                className="block mb-2 text-sm font-semibold"
+                style={{ color: GOLD }}
+              >
                 Phone
               </label>
               <input
@@ -399,14 +507,19 @@ export default function GetQuotationForm({
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                  e.currentTarget.style.boxShadow =
+                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
                 }}
               />
             </div>
 
             {/* Vehicle Brand */}
             <div>
-              <label htmlFor="vehicleBrand" className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
+              <label
+                htmlFor="vehicleBrand"
+                className="block mb-2 text-sm font-semibold"
+                style={{ color: GOLD }}
+              >
                 Vehicle Brand
               </label>
               <select
@@ -428,14 +541,19 @@ export default function GetQuotationForm({
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                  e.currentTarget.style.boxShadow =
+                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
                 }}
               >
                 <option value="" style={{ background: INPUT_BG, color: TEXT_SOFT }}>
                   Select Vehicle Brand
                 </option>
                 {vehicleOptions.map((brand, idx) => (
-                  <option key={idx} value={brand} style={{ background: INPUT_BG, color: TEXT_SOFT }}>
+                  <option
+                    key={idx}
+                    value={brand}
+                    style={{ background: INPUT_BG, color: TEXT_SOFT }}
+                  >
                     {brand}
                   </option>
                 ))}
@@ -461,7 +579,8 @@ export default function GetQuotationForm({
                   }}
                   onBlur={(e) => {
                     e.currentTarget.style.borderColor = INPUT_BORDER;
-                    e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                    e.currentTarget.style.boxShadow =
+                      "inset 0 0 0 1px rgba(255,255,255,0.02)";
                   }}
                 />
               )}
@@ -469,7 +588,11 @@ export default function GetQuotationForm({
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
+              <label
+                htmlFor="description"
+                className="block mb-2 text-sm font-semibold"
+                style={{ color: GOLD }}
+              >
                 Description
               </label>
               <textarea
@@ -491,7 +614,8 @@ export default function GetQuotationForm({
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                  e.currentTarget.style.boxShadow =
+                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
                 }}
               />
             </div>
@@ -510,7 +634,7 @@ export default function GetQuotationForm({
               </p>
             )}
 
-            {/* Submit — Square, metallic, premium */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -534,10 +658,29 @@ export default function GetQuotationForm({
               }}
             >
               {loading ? (
-                <span className="flex items-center justify-center" style={{ color: GOLD }}>
-                  <svg className="w-5 h-5 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke={GOLD} strokeWidth="4"></circle>
-                    <path className="opacity-75" fill={GOLD} d="M4 12a8 8 0 018-8v8z"></path>
+                <span
+                  className="flex items-center justify-center"
+                  style={{ color: GOLD }}
+                >
+                  <svg
+                    className="w-5 h-5 mr-2 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke={GOLD}
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill={GOLD}
+                      d="M4 12a8 8 0 018-8v8z"
+                    ></path>
                   </svg>
                   Submitting...
                 </span>

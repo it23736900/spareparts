@@ -1,44 +1,73 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-require("dotenv").config();
+import "dotenv/config";
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
+
+import inquiryRoutes from "./routes/inquiry.routes.js";
 
 const app = express();
-const PORT = process.env.PORT || 8070;
 
-app.use(cors());
-app.use(bodyParser.json());
+/* ---------- Middleware ---------- */
+app.use(express.json());
+app.use(helmet());
 
-// Add a basic test route
-app.get("/", (req, res) => {
-  res.json({ message: "SpareParts Backend API is running!" });
+// Pretty request logger (helps you see traffic during debug)
+app.use((req, _res, next) => {
+  console.log(
+    `[${new Date().toISOString()}] ${req.method} ${req.url} origin=${req.headers.origin || "-"}`
+  );
+  next();
 });
 
-const URL = process.env.MONGODB_URL;
+/* CORS (dev-friendly): allow localhost/127.0.0.1 and optional CLIENT_ORIGIN */
+const corsOptions = {
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true); // curl, mobile apps, SSR, etc.
+    if (/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) return cb(null, true);
+    if (origin === process.env.CLIENT_ORIGIN) return cb(null, true);
+    return cb(new Error("CORS not allowed"), false);
+  },
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+};
+app.use(cors(corsOptions));
 
-// Add error handling for MongoDB connection
-mongoose.connect(URL, {
-  //useCreateIndex: true,
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-  //useFindAndModify: false
-}).then(() => {
-  console.log("MongoDB Connection success!");
-}).catch((err) => {
-  console.log("MongoDB Connection failed. Server will continue without database functionality.");
-  console.log("Error:", err.message);
+/* Preflight responder WITHOUT using "*" path (Express 5-safe) */
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
 });
 
-const connection = mongoose.connection;
-connection.on("error", (err) => {
-  console.log("MongoDB connection error:", err.message);
+/* ---------- Health ---------- */
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
+/* ---------- Rate limit (skip localhost) ---------- */
+const inquiriesLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => ["127.0.0.1", "::1"].includes((req.ip || "").replace("::ffff:", "")),
 });
+app.use("/api/inquiries", inquiriesLimiter);
 
-const studentRouter = require("./routes/studentroutes.js");
+/* ---------- Routes ---------- */
+app.use("/api/inquiries", inquiryRoutes);
 
-app.use("/studentroutes", studentRouter);
+/* ---------- Boot ---------- */
+const PORT = process.env.PORT || 5000;
+const MONGO =
+  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/vehicle_parts";
 
-app.listen(PORT, () => {
-  console.log(`Server is up and running on port number: ${PORT}`);
-});
+mongoose
+  .connect(MONGO, { autoIndex: true, serverSelectionTimeoutMS: 15000 })
+  .then(() => app.listen(PORT, () => console.log(`API listening on :${PORT}`)))
+  .catch((e) => {
+    console.error("Mongo connect error:", e);
+    process.exit(1);
+  });
