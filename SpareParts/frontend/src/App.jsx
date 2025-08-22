@@ -1,3 +1,4 @@
+// src/App.jsx
 import { useEffect, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
@@ -5,21 +6,19 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import BrandLogos from "./components/BrandLogos";
 import Footer from "./components/Footer";
-import LoginSystem from "./components/LoginSystem"; // if used elsewhere
+import LoginSystem from "./components/LoginSystem";
 import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
-import SignupModal from "./components/SignupModal"; // if used elsewhere
+import SignupModal from "./components/SignupModal";
 import FloatingWhatsAppButton from "./components/FloatingWhatsAppButton";
 import ProcessFlow from "./components/ProcessFlow";
 import TestimonialCarousel from "./components/TestimonialCarousel";
-import IntroParagraph from "./components/IntroParagraph"; // still available if you want it elsewhere
 import LandingScreen from "./components/LandingScreen";
 import ServicesSection from "./components/ServicesSection";
 import GetQuotationForm from "./components/GetQuotationForm";
 import Profile from "./pages/Profile";
 import TrackOrderSearch from "./components/TrackOrderSearch";
-// import GlobeConnect from "./components/GlobeConnect"; // ⛔️ not used anymore
-import WorldMapShowcase from "./components/WorldMapShowcase"; // ✅ new map section
+import WorldMapShowcase from "./components/WorldMapShowcase";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -43,11 +42,6 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
 
       {/* 🌍 Futuristic interactive world map with right-side copy */}
       <WorldMapShowcase />
-
-      {/* Optional: keep the intro paragraph somewhere else if you still want it */}
-      {/* <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <IntroParagraph />
-      </section> */}
 
       <TrackOrderSearch />
       <BrandLogos onInquire={onInquire} />
@@ -112,11 +106,33 @@ function App() {
         </Routes>
       </AnimatePresence>
 
+      {/* Inquiry form (CTA in navbar & elsewhere) */}
       <GetQuotationForm
         isOpen={isInquiryOpen}
         onClose={() => setIsInquiryOpen(false)}
         prefill={{ brand: selectedBrand }}
       />
+
+      {/* 🔑 Auth modals — THIS is the new bit */}
+      {showLogin && (
+        <LoginSystem
+          onClose={() => setShowLogin(false)}
+          onSwitchToSignup={() => {
+            setShowLogin(false);
+            setShowSignupModal(true);
+          }}
+        />
+      )}
+
+      {showSignup && (
+        <SignupModal
+          onClose={() => setShowSignupModal(false)}
+          onSwitchToLogin={() => {
+            setShowSignupModal(false);
+            setShowLogin(true);
+          }}
+        />
+      )}
 
       <FloatingWhatsAppButton />
       <ToastContainer position="top-center" autoClose={3000} />
@@ -125,3 +141,4 @@ function App() {
 }
 
 export default App;
+

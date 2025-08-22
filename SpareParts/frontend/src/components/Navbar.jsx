@@ -1,20 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+// src/components/Navbar.jsx
+import React, { useEffect, useState, useRef } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
-import { FaBars, FaTimes } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
-import { getUser } from "../utils/auth";
-import GetQuotationForm from "./GetQuotationForm"; // ⬅️ update path if needed
+import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { getUser, logout } from "../utils/auth";
+import GetQuotationForm from "./GetQuotationForm"; // keep if you want the navbar "Inquire Now" CTA
 
+// Cloudinary assets
 const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
 const logo = cld.image("logo_e46o12").format("auto").quality("auto").resize(auto().width(100));
 const defaultAvatar = cld.image("default_avatar_khvzvj").format("auto").quality("auto").resize(auto().width(40));
 
-// lighter premium gold
+// Theme tokens
 const GOLD = "#E6C84F";
-
-// metallic dark-green gradient
 const METALLIC_GREEN = `
   linear-gradient(
     135deg,
@@ -24,14 +24,18 @@ const METALLIC_GREEN = `
   )
 `;
 
-export default function Navbar() {
+export default function Navbar({ onSignInClick, onSignUpClick }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(getUser()?.avatarUrl || null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isAuthMenuOpen, setIsAuthMenuOpen] = useState(false);
 
   const location = useLocation();
-  const avatarBtnRef = useRef(null);
+  const navigate = useNavigate();
 
+  const authMenuRef = useRef(null);
+
+  // Keep avatar in sync with auth changes
   useEffect(() => {
     const handler = () => {
       const u = getUser();
@@ -45,16 +49,29 @@ export default function Navbar() {
     };
   }, []);
 
+  // Close menus on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setIsAuthMenuOpen(false);
   }, [location.pathname]);
 
-  // ✅ Use real routes instead of hash anchors
+  // Close auth dropdown on outside click
+  useEffect(() => {
+    function onClickAway(e) {
+      if (!authMenuRef.current) return;
+      if (!authMenuRef.current.contains(e.target)) setIsAuthMenuOpen(false);
+    }
+    document.addEventListener("mousedown", onClickAway);
+    return () => document.removeEventListener("mousedown", onClickAway);
+  }, []);
+
   const navLinks = [
     { label: "Home", to: "/" },
     { label: "About Us", to: "/about" },
     { label: "Contact Us", to: "/contact" },
   ];
+
+  const user = getUser();
 
   return (
     <>
@@ -96,7 +113,7 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Right cluster (spacing unchanged) */}
+          {/* Right cluster */}
           <div className="items-center hidden md:flex gap-5 -translate-x-[2px]">
             {/* Inquire Now — opens form */}
             <button
@@ -113,31 +130,85 @@ export default function Navbar() {
               Inquire Now
             </button>
 
-            {/* Avatar */}
-            <button
-              ref={avatarBtnRef}
-              className="relative w-10 h-10 overflow-hidden transition border-2 rounded-full hover:scale-110"
-              style={{
-                borderColor: GOLD,
-                boxShadow: "0 0 8px rgba(230,200,79,0.35)",
-              }}
-              aria-label="Profile"
-            >
-              {avatarSrc ? (
-                <img
-                  src={avatarSrc}
-                  alt="Profile"
-                  className="object-cover w-full h-full"
-                  onError={() => setAvatarSrc(null)}
-                />
-              ) : (
-                <AdvancedImage
-                  cldImg={defaultAvatar}
-                  className="object-cover w-full h-full"
-                  alt="Profile"
-                />
+            {/* Account menu: shows avatar if logged in, else user icon */}
+            <div className="relative" ref={authMenuRef}>
+              <button
+                onClick={() => setIsAuthMenuOpen((v) => !v)}
+                className="relative grid w-10 h-10 overflow-hidden transition border-2 rounded-full hover:scale-110 place-items-center"
+                style={{
+                  borderColor: GOLD,
+                  boxShadow: "0 0 8px rgba(230,200,79,0.35)",
+                  background: "transparent",
+                  color: "#E9EDEB",
+                }}
+                aria-label="Account menu"
+              >
+                {user ? (
+                  avatarSrc ? (
+                    <img
+                      src={avatarSrc}
+                      alt="Profile"
+                      className="object-cover w-full h-full"
+                      onError={() => setAvatarSrc(null)}
+                    />
+                  ) : (
+                    <AdvancedImage cldImg={defaultAvatar} className="object-cover w-full h-full" alt="Profile" />
+                  )
+                ) : (
+                  <FaUserCircle size={20} />
+                )}
+              </button>
+
+              {isAuthMenuOpen && (
+                <div
+                  className="absolute right-0 z-50 mt-2 w-48 rounded-xl overflow-hidden border shadow-xl bg-[#0B1C1F]/95 backdrop-blur-lg"
+                  style={{ borderColor: "rgba(212,175,55,0.45)" }}
+                >
+                  {!user ? (
+                    <>
+                      <button
+                        className="w-full px-4 py-3 text-sm text-left hover:bg-white/10"
+                        onClick={() => {
+                          setIsAuthMenuOpen(false);
+                          onSignInClick?.();
+                        }}
+                      >
+                        Log in
+                      </button>
+                      <button
+                        className="w-full px-4 py-3 text-sm text-left hover:bg-white/10"
+                        onClick={() => {
+                          setIsAuthMenuOpen(false);
+                          onSignUpClick?.();
+                        }}
+                      >
+                        Sign up
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-3 text-sm hover:bg-white/10"
+                        onClick={() => setIsAuthMenuOpen(false)}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        className="flex items-center w-full gap-2 px-4 py-3 text-sm text-left hover:bg-white/10"
+                        onClick={() => {
+                          setIsAuthMenuOpen(false);
+                          logout();
+                          navigate("/");
+                        }}
+                      >
+                        <FaSignOutAlt /> Logout
+                      </button>
+                    </>
+                  )}
+                </div>
               )}
-            </button>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -184,11 +255,61 @@ export default function Navbar() {
             >
               Inquire Now
             </button>
+
+            {/* Account actions (mobile) */}
+            <div className="flex gap-2 pt-2">
+              {!user ? (
+                <>
+                  <button
+                    onClick={() => {
+                      onSignInClick?.();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex-1 border rounded-lg h-11"
+                    style={{ color: "#E9EDEB", borderColor: "rgba(212,175,55,0.45)" }}
+                  >
+                    Log in
+                  </button>
+                  <button
+                    onClick={() => {
+                      onSignUpClick?.();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex-1 rounded-lg h-11"
+                    style={{ color: "#0B1C1F", background: GOLD, border: "2px solid " + GOLD }}
+                  >
+                    Sign up
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="grid flex-1 border rounded-lg h-11 place-items-center"
+                    style={{ color: "#E9EDEB", borderColor: "rgba(212,175,55,0.45)" }}
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                      navigate("/");
+                    }}
+                    className="grid flex-1 rounded-lg h-11 place-items-center"
+                    style={{ color: "#0B1C1F", background: GOLD, border: "2px solid " + GOLD }}
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </header>
 
-      {/* Inquiry Form Modal */}
+      {/* Inquiry Form Modal (if you want the header CTA to open it) */}
       <GetQuotationForm
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
