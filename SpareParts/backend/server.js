@@ -3,66 +3,42 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
 import { rateLimit } from "express-rate-limit";
 
 import inquiryRoutes from "./routes/inquiry.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import productRoutes from "./routes/products.routes.js";
 
 const app = express();
 
 /* ---------- Middleware ---------- */
 app.use(express.json());
 app.use(helmet());
+app.use(morgan("dev"));
 
-// Pretty request logger (helps you see traffic during debug)
-app.use((req, _res, next) => {
-  console.log(
-    `[${new Date().toISOString()}] ${req.method} ${req.url} origin=${req.headers.origin || "-"}`
-  );
-  next();
-});
-
-/* CORS (dev-friendly): allow localhost/127.0.0.1 and optional CLIENT_ORIGIN */
+/* CORS (dev-friendly) */
 const corsOptions = {
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // curl, mobile apps, SSR, etc.
+    if (!origin) return cb(null, true);
     if (/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) return cb(null, true);
     if (origin === process.env.CLIENT_ORIGIN) return cb(null, true);
     return cb(new Error("CORS not allowed"), false);
   },
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 };
 app.use(cors(corsOptions));
 
-/* Preflight responder WITHOUT using "*" path (Express 5-safe) */
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-  next();
-});
-
-/* ---------- Health ---------- */
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
-
-/* ---------- Rate limit (skip localhost) ---------- */
-const inquiriesLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 200,
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => ["127.0.0.1", "::1"].includes((req.ip || "").replace("::ffff:", "")),
-});
-app.use("/api/inquiries", inquiriesLimiter);
+/* rate limit */
+app.use(rateLimit({ windowMs: 60_000, max: 300 }));
 
 /* ---------- Routes ---------- */
 app.use("/api/inquiries", inquiryRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
 
 /* ---------- Boot ---------- */
 const PORT = process.env.PORT || 5000;
-const MONGO =
-  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/vehicle_parts";
+const MONGO = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/spareparts";
 
 mongoose
   .connect(MONGO, { autoIndex: true, serverSelectionTimeoutMS: 15000 })

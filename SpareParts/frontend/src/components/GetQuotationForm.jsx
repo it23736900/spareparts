@@ -1,4 +1,6 @@
+// src/components/GetQuotationForm.jsx
 import { useEffect, useState, useRef } from "react";
+import api from "../utils/api"; // axios instance with baseURL "/api" + auth header (if present)
 
 /* ===== Palette (luxury dark-green + metallic gold) ===== */
 const GOLD = "#D4AF37";
@@ -46,17 +48,9 @@ const vehicleOptions = [
   "Other (please specify)",
 ];
 
-/** Works with/without CRA proxy.
- *  - Dev: talks to http://127.0.0.1:5000/api
- *  - Prod (behind reverse proxy): uses /api
- *  - Or set REACT_APP_API_BASE to override.
- */
-const API_BASE =
-  process.env.REACT_APP_API_BASE ||
-  ((window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1")
-    ? "http://127.0.0.1:5000/api"
-    : "/api");
+// Helpers
+const emailOK = (v = "") => /\S+@\S+\.\S+/.test(v.trim());
+const phoneOK = (v = "") => v.replace(/\D/g, "").length >= 7; // simple, cross‑country safe
 
 export default function GetQuotationForm({
   isOpen = false,
@@ -74,8 +68,11 @@ export default function GetQuotationForm({
 
   const [loading, setLoading] = useState(false);
   const [successCode, setSuccessCode] = useState(null);
+  const [inquiryId, setInquiryId] = useState(null);
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
+
   const modalRef = useRef(null);
   const firstFieldRef = useRef(null);
 
@@ -96,100 +93,93 @@ export default function GetQuotationForm({
     if (!isOpen) {
       setLoading(false);
       setError("");
-      setTimeout(() => setSuccessCode(null), 200);
+      setCopied(false);
+      setTimeout(() => {
+        setSuccessCode(null);
+        setInquiryId(null);
+      }, 200);
     }
   }, [isOpen]);
 
   // Close on ESC
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e) => e.key === "Escape" && onClose();
+    const handler = (e) => e.key === "Escape" && !loading && onClose();
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, loading]);
 
   const handleBackdropClick = (e) => {
+    if (loading) return;
     if (modalRef.current && !modalRef.current.contains(e.target)) onClose();
   };
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  // Format Zod validation messages if present
-  const zodToMessage = (errBody) => {
-    if (!errBody?.errors || !Array.isArray(errBody.errors)) {
-      return errBody?.message || "Failed to submit inquiry";
+  // Try to pull zod/our error format into a friendly text
+  const formatError = (payload) => {
+    if (!payload) return "Failed to submit inquiry";
+    if (payload.message && typeof payload.message === "string") return payload.message;
+    if (payload.errors && Array.isArray(payload.errors)) {
+      try {
+        const msgs = payload.errors
+          .map((e) => (e?.path?.[0] ? `${e.path[0]}: ${e.message}` : e.message))
+          .filter(Boolean);
+        if (msgs.length) return msgs.join(" • ");
+      } catch {}
     }
-    try {
-      const msgs = errBody.errors
-        .map((e) => (e?.path?.[0] ? `${e.path[0]}: ${e.message}` : e.message))
-        .filter(Boolean);
-      return msgs.join(" • ");
-    } catch {
-      return "Validation failed";
-    }
+    return "Validation failed";
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const required = [
-      "fullName",
-      "email",
-      "phone",
-      "vehicleBrand",
-      "description",
-    ];
-    let isEmpty = required.some((f) => !form[f].trim());
+  const validate = () => {
+    if (!form.fullName.trim()) return "Full name is required";
+    if (!emailOK(form.email)) return "Valid email is required";
+    if (!phoneOK(form.phone)) return "Valid phone is required";
+    if (!form.vehicleBrand) return "Vehicle brand is required";
     if (
       form.vehicleBrand === "Other (please specify)" &&
       !form.customBrand.trim()
     ) {
-      isEmpty = true;
+      return "Please specify your vehicle brand/model";
     }
-    if (isEmpty) {
-      setError("Please fill in all fields.");
+    if (!form.description.trim() || form.description.trim().length < 5) {
+      return "Please add a short description";
+    }
+    return "";
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const msg = validate();
+    if (msg) {
+      setError(msg);
       return;
     }
 
-    setLoading(true);
-    setError("");
-    setSubmittedEmail(form.email.trim());
-
     const resolvedBrand =
-      form.vehicleBrand === "Other (please specify)" &&
-      form.customBrand.trim()
+      form.vehicleBrand === "Other (please specify)" && form.customBrand.trim()
         ? form.customBrand.trim()
         : form.vehicleBrand;
 
+    setLoading(true);
+    setError("");
+    setCopied(false);
+    setSubmittedEmail(form.email.trim());
+
     try {
-      const res = await fetch(`${API_BASE}/inquiries`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: form.fullName.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-          vehicleBrand: resolvedBrand,
-          description: form.description.trim(),
-        }),
+      const { data } = await api.post("/inquiries", {
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        vehicleBrand: resolvedBrand,
+        description: form.description.trim(),
       });
+      // Backend returns the created inquiry (with refCode)
+      setSuccessCode(data?.refCode || "");
+      setInquiryId(data?._id || null);
 
-      if (!res.ok) {
-        // Try to parse JSON; fall back to text
-        const raw = await res.text();
-        let errBody = {};
-        try {
-          errBody = JSON.parse(raw);
-        } catch {
-          errBody = { message: raw };
-        }
-        throw new Error(zodToMessage(errBody) || `HTTP ${res.status}`);
-      }
-
-      const data = await res.json(); // { message, refCode, inquiryId }
-      setSuccessCode(data.refCode || null);
-
+      // reset form
       setForm({
         fullName: "",
         email: "",
@@ -199,10 +189,21 @@ export default function GetQuotationForm({
         customBrand: "",
       });
     } catch (err) {
-      console.error(err);
-      setError(err.message || "Something went wrong");
+      const payload = err?.response?.data || { message: err.message };
+      setError(formatError(payload));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const copyRef = async () => {
+    if (!successCode) return;
+    try {
+      await navigator.clipboard.writeText(successCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
     }
   };
 
@@ -255,10 +256,11 @@ export default function GetQuotationForm({
 
         {/* Close */}
         <button
-          onClick={onClose}
-          className="absolute text-2xl leading-none text-white/80 hover:text-white"
+          onClick={!loading ? onClose : undefined}
+          className="absolute text-2xl leading-none text-white/80 hover:text-white disabled:opacity-50"
           aria-label="Close"
           type="button"
+          disabled={loading}
           style={{ top: 12, right: 16 }}
         >
           ×
@@ -327,8 +329,7 @@ export default function GetQuotationForm({
               className="mb-6 text-sm sm:text-base"
               style={{ color: "rgba(230,230,224,0.85)" }}
             >
-              Thank you for reaching out to us. Your inquiry has been received
-              and we'll get back to you within 24 hours.
+              Thank you for reaching out. We’ll review and respond within 24 hours.
             </p>
 
             <div
@@ -358,7 +359,7 @@ export default function GetQuotationForm({
                 </span>
               </div>
               <p className="text-xs" style={{ color: "rgba(230,230,224,0.8)" }}>
-                A confirmation email with your reference number has been sent to{" "}
+                A confirmation with your reference number was sent to{" "}
                 <span className="font-semibold" style={{ color: GOLD }}>
                   {submittedEmail}
                 </span>
@@ -367,21 +368,27 @@ export default function GetQuotationForm({
             </div>
 
             <div
-              className="w-full max-w-xs px-6 py-4 mt-1 mb-4 rounded-xl"
+              className="w-full max-w-xs px-6 py-4 mt-1 mb-3 rounded-xl"
               style={{
                 background: "rgba(6,16,12,0.92)",
                 border: "1px solid rgba(27,77,67,0.5)",
               }}
             >
-              <span
-                className="block mb-1 text-sm font-semibold"
-                style={{ color: GOLD }}
-              >
+              <span className="block mb-1 text-sm font-semibold" style={{ color: GOLD }}>
                 Your Reference Code:
               </span>
-              <span className="text-xl font-bold tracking-wider" style={textSoft}>
-                {successCode}
-              </span>
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-xl font-bold tracking-wider" style={textSoft}>
+                  {successCode}
+                </span>
+                <button
+                  onClick={copyRef}
+                  className="text-xs px-3 py-1 rounded-md border"
+                  style={{ borderColor: GOLD_BORDER, color: GOLD }}
+                >
+                  {copied ? "Copied!" : "Copy"}
+                </button>
+              </div>
             </div>
 
             <div
@@ -391,141 +398,84 @@ export default function GetQuotationForm({
                 border: "1px solid rgba(27,77,67,0.4)",
               }}
             >
-              <h4
-                className="mb-2 text-sm font-semibold"
-                style={{ color: GOLD }}
-              >
+              <h4 className="mb-2 text-sm font-semibold" style={{ color: GOLD }}>
                 What happens next?
               </h4>
               <ul
                 className="space-y-1 text-xs text-left"
                 style={{ color: "rgba(230,230,224,0.85)" }}
               >
-                <li>• Our team will review your inquiry within 24 hours</li>
-                <li>• You'll receive a detailed quote via email</li>
-                <li>• We'll contact you to discuss further details</li>
+                <li>• Our team reviews your inquiry</li>
+                <li>• You’ll receive a detailed quotation</li>
+                <li>• We’ll contact you for confirmation</li>
               </ul>
             </div>
+
+            {/* Optional: quick track link */}
+            {inquiryId && (
+              <a
+                href={`/track?ref=${encodeURIComponent(successCode)}`}
+                className="mt-5 text-sm underline"
+                style={{ color: GOLD }}
+              >
+                Track this inquiry
+              </a>
+            )}
+
+            <button
+              className="mt-6 px-5 py-3 rounded-lg text-sm font-semibold"
+              style={{
+                color: GOLD,
+                background: METALLIC_GREEN,
+                border: `1.5px solid ${GOLD_BORDER}`,
+              }}
+              onClick={() => {
+                setSuccessCode(null);
+                setInquiryId(null);
+                setCopied(false);
+              }}
+            >
+              Submit Another Inquiry
+            </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6" noValidate>
             {/* Full Name */}
-            <div>
-              <label
-                htmlFor="fullName"
-                className="block mb-2 text-sm font-semibold"
-                style={{ color: GOLD }}
-              >
-                Full Name
-              </label>
-              <input
-                id="fullName"
-                name="fullName"
-                placeholder="Enter your full name"
-                className={`${inputBase}`}
-                value={form.fullName}
-                onChange={handleChange}
-                style={{
-                  ...textSoft,
-                  background: INPUT_BG,
-                  border: `1px solid ${INPUT_BORDER}`,
-                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
-                  e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow =
-                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
-                }}
-                ref={firstFieldRef}
-              />
-            </div>
+            <Field
+              label="Full Name"
+              name="fullName"
+              value={form.fullName}
+              onChange={handleChange}
+              placeholder="Enter your full name"
+              inputRef={firstFieldRef}
+            />
 
             {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block mb-2 text-sm font-semibold"
-                style={{ color: GOLD }}
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                className={`${inputBase}`}
-                value={form.email}
-                onChange={handleChange}
-                style={{
-                  ...textSoft,
-                  background: INPUT_BG,
-                  border: `1px solid ${INPUT_BORDER}`,
-                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
-                  e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow =
-                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
-                }}
-              />
-            </div>
+            <Field
+              label="Email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+            />
 
             {/* Phone */}
-            <div>
-              <label
-                htmlFor="phone"
-                className="block mb-2 text-sm font-semibold"
-                style={{ color: GOLD }}
-              >
-                Phone
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                placeholder="Enter your phone number"
-                className={`${inputBase}`}
-                value={form.phone}
-                onChange={handleChange}
-                style={{
-                  ...textSoft,
-                  background: INPUT_BG,
-                  border: `1px solid ${INPUT_BORDER}`,
-                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
-                  e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow =
-                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
-                }}
-              />
-            </div>
+            <Field
+              label="Phone"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              placeholder="Enter your phone number"
+            />
 
             {/* Vehicle Brand */}
             <div>
-              <label
-                htmlFor="vehicleBrand"
-                className="block mb-2 text-sm font-semibold"
-                style={{ color: GOLD }}
-              >
-                Vehicle Brand
-              </label>
+              <Label>Vehicle Brand</Label>
               <select
                 id="vehicleBrand"
                 name="vehicleBrand"
-                className={`${inputBase}`}
+                className={inputBase}
                 value={form.vehicleBrand}
                 onChange={handleChange}
                 style={{
@@ -560,41 +510,19 @@ export default function GetQuotationForm({
               </select>
 
               {form.vehicleBrand === "Other (please specify)" && (
-                <input
-                  type="text"
+                <Field
+                  className="mt-3"
                   name="customBrand"
                   placeholder="Enter your vehicle brand/model"
-                  className={`${inputBase} mt-3`}
                   value={form.customBrand}
                   onChange={handleChange}
-                  style={{
-                    ...textSoft,
-                    background: INPUT_BG,
-                    border: `1px solid ${INPUT_BORDER}`,
-                    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
-                    e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = INPUT_BORDER;
-                    e.currentTarget.style.boxShadow =
-                      "inset 0 0 0 1px rgba(255,255,255,0.02)";
-                  }}
                 />
               )}
             </div>
 
             {/* Description */}
             <div>
-              <label
-                htmlFor="description"
-                className="block mb-2 text-sm font-semibold"
-                style={{ color: GOLD }}
-              >
-                Description
-              </label>
+              <Label>Description</Label>
               <textarea
                 id="description"
                 name="description"
@@ -638,7 +566,7 @@ export default function GetQuotationForm({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 text-lg font-bold transition transform rounded-lg focus:outline-none"
+              className="w-full py-4 text-lg font-bold transition transform rounded-lg focus:outline-none disabled:opacity-60"
               style={{
                 color: GOLD,
                 background: METALLIC_GREEN,
@@ -658,10 +586,7 @@ export default function GetQuotationForm({
               }}
             >
               {loading ? (
-                <span
-                  className="flex items-center justify-center"
-                  style={{ color: GOLD }}
-                >
+                <span className="flex items-center justify-center" style={{ color: GOLD }}>
                   <svg
                     className="w-5 h-5 mr-2 animate-spin"
                     xmlns="http://www.w3.org/2000/svg"
@@ -675,12 +600,12 @@ export default function GetQuotationForm({
                       r="10"
                       stroke={GOLD}
                       strokeWidth="4"
-                    ></circle>
+                    />
                     <path
                       className="opacity-75"
                       fill={GOLD}
                       d="M4 12a8 8 0 018-8v8z"
-                    ></path>
+                    />
                   </svg>
                   Submitting...
                 </span>
@@ -691,6 +616,62 @@ export default function GetQuotationForm({
           </form>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ---------- tiny local UI atoms to reduce repetition ---------- */
+function Label({ children }) {
+  return (
+    <label
+      className="block mb-2 text-sm font-semibold"
+      style={{ color: GOLD }}
+    >
+      {children}
+    </label>
+  );
+}
+
+function Field({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  inputRef,
+  className = "",
+}) {
+  const base =
+    "w-full p-4 rounded-lg text-base transition shadow-sm placeholder-gray-400 focus:outline-none";
+  return (
+    <div className={className}>
+      {label && <Label>{label}</Label>}
+      <input
+        id={name}
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        ref={inputRef}
+        className={base}
+        style={{
+          color: TEXT_SOFT,
+          background: INPUT_BG,
+          border: `1px solid ${INPUT_BORDER}`,
+          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = INPUT_BORDER_FOCUS;
+          e.currentTarget.style.boxShadow = `${INPUT_RING}, inset 0 0 0 1px rgba(255,255,255,0.02)`;
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = INPUT_BORDER;
+          e.currentTarget.style.boxShadow =
+            "inset 0 0 0 1px rgba(255,255,255,0.02)";
+        }}
+      />
     </div>
   );
 }
