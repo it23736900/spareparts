@@ -1,14 +1,12 @@
 // src/components/GetQuotationForm.jsx
 import { useEffect, useState, useRef } from "react";
-import api from "../utils/api"; // axios instance with baseURL "/api" + auth header (if present)
+import api from "../utils/api"; // axios instance with baseURL "/api"
 
-/* ===== Palette (luxury dark-green + metallic gold) ===== */
 const GOLD = "#D4AF37";
 const GOLD_SOFT = "rgba(212,175,55,0.65)";
 const GOLD_BORDER = "rgba(212,175,55,0.45)";
 const TEXT_SOFT = "#E6E6E0";
 
-/* Metallic dark-green surfaces */
 const METALLIC_GREEN = `
   linear-gradient(
     135deg,
@@ -48,9 +46,8 @@ const vehicleOptions = [
   "Other (please specify)",
 ];
 
-// Helpers
 const emailOK = (v = "") => /\S+@\S+\.\S+/.test(v.trim());
-const phoneOK = (v = "") => v.replace(/\D/g, "").length >= 7; // simple, cross‑country safe
+const phoneOK = (v = "") => v.replace(/\D/g, "").length >= 7;
 
 export default function GetQuotationForm({
   isOpen = false,
@@ -62,6 +59,7 @@ export default function GetQuotationForm({
     email: "",
     phone: "",
     vehicleBrand: "",
+    item: "",          // ★ NEW: Part / Item
     description: "",
     customBrand: "",
   });
@@ -76,19 +74,16 @@ export default function GetQuotationForm({
   const modalRef = useRef(null);
   const firstFieldRef = useRef(null);
 
-  // Prefill brand when opened from a card
   useEffect(() => {
     if (isOpen && prefill.brand) {
       setForm((f) => ({ ...f, vehicleBrand: prefill.brand }));
     }
   }, [isOpen, prefill.brand]);
 
-  // Focus first field on open
   useEffect(() => {
     if (isOpen && firstFieldRef.current) firstFieldRef.current.focus();
   }, [isOpen]);
 
-  // Reset transient state when closing
   useEffect(() => {
     if (!isOpen) {
       setLoading(false);
@@ -101,7 +96,6 @@ export default function GetQuotationForm({
     }
   }, [isOpen]);
 
-  // Close on ESC
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e) => e.key === "Escape" && !loading && onClose();
@@ -117,7 +111,6 @@ export default function GetQuotationForm({
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  // Try to pull zod/our error format into a friendly text
   const formatError = (payload) => {
     if (!payload) return "Failed to submit inquiry";
     if (payload.message && typeof payload.message === "string") return payload.message;
@@ -143,6 +136,7 @@ export default function GetQuotationForm({
     ) {
       return "Please specify your vehicle brand/model";
     }
+    if (!form.item.trim()) return "Part / Item is required";             // ★ NEW
     if (!form.description.trim() || form.description.trim().length < 5) {
       return "Please add a short description";
     }
@@ -168,23 +162,27 @@ export default function GetQuotationForm({
     setSubmittedEmail(form.email.trim());
 
     try {
+      // ★ Send the keys your backend expects
       const { data } = await api.post("/inquiries", {
-        fullName: form.fullName.trim(),
+        name: form.fullName.trim(),
         email: form.email.trim(),
         phone: form.phone.trim(),
-        vehicleBrand: resolvedBrand,
+        brand: resolvedBrand,
+        item: form.item.trim(),                   // ★ NEW
         description: form.description.trim(),
       });
-      // Backend returns the created inquiry (with refCode)
-      setSuccessCode(data?.refCode || "");
+
+      // backend might return { ref } or { refCode }
+      const ref = data?.ref || data?.refCode || "";
+      setSuccessCode(ref);
       setInquiryId(data?._id || null);
 
-      // reset form
       setForm({
         fullName: "",
         email: "",
         phone: "",
         vehicleBrand: "",
+        item: "",            // reset
         description: "",
         customBrand: "",
       });
@@ -220,7 +218,6 @@ export default function GetQuotationForm({
       aria-modal="true"
       role="dialog"
     >
-      {/* Backdrop with gold-tinted vignette */}
       <div
         className="absolute inset-0 backdrop-blur-sm"
         style={{
@@ -229,7 +226,6 @@ export default function GetQuotationForm({
         }}
       />
 
-      {/* Modal Card */}
       <div
         ref={modalRef}
         onMouseDown={(e) => e.stopPropagation()}
@@ -244,7 +240,6 @@ export default function GetQuotationForm({
             "0 0 0 1px rgba(255,255,255,0.04) inset, 0 30px 80px rgba(0,0,0,0.55)",
         }}
       >
-        {/* Top gold accent hairline */}
         <div
           className="absolute left-4 right-4 top-0 h-[2px] rounded-full"
           style={{
@@ -254,7 +249,6 @@ export default function GetQuotationForm({
           }}
         />
 
-        {/* Close */}
         <button
           onClick={!loading ? onClose : undefined}
           className="absolute text-2xl leading-none text-white/80 hover:text-white disabled:opacity-50"
@@ -266,7 +260,6 @@ export default function GetQuotationForm({
           ×
         </button>
 
-        {/* Header */}
         <div className="mb-6 text-center sm:mb-8">
           <h2
             className="mb-2 text-2xl font-extrabold tracking-tight sm:text-3xl"
@@ -286,7 +279,6 @@ export default function GetQuotationForm({
           </p>
         </div>
 
-        {/* Body */}
         {successCode ? (
           <div
             className="flex flex-col items-center p-6 text-center rounded-xl sm:p-7"
@@ -313,46 +305,24 @@ export default function GetQuotationForm({
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
 
             <h3 className="mb-3 text-xl font-bold sm:text-2xl" style={textSoft}>
               Inquiry Submitted Successfully!
             </h3>
-            <p
-              className="mb-6 text-sm sm:text-base"
-              style={{ color: "rgba(230,230,224,0.85)" }}
-            >
+            <p className="mb-6 text-sm sm:text-base" style={{ color: "rgba(230,230,224,0.85)" }}>
               Thank you for reaching out. We’ll review and respond within 24 hours.
             </p>
 
             <div
               className="w-full max-w-sm p-4 mb-5 rounded-xl"
-              style={{
-                background: METALLIC_GREEN_SOFT,
-                border: `1px solid ${GOLD_BORDER}`,
-              }}
+              style={{ background: METALLIC_GREEN_SOFT, border: `1px solid ${GOLD_BORDER}` }}
             >
               <div className="flex items-center justify-center mb-2">
-                <svg
-                  className="w-5 h-5 mr-2"
-                  style={{ color: GOLD }}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
+                <svg className="w-5 h-5 mr-2" style={{ color: GOLD }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
                 <span className="text-sm font-semibold" style={{ color: GOLD }}>
                   Email Confirmation Sent
@@ -369,10 +339,7 @@ export default function GetQuotationForm({
 
             <div
               className="w-full max-w-xs px-6 py-4 mt-1 mb-3 rounded-xl"
-              style={{
-                background: "rgba(6,16,12,0.92)",
-                border: "1px solid rgba(27,77,67,0.5)",
-              }}
+              style={{ background: "rgba(6,16,12,0.92)", border: "1px solid rgba(27,77,67,0.5)" }}
             >
               <span className="block mb-1 text-sm font-semibold" style={{ color: GOLD }}>
                 Your Reference Code:
@@ -381,54 +348,21 @@ export default function GetQuotationForm({
                 <span className="text-xl font-bold tracking-wider" style={textSoft}>
                   {successCode}
                 </span>
-                <button
-                  onClick={copyRef}
-                  className="text-xs px-3 py-1 rounded-md border"
-                  style={{ borderColor: GOLD_BORDER, color: GOLD }}
-                >
+                <button onClick={copyRef} className="text-xs px-3 py-1 rounded-md border" style={{ borderColor: GOLD_BORDER, color: GOLD }}>
                   {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
             </div>
 
-            <div
-              className="p-4 mt-2 rounded-xl"
-              style={{
-                background: "rgba(10,26,20,0.75)",
-                border: "1px solid rgba(27,77,67,0.4)",
-              }}
-            >
-              <h4 className="mb-2 text-sm font-semibold" style={{ color: GOLD }}>
-                What happens next?
-              </h4>
-              <ul
-                className="space-y-1 text-xs text-left"
-                style={{ color: "rgba(230,230,224,0.85)" }}
-              >
-                <li>• Our team reviews your inquiry</li>
-                <li>• You’ll receive a detailed quotation</li>
-                <li>• We’ll contact you for confirmation</li>
-              </ul>
-            </div>
-
-            {/* Optional: quick track link */}
             {inquiryId && (
-              <a
-                href={`/track?ref=${encodeURIComponent(successCode)}`}
-                className="mt-5 text-sm underline"
-                style={{ color: GOLD }}
-              >
+              <a href={`/track?ref=${encodeURIComponent(successCode)}`} className="mt-5 text-sm underline" style={{ color: GOLD }}>
                 Track this inquiry
               </a>
             )}
 
             <button
               className="mt-6 px-5 py-3 rounded-lg text-sm font-semibold"
-              style={{
-                color: GOLD,
-                background: METALLIC_GREEN,
-                border: `1.5px solid ${GOLD_BORDER}`,
-              }}
+              style={{ color: GOLD, background: METALLIC_GREEN, border: `1.5px solid ${GOLD_BORDER}` }}
               onClick={() => {
                 setSuccessCode(null);
                 setInquiryId(null);
@@ -440,34 +374,11 @@ export default function GetQuotationForm({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6" noValidate>
-            {/* Full Name */}
-            <Field
-              label="Full Name"
-              name="fullName"
-              value={form.fullName}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-              inputRef={firstFieldRef}
-            />
+            <Field label="Full Name" name="fullName" value={form.fullName} onChange={handleChange} placeholder="Enter your full name" inputRef={firstFieldRef} />
 
-            {/* Email */}
-            <Field
-              label="Email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-            />
+            <Field label="Email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="Enter your email" />
 
-            {/* Phone */}
-            <Field
-              label="Phone"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              placeholder="Enter your phone number"
-            />
+            <Field label="Phone" name="phone" value={form.phone} onChange={handleChange} placeholder="Enter your phone number" />
 
             {/* Vehicle Brand */}
             <div>
@@ -479,7 +390,7 @@ export default function GetQuotationForm({
                 value={form.vehicleBrand}
                 onChange={handleChange}
                 style={{
-                  ...textSoft,
+                  color: TEXT_SOFT,
                   background: INPUT_BG,
                   border: `1px solid ${INPUT_BORDER}`,
                   boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
@@ -491,34 +402,32 @@ export default function GetQuotationForm({
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow =
-                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
                 }}
               >
                 <option value="" style={{ background: INPUT_BG, color: TEXT_SOFT }}>
                   Select Vehicle Brand
                 </option>
                 {vehicleOptions.map((brand, idx) => (
-                  <option
-                    key={idx}
-                    value={brand}
-                    style={{ background: INPUT_BG, color: TEXT_SOFT }}
-                  >
+                  <option key={idx} value={brand} style={{ background: INPUT_BG, color: TEXT_SOFT }}>
                     {brand}
                   </option>
                 ))}
               </select>
 
               {form.vehicleBrand === "Other (please specify)" && (
-                <Field
-                  className="mt-3"
-                  name="customBrand"
-                  placeholder="Enter your vehicle brand/model"
-                  value={form.customBrand}
-                  onChange={handleChange}
-                />
+                <Field className="mt-3" name="customBrand" placeholder="Enter your vehicle brand/model" value={form.customBrand} onChange={handleChange} />
               )}
             </div>
+
+            {/* Part / Item  */}
+            <Field
+              label="Part / Item"
+              name="item"
+              value={form.item}
+              onChange={handleChange}
+              placeholder="e.g., Front Grille, ECU, ABS Sensor"
+            />
 
             {/* Description */}
             <div>
@@ -531,7 +440,7 @@ export default function GetQuotationForm({
                 value={form.description}
                 onChange={handleChange}
                 style={{
-                  ...textSoft,
+                  color: TEXT_SOFT,
                   background: INPUT_BG,
                   border: `1px solid ${INPUT_BORDER}`,
                   boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.02)",
@@ -542,13 +451,11 @@ export default function GetQuotationForm({
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = INPUT_BORDER;
-                  e.currentTarget.style.boxShadow =
-                    "inset 0 0 0 1px rgba(255,255,255,0.02)";
+                  e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
                 }}
               />
             </div>
 
-            {/* Error */}
             {error && (
               <p
                 className="p-4 text-center rounded-lg"
@@ -562,7 +469,6 @@ export default function GetQuotationForm({
               </p>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -587,25 +493,9 @@ export default function GetQuotationForm({
             >
               {loading ? (
                 <span className="flex items-center justify-center" style={{ color: GOLD }}>
-                  <svg
-                    className="w-5 h-5 mr-2 animate-spin"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke={GOLD}
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill={GOLD}
-                      d="M4 12a8 8 0 018-8v8z"
-                    />
+                  <svg className="w-5 h-5 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke={GOLD} strokeWidth="4" />
+                    <path className="opacity-75" fill={GOLD} d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   Submitting...
                 </span>
@@ -620,13 +510,10 @@ export default function GetQuotationForm({
   );
 }
 
-/* ---------- tiny local UI atoms to reduce repetition ---------- */
+/* ---------- tiny local UI atoms ---------- */
 function Label({ children }) {
   return (
-    <label
-      className="block mb-2 text-sm font-semibold"
-      style={{ color: GOLD }}
-    >
+    <label className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
       {children}
     </label>
   );
@@ -668,8 +555,7 @@ function Field({
         }}
         onBlur={(e) => {
           e.currentTarget.style.borderColor = INPUT_BORDER;
-          e.currentTarget.style.boxShadow =
-            "inset 0 0 0 1px rgba(255,255,255,0.02)";
+          e.currentTarget.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.02)";
         }}
       />
     </div>

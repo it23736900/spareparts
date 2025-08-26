@@ -1,62 +1,105 @@
+// backend/routes/auth.routes.js
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { z } from "zod";
 import User from "../models/User.js";
-import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 
-const RegisterZ = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  name: z.string().optional(),
-  role: z.enum(["ADMIN", "STAFF"]).optional()
-});
+function sign(u) {
+  return jwt.sign(
+    { sub: u._id.toString(), role: u.role, email: u.email, username: u.username },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+}
 
+/**
+ * Register
+ * accepts: { username?, email?, password, name? }
+ * At least one of {username, email} is required.
+ */
 router.post("/register", async (req, res) => {
-  const parsed = RegisterZ.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json(parsed.error.format());
+  try {
+    const { username, email, password, name } = req.body || {};
+    if (!password || password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+    if (!username && !email) {
+      return res.status(400).json({ message: "Provide a username or an email" });
+    }
 
-  const { email, password, name, role } = parsed.data;
-  const exists = await User.findOne({ email });
-  if (exists) return res.status(409).json({ message: "Email already in use" });
+    // ensure not taken
+    if (username) {
+      const existsU = await User.findOne({ username });
+      if (existsU) return res.status(409).json({ message: "Username already taken" });
+    }
+    if (email) {
+      const existsE = await User.findOne({ email });
+      if (existsE) return res.status(409).json({ message: "Email already in use" });
+    }
 
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({ email, passwordHash, name, role: role || "STAFF" });
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await User.create({ username, email, name, passwordHash });
 
-  const accessToken = jwt.sign(
-    { id: user._id, email: user.email, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
-  res.json({ accessToken, user: { id: user._id, email, role: user.role, name: user.name } });
+    // auto-login on signup if you like; or just return 201
+    const token = sign(user);
+    return res.status(201).json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (e) {
+    console.error("register error", e);
+    res.status(500).json({ message: "Failed to register" });
+  }
 });
 
-const LoginZ = z.object({ email: z.string().email(), password: z.string().min(1) });
-
+/**
+ * Login
+ * accepts: { identifier, password }
+ * where `identifier` can be an email OR a username.
+ * (If your frontend currently sends { email, password }, we’ll treat `email` as the identifier.)
+ */
 router.post("/login", async (req, res) => {
-  const parsed = LoginZ.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json(parsed.error.format());
+  try {
+    const identifier = (req.body.identifier || req.body.email || "").trim();
+    const { password } = req.body || {};
 
-  const { email, password } = parsed.data;
-  const user = await User.findOne({ email });
-  if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    if (!identifier || !password) {
+      return res.status(400).json({ message: "Identifier and password are required" });
+    }
 
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) return res.status(401).json({ message: "Invalid credentials" });
+    const isEmail = /\S+@\S+\.\S+/.test(identifier);
+    const user = await User.findOne(
+      isEmail ? { email: identifier.toLowerCase() } : { username: identifier }
+    );
 
-  const accessToken = jwt.sign(
-    { id: user._id, email: user.email, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
-  res.json({ accessToken, user: { id: user._id, email: user.email, role: user.role, name: user.name } });
-});
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-router.get("/me", requireAuth, async (req, res) => {
-  const user = await User.findById(req.user.id).lean();
-  res.json({ user: { id: user._id, email: user.email, role: user.role, name: user.name } });
+    const ok = await bcrypt.compare(password, user.passwordHash);
+    if (!ok) return res.status(401).json({ message: "Invalid credentials" });
+
+    const token = sign(user);
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (e) {
+    console.error("login error", e);
+    res.status(500).json({ message: "Failed to login" });
+  }
 });
 
 export default router;

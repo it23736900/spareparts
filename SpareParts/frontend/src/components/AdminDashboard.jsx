@@ -1,6 +1,7 @@
 // src/components/AdminDashboard.jsx
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/api";
 import {
   FaTachometerAlt,
   FaShippingFast,
@@ -52,17 +53,6 @@ const STAGE_COLORS = {
   Delivered: "#E3D38A",
 };
 
-/* Mock data (swap for your API) */
-const MOCK_INQUIRIES = [
-  { ref: "ET-1001", name: "Kavindu", email: "k@ex.lk", brand: "Range Rover", item: "Front Grille", status: "Submitted",   createdAt: "2025-08-18" },
-  { ref: "ET-1002", name: "Ishara",  email: "i@ex.lk", brand: "BMW",         item: "Brake Calipers", status: "In Review", createdAt: "2025-08-18" },
-  { ref: "ET-1003", name: "Nuwan",   email: "n@ex.lk", brand: "Mercedes",    item: "ECU",            status: "Quoted",    createdAt: "2025-08-19" },
-  { ref: "ET-1004", name: "Sahan",   email: "s@ex.lk", brand: "Audi",        item: "MMI Screen",     status: "Paid",      createdAt: "2025-08-20" },
-  { ref: "ET-1005", name: "Dilini",  email: "d@ex.lk", brand: "Volvo",       item: "Headlights",     status: "Dispatched",createdAt: "2025-08-21" },
-  { ref: "ET-1006", name: "Amaya",   email: "a@ex.lk", brand: "Jaguar",      item: "Mirror Assy",    status: "Delivered", createdAt: "2025-08-21" },
-  { ref: "ET-1007", name: "Ramesh",  email: "r@ex.lk", brand: "VW",          item: "ABS Sensor",     status: "Submitted", createdAt: "2025-08-22" },
-];
-
 /* =========================================
    Advanced Line Chart (dual-series)
    ========================================= */
@@ -91,10 +81,14 @@ function catmullRom2bezier(points, tension = 0.5) {
 
 function useNearestIndex(points) {
   return (mouseX) => {
-    let idx = 0, min = Infinity;
+    let idx = 0,
+      min = Infinity;
     points.forEach(([px], i) => {
       const dist = Math.abs(mouseX - px);
-      if (dist < min) { min = dist; idx = i; }
+      if (dist < min) {
+        min = dist;
+        idx = i;
+      }
     });
     return idx;
   };
@@ -103,7 +97,7 @@ function useNearestIndex(points) {
 function LineChartAdvanced({
   series = [
     { name: "Inquiries", color: `url(#gold-line)`, rawColor: GOLD, data: [6, 9, 7, 11, 14, 10, 13] },
-    { name: "Resolved",  color: `url(#emerald-line)`, rawColor: CYAN, data: [2, 3, 4, 6, 8, 7, 9] },
+    { name: "Resolved", color: `url(#emerald-line)`, rawColor: CYAN, data: [2, 3, 4, 6, 8, 7, 9] },
   ],
   width = 720,
   height = 300,
@@ -168,42 +162,17 @@ function LineChartAdvanced({
       {/* Grid */}
       {yVals.map((yv, i) => {
         const y = scaleY(yv);
-        return (
-          <line
-            key={i}
-            x1={padding.l}
-            x2={width - padding.r}
-            y1={y}
-            y2={y}
-            stroke="rgba(255,255,255,.08)"
-            strokeWidth="1"
-          />
-        );
+        return <line key={i} x1={padding.l} x2={width - padding.r} y1={y} y2={y} stroke="rgba(255,255,255,.08)" strokeWidth="1" />;
       })}
 
       {/* Axes labels */}
       {yVals.map((yv, i) => (
-        <text
-          key={i}
-          x={padding.l - 10}
-          y={scaleY(yv)}
-          fontSize="10"
-          fill="rgba(230,230,224,.75)"
-          textAnchor="end"
-          alignmentBaseline="middle"
-        >
+        <text key={i} x={padding.l - 10} y={scaleY(yv)} fontSize="10" fill="rgba(230,230,224,.75)" textAnchor="end" alignmentBaseline="middle">
           {yv}
         </text>
       ))}
       {DAYS.map((d, i) => (
-        <text
-          key={d}
-          x={scaleX(i)}
-          y={height - padding.b + 16}
-          fontSize="11"
-          fill="rgba(230,230,224,.75)"
-          textAnchor="middle"
-        >
+        <text key={d} x={scaleX(i)} y={height - padding.b + 16} fontSize="11" fill="rgba(230,230,224,.75)" textAnchor="middle">
           {d}
         </text>
       ))}
@@ -246,17 +215,12 @@ function LineChartAdvanced({
       {/* Tooltip */}
       {hover && (
         <>
-          <line
-            x1={hover.x}
-            x2={hover.x}
-            y1={padding.t}
-            y2={height - padding.b}
-            stroke="rgba(255,255,255,.25)"
-            strokeDasharray="4 4"
-          />
+          <line x1={hover.x} x2={hover.x} y1={padding.t} y2={height - padding.b} stroke="rgba(255,255,255,.25)" strokeDasharray="4 4" />
           <g transform={`translate(${Math.min(hover.x + 10, width - 160)}, ${padding.t + 8})`}>
             <rect width="150" height="62" rx="10" fill="rgba(3,10,9,0.96)" stroke="rgba(255,255,255,0.08)" />
-            <text x="10" y="18" fontSize="12" fill="#E6E6E0">{DAYS[hover.idx]}</text>
+            <text x="10" y="18" fontSize="12" fill="#E6E6E0">
+              {DAYS[hover.idx]}
+            </text>
             {series.map((s, i) => (
               <text key={i} x="10" y={36 + i * 14} fontSize="12" fill={s.rawColor}>
                 {s.name}: {s.data[hover.idx]}
@@ -288,20 +252,14 @@ function DonutChart({ series }) {
           const dasharray = `${len} ${c - len}`;
           const dashoffset = -offset;
           offset += len;
-          return (
-            <circle
-              key={i}
-              r={r}
-              fill="none"
-              stroke={seg.color}
-              strokeWidth={stroke}
-              strokeDasharray={dasharray}
-              strokeDashoffset={dashoffset}
-            />
-          );
+          return <circle key={i} r={r} fill="none" stroke={seg.color} strokeWidth={stroke} strokeDasharray={dasharray} strokeDashoffset={dashoffset} />;
         })}
-        <text x="0" y="-4" textAnchor="middle" fontSize="18" fontWeight="800" fill="#E6E6E0">Pipeline</text>
-        <text x="0" y="18" textAnchor="middle" fontSize="12" fill="rgba(255,255,255,.75)">{sum} total</text>
+        <text x="0" y="-4" textAnchor="middle" fontSize="18" fontWeight="800" fill="#E6E6E0">
+          Pipeline
+        </text>
+        <text x="0" y="18" textAnchor="middle" fontSize="12" fill="rgba(255,255,255,.75)">
+          {sum} total
+        </text>
       </g>
     </svg>
   );
@@ -314,7 +272,6 @@ function StageBars({ counts }) {
       {STAGES.map((s) => {
         const v = counts[s] || 0;
         const pct = Math.round((v / max) * 100);
-        const color = STAGE_COLORS[s] || GOLD;
         return (
           <div key={s}>
             <div className="flex items-center justify-between mb-1 text-xs">
@@ -361,9 +318,7 @@ function AdminSidebar({ active, onChange, onLogout }) {
       }}
     >
       <div className="p-6">
-        <div className="text-2xl font-bold tracking-wide uppercase select-none luxury-gold">
-          EuroTech Admin
-        </div>
+        <div className="text-2xl font-bold tracking-wide uppercase select-none luxury-gold">EuroTech Admin</div>
       </div>
 
       <nav className="flex-1 px-4 pb-4 space-y-3">
@@ -389,20 +344,11 @@ function AdminSidebar({ active, onChange, onLogout }) {
                   boxShadow: isActive ? "0 0 10px rgba(212,175,55,0.55)" : "none",
                 }}
               />
-              <span
-                className="grid transition rounded-lg place-items-center w-9 h-9"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
+              <span className="grid transition rounded-lg place-items-center w-9 h-9" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
                 {it.icon}
               </span>
               <span className="font-semibold tracking-wide">{it.label}</span>
-              <span
-                className="absolute inset-0 transition opacity-0 pointer-events-none group-hover:opacity-100 rounded-xl"
-                style={{ boxShadow: "0 0 24px rgba(212,175,55,0.18) inset" }}
-              />
+              <span className="absolute inset-0 transition opacity-0 pointer-events-none group-hover:opacity-100 rounded-xl" style={{ boxShadow: "0 0 24px rgba(212,175,55,0.18) inset" }} />
             </motion.button>
           );
         })}
@@ -413,11 +359,7 @@ function AdminSidebar({ active, onChange, onLogout }) {
           whileHover={{ y: -1 }}
           onClick={onLogout}
           className="relative flex items-center w-full gap-3 px-5 py-4 text-left rounded-xl"
-          style={{
-            color: "#E9EDEB",
-            background: "rgba(255,255,255,0.035)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
+          style={{ color: "#E9EDEB", background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
           <span className="grid border rounded-lg place-items-center w-9 h-9 bg-white/5 border-white/10">
             <FaSignOutAlt />
@@ -449,7 +391,7 @@ function DashboardPage({ inquiries }) {
 
   const series = [
     { name: "Inquiries", color: "url(#gold-line)", rawColor: GOLD, data: [6, 9, 7, 11, 14, 10, 13] },
-    { name: "Resolved",  color: "url(#emerald-line)", rawColor: CYAN, data: [2, 3, 4, 6, 8, 7, 9] },
+    { name: "Resolved", color: "url(#emerald-line)", rawColor: CYAN, data: [2, 3, 4, 6, 8, 7, 9] },
   ];
 
   const stageCounts = useMemo(() => {
@@ -475,15 +417,13 @@ function DashboardPage({ inquiries }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05, duration: 0.35 }}
             className="p-6 border rounded-xl backdrop-blur-md"
-            style={{
-              background: PANEL,
-              borderColor: "rgba(255,255,255,0.08)",
-              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)",
-            }}
+            style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)" }}
           >
             <div className="mb-2 text-3xl">{k.icon}</div>
             <p className="text-sm text-gray-300">{k.title}</p>
-            <h3 className="text-2xl font-semibold" style={{ color: GOLD_SOFT }}>{k.value}</h3>
+            <h3 className="text-2xl font-semibold" style={{ color: GOLD_SOFT }}>
+              {k.value}
+            </h3>
           </motion.div>
         ))}
       </div>
@@ -496,13 +436,7 @@ function DashboardPage({ inquiries }) {
         </div>
         <div className="p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
           <h4 className="mb-3 text-lg font-semibold text-white/90">Pipeline Breakdown</h4>
-          <DonutChart
-            series={
-              donutSeries.length
-                ? donutSeries
-                : [{ label: "None", value: 1, color: "rgba(255,255,255,.25)" }]
-            }
-          />
+          <DonutChart series={donutSeries.length ? donutSeries : [{ label: "None", value: 1, color: "rgba(255,255,255,.25)" }]} />
           <div className="grid grid-cols-2 mt-3 text-sm gap-x-4 gap-y-1">
             {donutSeries.map((s, i) => (
               <div key={i} className="flex items-center gap-2">
@@ -525,12 +459,16 @@ function DashboardPage({ inquiries }) {
 function TrackingPage({ inquiries, onUpdateStatus }) {
   const [q, setQ] = useState("");
   const [savedRef, setSavedRef] = useState(null);
-  const filtered = inquiries.filter((i) => i.ref.toLowerCase().includes(q.toLowerCase()));
+  const filtered = inquiries.filter((i) => (i.ref || "").toLowerCase().includes(q.toLowerCase()));
 
-  const save = (ref, newStatus) => {
-    onUpdateStatus?.(ref, newStatus);
-    setSavedRef(ref);
-    setTimeout(() => setSavedRef(null), 1100);
+  const save = async (row, newStatus) => {
+    try {
+      await onUpdateStatus?.(row, newStatus);
+      setSavedRef(row.ref);
+      setTimeout(() => setSavedRef(null), 1100);
+    } catch {
+      alert("Failed to update status");
+    }
   };
 
   return (
@@ -561,17 +499,19 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
           </thead>
           <tbody>
             {filtered.map((r) => (
-              <tr key={r.ref} className="transition border-t border-white/10 hover:bg-white/5">
+              <tr key={r._id || r.ref} className="transition border-t border-white/10 hover:bg-white/5">
                 <td className="p-3 font-semibold text-white/90">{r.ref}</td>
                 <td className="p-3">
                   {r.name} <span className="text-white/60">({r.email})</span>
                 </td>
-                <td className="p-3">{r.brand} — {r.item}</td>
+                <td className="p-3">
+                  {r.brand} — {r.item}
+                </td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">
                     <select
                       value={r.status}
-                      onChange={(e) => save(r.ref, e.target.value)}
+                      onChange={(e) => save(r, e.target.value)}
                       className="px-2 py-1 text-white border rounded-md outline-none bg-white/5 border-white/10"
                       style={{ color: STAGE_COLORS[r.status] || GOLD, background: "rgba(255,255,255,0.04)" }}
                     >
@@ -588,7 +528,7 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
                     )}
                   </div>
                 </td>
-                <td className="p-3">{r.createdAt}</td>
+                <td className="p-3">{(r.createdAt || "").slice(0, 10)}</td>
               </tr>
             ))}
             {!filtered.length && (
@@ -626,12 +566,16 @@ function HistoryPage({ inquiries }) {
           </thead>
           <tbody>
             {slice.map((r) => (
-              <tr key={r.ref} className="transition border-t border-white/10 hover:bg-white/5">
+              <tr key={r._id || r.ref} className="transition border-t border-white/10 hover:bg-white/5">
                 <td className="p-3 font-semibold text-white/90">{r.ref}</td>
                 <td className="p-3">{r.name}</td>
-                <td className="p-3">{r.brand} — {r.item}</td>
-                <td className="p-3" style={{ color: STAGE_COLORS[r.status] || GOLD }}>{r.status}</td>
-                <td className="p-3">{r.createdAt}</td>
+                <td className="p-3">
+                  {r.brand} — {r.item}
+                </td>
+                <td className="p-3" style={{ color: STAGE_COLORS[r.status] || GOLD }}>
+                  {r.status}
+                </td>
+                <td className="p-3">{(r.createdAt || "").slice(0, 10)}</td>
               </tr>
             ))}
           </tbody>
@@ -648,7 +592,9 @@ function HistoryPage({ inquiries }) {
         >
           Prev
         </button>
-        <span className="text-sm text-white/80">Page {page} / {totalPages}</span>
+        <span className="text-sm text-white/80">
+          Page {page} / {totalPages}
+        </span>
         <button
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-white/85 disabled:opacity-40"
@@ -677,7 +623,7 @@ function ReportsPage({ inquiries }) {
 
   const lineSeries = [
     { name: "Inquiries", color: "url(#gold-line)", rawColor: GOLD, data: [6, 9, 7, 11, 14, 10, 13] },
-    { name: "Resolved",  color: "url(#emerald-line)", rawColor: CYAN, data: [2, 3, 4, 6, 8, 7, 9] },
+    { name: "Resolved", color: "url(#emerald-line)", rawColor: CYAN, data: [2, 3, 4, 6, 8, 7, 9] },
   ];
 
   return (
@@ -692,13 +638,7 @@ function ReportsPage({ inquiries }) {
       </div>
       <div className="p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
         <h4 className="mb-3 text-lg font-semibold text-white/90">Pipeline Donut</h4>
-        <DonutChart
-          series={
-            donutSeries.length
-              ? donutSeries
-              : [{ label: "None", value: 1, color: "rgba(255,255,255,.25)" }]
-          }
-        />
+        <DonutChart series={donutSeries.length ? donutSeries : [{ label: "None", value: 1, color: "rgba(255,255,255,.25)" }]} />
       </div>
     </div>
   );
@@ -711,16 +651,42 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [active, setActive] = useState("dashboard");
-  const [inquiries, setInquiries] = useState(MOCK_INQUIRIES);
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
 
+  // Auth guard + initial load
   useEffect(() => {
     try {
       const savedUser = JSON.parse(localStorage.getItem("sparePartsUser"));
-      if (!savedUser || savedUser.role !== "admin") {
-        navigate("/");
-      } else {
-        setUser(savedUser);
+      if (!savedUser || savedUser.role !== "ADMIN") {
+        navigate("/"); // only ADMINs can view this page
+        return;
       }
+      setUser(savedUser);
+
+      (async () => {
+        try {
+          setLoading(true);
+          const { data } = await api.get("/inquiries");
+          // normalize to UI fields
+          const normalized = (data || []).map((d) => ({
+            _id: d._id,
+            ref: d.ref,
+            name: d.customerName,
+            email: d.customerEmail,
+            brand: d.brand,
+            item: d.item,
+            status: d.status,
+            createdAt: d.createdAt,
+          }));
+          setInquiries(normalized);
+        } catch (e) {
+          setErr(e?.response?.data?.message || "Failed to load inquiries");
+        } finally {
+          setLoading(false);
+        }
+      })();
     } catch {
       navigate("/");
     }
@@ -728,12 +694,15 @@ const AdminDashboard = () => {
   }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem("sp_token");
     localStorage.removeItem("sparePartsUser");
     navigate("/");
   };
 
-  const updateStatus = (ref, status) => {
-    setInquiries((prev) => prev.map((i) => (i.ref === ref ? { ...i, status } : i)));
+  // Update inquiry status via API
+  const updateStatus = async (row, status) => {
+    await api.patch(`/inquiries/${row._id}`, { status });
+    setInquiries((prev) => prev.map((i) => (i._id === row._id ? { ...i, status } : i)));
   };
 
   const content = (() => {
@@ -756,13 +725,7 @@ const AdminDashboard = () => {
       {/* Metallic emerald background */}
       <div className="fixed inset-0 -z-10" style={{ background: BG_APP_DEEP }} />
       {/* Soft vignette + scanlines (already defined in index.css) */}
-      <div
-        className="fixed inset-0 pointer-events-none -z-10"
-        style={{
-          background:
-            "radial-gradient(70% 55% at 50% 0%, rgba(16,94,66,0.12), transparent 60%)",
-        }}
-      />
+      <div className="fixed inset-0 pointer-events-none -z-10" style={{ background: "radial-gradient(70% 55% at 50% 0%, rgba(16,94,66,0.12), transparent 60%)" }} />
       <div className="fixed inset-0 pointer-events-none -z-10 animate-scanlines" style={{ opacity: 0.06 }} />
 
       <AdminSidebar active={active} onChange={setActive} onLogout={handleLogout} />
@@ -776,13 +739,20 @@ const AdminDashboard = () => {
             {active === "history" && "Inquiry History"}
             {active === "reports" && "Reports"}
           </h1>
-          <p className="mt-1 text-gray-300">Welcome{user?.username ? `, ${user.username}` : ""}. Admin control center.</p>
+          <p className="mt-1 text-gray-300">
+            Welcome{user?.name ? `, ${user.name}` : user?.email ? `, ${user.email}` : ""}. Admin control center.
+          </p>
         </div>
 
         {/* Body */}
-        <motion.div key={active} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }}>
-          {content}
-        </motion.div>
+        {err && <div className="mb-4 text-red-300">{err}</div>}
+        {loading ? (
+          <div className="text-white/80">Loading…</div>
+        ) : (
+          <motion.div key={active} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }}>
+            {content}
+          </motion.div>
+        )}
 
         {/* Footer */}
         <footer className="mt-12 text-sm text-center text-gray-400">© 2025 EuroTech Admin Console</footer>

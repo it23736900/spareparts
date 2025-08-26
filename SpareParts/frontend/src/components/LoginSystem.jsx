@@ -1,61 +1,40 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { setUser } from '../utils/auth'; // ✅ notify app about login
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { setUser } from "../utils/auth";
+import api from "../utils/api";
 
 const LoginSystem = ({ onClose, onSwitchToSignup }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");          // ← email (backend expects email)
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const users = [
-    { username: 'admin_john', password: 'admin123', role: 'admin' },
-    { username: 'admin_sarah', password: 'admin456', role: 'admin' },
-    { username: 'customer_mike', password: 'user123', role: 'user' },
-    { username: 'customer_lisa', password: 'user456', role: 'user' }
-  ];
-
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoading(true);
-    setError('');
+    setError("");
+    try {
+      const { data } = await api.post("/auth/login", { email, password });
+      // data = { token, user: { id, email, name, role: "ADMIN" | "STAFF" } }
+      setUser(data);
 
-    setTimeout(() => {
-      const foundUser = users.find(
-        (u) => u.username === username && u.password === password
-      );
-
-      if (foundUser) {
-        // ✅ save & broadcast to the whole app (Navbar listens to 'userUpdated')
-        setUser(foundUser);
-
-        // ✅ route based on role
-        navigate(foundUser.role === 'admin' ? '/admin' : '/user');
-
-        // ✅ close modal
-        onClose?.();
+      // redirect rule:
+      if (data.user.role === "ADMIN") {
+        navigate("/admin");      // admin → dashboard
       } else {
-        setError('Wrong username or password! Try again.');
+        // STAFF → stay on page (just close)
+        onClose?.();
       }
-
+    } catch (e) {
+      setError(e?.response?.data?.message || "Login failed. Check your email/password.");
+    } finally {
       setLoading(false);
-    }, 800);
-  };
-
-  const fillDemoCredentials = (type) => {
-    if (type === 'admin') {
-      setUsername('admin_john');
-      setPassword('admin123');
-    } else {
-      setUsername('customer_mike');
-      setPassword('user123');
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="bg-[#0B1C1F] text-white p-8 rounded-2xl shadow-2xl w-full max-w-md relative border border-yellow-400">
-        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute text-2xl text-yellow-400 transition top-3 right-4 hover:text-yellow-300"
@@ -64,33 +43,33 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
           &times;
         </button>
 
-        {/* Header */}
-        <h2 className="mb-1 text-3xl font-bold text-center text-yellow-400">🚪 Spare Parts Login</h2>
-        <p className="mb-6 text-center text-gray-400">Enter your credentials to access your area</p>
+        <h2 className="mb-1 text-3xl font-bold text-center text-yellow-400">🚪 Sign in</h2>
+        <p className="mb-6 text-center text-gray-400">Use your account credentials</p>
 
-        {/* Form */}
         <div className="space-y-4">
           <div>
-            <label className="block mb-1 text-sm font-medium text-yellow-400">Username:</label>
+            <label className="block mb-1 text-sm font-medium text-yellow-400">Email</label>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
               className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              required
             />
           </div>
 
           <div>
-            <label className="block mb-1 text-sm font-medium text-yellow-400">Password:</label>
+            <label className="block mb-1 text-sm font-medium text-yellow-400">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="••••••••"
               className="w-full p-3 bg-[#13272A] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              required
             />
           </div>
 
@@ -104,47 +83,18 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
             onClick={handleLogin}
             disabled={loading}
             className={`w-full py-3 font-semibold rounded-xl transition ${
-              loading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-yellow-400 text-black hover:bg-yellow-300'
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-400 text-black hover:bg-yellow-300"
             }`}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
 
           <p className="mt-4 text-sm text-center text-gray-300">
-            Don’t have an account?{' '}
-            <button
-              type="button"
-              onClick={onSwitchToSignup}
-              className="text-yellow-400 hover:underline"
-            >
+            Don’t have an account?{" "}
+            <button type="button" onClick={onSwitchToSignup} className="text-yellow-400 hover:underline">
               Sign Up
             </button>
           </p>
-        </div>
-
-        {/* Demo credentials */}
-        <div className="mt-6 p-4 bg-[#13272A] rounded-xl text-sm">
-          <h4 className="mb-2 font-semibold text-yellow-400">Demo Accounts:</h4>
-          <div className="flex gap-3 mb-3">
-            <button
-              onClick={() => fillDemoCredentials('admin')}
-              className="px-3 py-2 text-xs text-white bg-red-600 rounded-md hover:bg-red-500"
-            >
-              Admin Login
-            </button>
-            <button
-              onClick={() => fillDemoCredentials('user')}
-              className="px-3 py-2 text-xs text-white bg-green-600 rounded-md hover:bg-green-500"
-            >
-              User Login
-            </button>
-          </div>
-          <div className="space-y-1 text-gray-400">
-            <div><span className="font-semibold text-white">Admin:</span> admin_john / admin123</div>
-            <div><span className="font-semibold text-white">User:</span> customer_mike / user123</div>
-          </div>
         </div>
       </div>
     </div>

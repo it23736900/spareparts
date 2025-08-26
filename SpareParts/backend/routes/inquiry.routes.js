@@ -1,40 +1,60 @@
+// routes/inquiry.routes.js
 import { Router } from "express";
-import { z } from "zod";
 import Inquiry from "../models/Inquiry.js";
+import { requireAuth, requireRole } from "../middleware/auth.js";
 
 const router = Router();
 
-const InquiryZ = z.object({
-  fullName: z.string().min(2, "Full name is required"),
-  email: z.string().email("Valid email is required"),
-  phone: z.string().min(7, "Valid phone is required"),
-  vehicleBrand: z.string().min(2, "Vehicle brand is required"),
-  description: z.string().min(5, "Description is required"),
-});
+/** helper: generate next ET-XXXX ref */
+async function nextRef() {
+  const last = await Inquiry.findOne().sort({ createdAt: -1 }).lean();
+  const n = last?.ref ? parseInt((last.ref.match(/\d+/) || [0])[0], 10) + 1 : 1001;
+  return `ET-${n}`;
+}
 
+/**
+ * PUBLIC: create an inquiry (no auth)
+ * Frontend should POST /api/inquiries with:
+ *  { name, email, phone, brand, item, description }
+ */
 router.post("/", async (req, res) => {
   try {
-    const parsed = InquiryZ.parse(req.body);
-    const inquiry = await Inquiry.create(parsed);
-    res.status(201).json({
-      message: "Inquiry created",
-      refCode: inquiry.refCode,
-      inquiryId: inquiry._id,
-    });
-  } catch (err) {
-    if (err.name === "ZodError") {
-      return res
-        .status(400)
-        .json({ message: "Validation failed", errors: err.errors });
+    const { name, email, phone, brand, item, description } = req.body || {};
+    if (!name || !email || !brand || !item) {
+      return res.status(400).json({ message: "name, email, brand, item are required" });
     }
-    console.error("Create inquiry error:", err);
-    res.status(500).json({ message: "Server error" });
+
+    const doc = await Inquiry.create({
+      ref: await nextRef(),
+      customerName: name,
+      customerEmail: email,
+      phone,
+      brand,
+      item,
+      description,
+      status: "Submitted",
+      createdAt: new Date(),
+    });
+
+    res.status(201).json(doc);
+  } catch (e) {
+    console.error("Create inquiry error:", e);
+    res.status(500).json({ message: "Failed to create inquiry" });
   }
 });
 
-router.get("/", async (_req, res) => {
-  const items = await Inquiry.find().sort({ createdAt: -1 }).lean();
-  res.json(items);
+/** ADMIN: list all inquiries */
+router.get("/", requireAuth, requireRole("ADMIN"), async (_req, res) => {
+  const list = await Inquiry.find().sort({ createdAt: -1 }).lean();
+  res.json(list);
+});
+
+/** ADMIN: update status */
+router.patch("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const updated = await Inquiry.findByIdAndUpdate(id, { status }, { new: true }).lean();
+  res.json(updated);
 });
 
 export default router;
