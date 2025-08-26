@@ -1,47 +1,85 @@
+// src/components/TrackOrderSearch.jsx
 import React, { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaSearch, FaBoxOpen, FaUser, FaAt, FaInfoCircle } from "react-icons/fa";
+import api from "../utils/api";
 
 const GOLD = "#D4AF37";
 
-const MOCK = [
-  { ref: "ABC123", name: "John Doe", email: "john@example.com", status: "Pending",  item: "Range Rover – Front Grille" },
-  { ref: "DEF456", name: "Alice Smith", email: "alice@example.com", status: "In Progress", item: "BMW – Brake Calipers" },
-  { ref: "XYZ789", name: "Bob Marley", email: "bob@marley.com", status: "Resolved", item: "Audi – MMI Screen" },
-];
-
-const statusChip = (status) => {
+// map backend statuses → chip styles
+const statusChip = (statusRaw = "") => {
+  const status = (statusRaw || "").toLowerCase();
   const map = {
-    Pending: "text-yellow-300 bg-yellow-300/10 border-yellow-300/30",
-    "In Progress": "text-blue-300 bg-blue-300/10 border-blue-300/30",
-    Resolved: "text-green-300 bg-green-300/10 border-green-300/30",
-    Cancelled: "text-red-300 bg-red-300/10 border-red-300/30",
-    Closed: "text-gray-300 bg-gray-300/10 border-gray-300/30",
+    pending:        "text-yellow-300 bg-yellow-300/10 border-yellow-300/30",
+    submitted:      "text-yellow-300 bg-yellow-300/10 border-yellow-300/30",
+    "in review":    "text-amber-300 bg-amber-300/10 border-amber-300/30",
+    quoted:         "text-blue-300 bg-blue-300/10 border-blue-300/30",
+    paid:           "text-cyan-300 bg-cyan-300/10 border-cyan-300/30",
+    dispatched:     "text-indigo-300 bg-indigo-300/10 border-indigo-300/30",
+    delivered:      "text-green-300 bg-green-300/10 border-green-300/30",
+    resolved:       "text-green-300 bg-green-300/10 border-green-300/30",
+    cancelled:      "text-red-300 bg-red-300/10 border-red-300/30",
+    closed:         "text-gray-300 bg-gray-300/10 border-gray-300/30",
   };
   return map[status] || "text-white/90 bg-white/10 border-white/20";
 };
 
-export default function TrackOrderSearch({ data = MOCK, onSearch }) {
+export default function TrackOrderSearch() {
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState(null);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const findByRef = useMemo(() => {
-    const index = new Map(data.map((d) => [d.ref.toLowerCase(), d]));
-    return (ref) => index.get(ref.trim().toLowerCase()) || null;
-  }, [data]);
+  const normalize = useMemo(
+    () => (doc) => {
+      if (!doc) return null;
+      // support both single doc and array
+      const d = Array.isArray(doc) ? doc[0] : doc;
+      return {
+        ref: d.refCode || d.ref || "",
+        name: d.fullName || d.customerName || d.name || "",
+        email: d.email || d.customerEmail || "",
+        item:
+          (d.vehicleBrand || d.brand || "Vehicle") +
+          (d.description || d.item ? ` – ${d.description || d.item}` : ""),
+        status: d.status || "Submitted",
+      };
+    },
+    []
+  );
 
   const doSearch = async () => {
     if (!q.trim()) return;
     setLoading(true);
-    // Wire your real API here later if needed.
-    await new Promise((r) => setTimeout(r, 400)); // tiny UX delay
-    const result = findByRef(q);
-    setSelected(result);
-    setSearched(true);
-    setLoading(false);
-    onSearch?.(q, result);
+    setSearched(false);
+    setSelected(null);
+
+    const ref = encodeURIComponent(q.trim());
+
+    try {
+      // 1) Preferred public “track by ref” endpoint
+      const { data } = await api.get(`/inquiries/track/${ref}`);
+      const norm = normalize(data);
+      setSelected(norm);
+      setSearched(true);
+    } catch (e1) {
+      // If route doesn’t exist / returns 404, try a query param search
+      try {
+        const { data } = await api.get(`/inquiries`, { params: { ref: q.trim() } });
+        const norm = normalize(data);
+        if (norm && norm.ref) {
+          setSelected(norm);
+        } else {
+          setSelected(null);
+        }
+        setSearched(true);
+      } catch (e2) {
+        setSelected(null);
+        setSearched(true);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,7 +89,6 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
           Track Your Order
         </h2>
 
-        {/* subtle gold divider */}
         <div
           className="h-[2px] w-48 mx-auto my-4 rounded-full"
           style={{ background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.9), transparent)" }}
@@ -59,7 +96,6 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
 
         {/* Input group */}
         <div className="relative max-w-2xl mx-auto mt-6">
-          {/* soft emerald aura */}
           <div
             className="absolute -inset-1 rounded-2xl blur-xl opacity-70"
             style={{ background: "radial-gradient(50% 60% at 50% 0%, rgba(16,94,66,0.35), transparent 70%)" }}
@@ -95,7 +131,7 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
           </p>
         </div>
 
-        {/* Results area */}
+        {/* Results */}
         <AnimatePresence mode="wait">
           {selected && (
             <motion.div
@@ -112,7 +148,9 @@ export default function TrackOrderSearch({ data = MOCK, onSearch }) {
                     <FaBoxOpen className="text-white/80" />
                     <div>
                       <p className="text-sm text-white/60">Reference</p>
-                      <p className="text-xl font-bold" style={{ color: GOLD }}>{selected.ref}</p>
+                      <p className="text-xl font-bold" style={{ color: GOLD }}>
+                        {selected.ref}
+                      </p>
                     </div>
                   </div>
 

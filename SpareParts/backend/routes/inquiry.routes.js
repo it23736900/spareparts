@@ -13,12 +13,14 @@ function makeRef() {
   return `ET-${y}${m}${day}-${rand}`;
 }
 
+// NEW: 6-char base36 short code
+function makeShort() {
+  // random 6 uppercase letters/numbers
+  return `REF-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+}
+
 router.post("/", async (req, res) => {
   try {
-    console.log("POST /api/inquiries content-type:", req.headers["content-type"]);
-    console.log("POST /api/inquiries body:", req.body);
-
-    // Accept your current names + some common aliases
     const body = req.body || {};
     const fullName =
       body.fullName ?? body.name ?? body.customerName ?? body.full_name;
@@ -32,7 +34,6 @@ router.post("/", async (req, res) => {
       body.customBrand;
     const description = body.description ?? body.note ?? body.details;
 
-    // Basic validation (clear 400 message to the client)
     if (!fullName || !email || !phone || !vehicleBrand || !description) {
       return res.status(400).json({
         message:
@@ -40,7 +41,6 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // Build payload. refCode is generated server-side.
     const payload = {
       fullName: String(fullName).trim(),
       email: String(email).trim().toLowerCase(),
@@ -48,27 +48,68 @@ router.post("/", async (req, res) => {
       vehicleBrand: String(vehicleBrand).trim(),
       description: String(description).trim(),
       refCode: makeRef(),
+      shortCode: makeShort(),               // ← save a short code too
     };
 
-    // Try create; on rare 11000 (ref collision) regenerate and retry
-    let lastErr = null;
-    for (let i = 0; i < 3; i++) {
+    // handle rare collisions on either key
+    for (let i = 0; i < 5; i++) {
       try {
         const doc = await Inquiry.create(payload);
         return res.status(201).json(doc);
       } catch (e) {
-        if (e?.code === 11000 && e?.keyPattern?.refCode) {
-          payload.refCode = makeRef();
+        if (e?.code === 11000) {
+          if (e?.keyPattern?.refCode) payload.refCode = makeRef();
+          if (e?.keyPattern?.shortCode) payload.shortCode = makeShort();
           continue;
         }
-        lastErr = e;
-        break;
+        throw e;
       }
     }
-    if (lastErr) throw lastErr;
+    return res.status(500).json({ message: "Failed to create inquiry" });
   } catch (e) {
     console.warn("Create inquiry error:", e);
     return res.status(500).json({ message: "Failed to create inquiry" });
+  }
+});
+
+// NEW: track by either code (case-insensitive, trims spaces)
+router.get("/track/:ref", async (req, res) => {
+  try {
+    const ref = String(req.params.ref || "").trim();
+    if (!ref) return res.status(400).json({ message: "Missing reference" });
+
+    const doc = await Inquiry.findOne({
+      $or: [
+        { refCode: ref },
+        { shortCode: ref },
+      ],
+    }).lean();
+
+    if (!doc) return res.status(404).json({ message: "Not found" });
+    return res.json(doc);
+  } catch (e) {
+    console.error("Track inquiry error:", e);
+    return res.status(500).json({ message: "Failed to fetch inquiry" });
+  }
+});
+
+// (optional) also allow /api/inquiries?ref=... as a fallback
+router.get("/", async (req, res) => {
+  try {
+    const { ref } = req.query || {};
+    if (ref) {
+      const doc = await Inquiry.findOne({
+        $or: [{ refCode: ref }, { shortCode: ref }],
+      }).lean();
+      if (!doc) return res.json(null);
+      return res.json(doc);
+    }
+    // existing list logic if you had one…
+    const list = await Inquiry.find().sort({ createdAt: -1 }).lean();
+    return res.json(list);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Failed to fetch inquiries" });
   }
 });
 

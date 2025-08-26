@@ -296,7 +296,7 @@ function StageBars({ counts }) {
 }
 
 /* =========================================
-   Sidebar (no thick separators, premium glow)
+   Sidebar
    ========================================= */
 function AdminSidebar({ active, onChange, onLogout }) {
   const items = [
@@ -499,14 +499,12 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
           </thead>
           <tbody>
             {filtered.map((r) => (
-              <tr key={r._id || r.ref} className="transition border-t border-white/10 hover:bg-white/5">
+              <tr key={r.id || r.ref} className="transition border-t border-white/10 hover:bg-white/5">
                 <td className="p-3 font-semibold text-white/90">{r.ref}</td>
                 <td className="p-3">
                   {r.name} <span className="text-white/60">({r.email})</span>
                 </td>
-                <td className="p-3">
-                  {r.brand} — {r.item}
-                </td>
+                <td className="p-3">{r.brand} — {r.item}</td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">
                     <select
@@ -566,15 +564,11 @@ function HistoryPage({ inquiries }) {
           </thead>
           <tbody>
             {slice.map((r) => (
-              <tr key={r._id || r.ref} className="transition border-t border-white/10 hover:bg-white/5">
+              <tr key={r.id || r.ref} className="transition border-t border-white/10 hover:bg-white/5">
                 <td className="p-3 font-semibold text-white/90">{r.ref}</td>
                 <td className="p-3">{r.name}</td>
-                <td className="p-3">
-                  {r.brand} — {r.item}
-                </td>
-                <td className="p-3" style={{ color: STAGE_COLORS[r.status] || GOLD }}>
-                  {r.status}
-                </td>
+                <td className="p-3">{r.brand} — {r.item}</td>
+                <td className="p-3" style={{ color: STAGE_COLORS[r.status] || GOLD }}>{r.status}</td>
                 <td className="p-3">{(r.createdAt || "").slice(0, 10)}</td>
               </tr>
             ))}
@@ -592,9 +586,7 @@ function HistoryPage({ inquiries }) {
         >
           Prev
         </button>
-        <span className="text-sm text-white/80">
-          Page {page} / {totalPages}
-        </span>
+        <span className="text-sm text-white/80">Page {page} / {totalPages}</span>
         <button
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-white/85 disabled:opacity-40"
@@ -655,54 +647,74 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
+  // Read user from localStorage (supports both keys)
+  const readUser = () => {
+    try {
+      const a = localStorage.getItem("sparePartsUser");
+      const b = localStorage.getItem("sp_user");
+      return a ? JSON.parse(a) : b ? JSON.parse(b)?.user ?? null : null;
+    } catch {
+      return null;
+    }
+  };
+
   // Auth guard + initial load
   useEffect(() => {
-    try {
-      const savedUser = JSON.parse(localStorage.getItem("sparePartsUser"));
-      if (!savedUser || savedUser.role !== "ADMIN") {
-        navigate("/"); // only ADMINs can view this page
-        return;
-      }
-      setUser(savedUser);
-
-      (async () => {
-        try {
-          setLoading(true);
-          const { data } = await api.get("/inquiries");
-          // normalize to UI fields
-          const normalized = (data || []).map((d) => ({
-            _id: d._id,
-            ref: d.ref,
-            name: d.customerName,
-            email: d.customerEmail,
-            brand: d.brand,
-            item: d.item,
-            status: d.status,
-            createdAt: d.createdAt,
-          }));
-          setInquiries(normalized);
-        } catch (e) {
-          setErr(e?.response?.data?.message || "Failed to load inquiries");
-        } finally {
-          setLoading(false);
-        }
-      })();
-    } catch {
+    const savedUser = readUser();
+    if (!savedUser || (savedUser.role || savedUser?.user?.role) !== "ADMIN") {
       navigate("/");
+      return;
     }
+    setUser(savedUser);
+
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/inquiries");
+        const raw = Array.isArray(res.data) ? res.data : res.data?.items || [];
+
+        // normalize API/DB fields → UI
+        const normalized = raw.map((d) => ({
+          id: d._id || d.id,
+          ref: d.ref || d.refCode || d.reference || "",
+          name: d.fullName || d.customerName || d.name || "",
+          email: d.email || d.customerEmail || "",
+          brand: d.vehicleBrand || d.brand || "",
+          item: d.description || d.item || "",
+          status: d.status || "Submitted",
+          createdAt: d.createdAt || d.created_at || "",
+        }));
+        setInquiries(normalized.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))));
+      } catch (e) {
+        setErr(e?.response?.data?.message || "Failed to load inquiries");
+      } finally {
+        setLoading(false);
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("sp_token");
     localStorage.removeItem("sparePartsUser");
+    localStorage.removeItem("sp_user");
     navigate("/");
   };
 
   // Update inquiry status via API
   const updateStatus = async (row, status) => {
-    await api.patch(`/inquiries/${row._id}`, { status });
-    setInquiries((prev) => prev.map((i) => (i._id === row._id ? { ...i, status } : i)));
+    const id = row.id || row._id;
+    try {
+      // Prefer PATCH /:id/status; fall back to PATCH /:id
+      try {
+        await api.patch(`/inquiries/${id}/status`, { status });
+      } catch {
+        await api.patch(`/inquiries/${id}`, { status });
+      }
+      setInquiries((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
+    } catch (e) {
+      throw e;
+    }
   };
 
   const content = (() => {
@@ -724,7 +736,7 @@ const AdminDashboard = () => {
     <div className="relative flex min-h-screen overflow-hidden text-white">
       {/* Metallic emerald background */}
       <div className="fixed inset-0 -z-10" style={{ background: BG_APP_DEEP }} />
-      {/* Soft vignette + scanlines (already defined in index.css) */}
+      {/* Soft vignette + scanlines */}
       <div className="fixed inset-0 pointer-events-none -z-10" style={{ background: "radial-gradient(70% 55% at 50% 0%, rgba(16,94,66,0.12), transparent 60%)" }} />
       <div className="fixed inset-0 pointer-events-none -z-10 animate-scanlines" style={{ opacity: 0.06 }} />
 
@@ -740,7 +752,8 @@ const AdminDashboard = () => {
             {active === "reports" && "Reports"}
           </h1>
           <p className="mt-1 text-gray-300">
-            Welcome{user?.name ? `, ${user.name}` : user?.email ? `, ${user.email}` : ""}. Admin control center.
+            Welcome
+            {user?.name ? `, ${user.name}` : user?.email ? `, ${user.email}` : ""}. Admin control center.
           </p>
         </div>
 

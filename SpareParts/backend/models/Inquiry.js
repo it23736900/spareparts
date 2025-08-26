@@ -3,17 +3,23 @@ import mongoose from "mongoose";
 
 const InquirySchema = new mongoose.Schema(
   {
-    fullName: { type: String, required: true, trim: true },
-    email: { type: String, required: true, lowercase: true, trim: true },
-    phone: { type: String, required: true, trim: true },
-    vehicleBrand: { type: String, required: true, trim: true },
-    description: { type: String, required: true, trim: true },
+    fullName: { type: String, required: true },
+    email:    { type: String, required: true },
+    phone:    { type: String, required: true },
+    vehicleBrand: { type: String, required: true },
+    description:  { type: String, required: true },
+
+    // existing long reference
+    refCode: { type: String, unique: true, required: true },
+
+    // NEW: optional short reference like "REF-4KPLTP"
+    shortCode: { type: String, unique: true, sparse: true },
+
     status: {
       type: String,
-      enum: ["Submitted", "In Review", "Quoted", "Paid", "Dispatched", "Delivered"],
+      enum: ["Submitted","In Review","Quoted","Paid","Dispatched","Delivered","Cancelled","Closed"],
       default: "Submitted",
     },
-    refCode: { type: String, unique: true, required: true, index: true },
   },
   { timestamps: true }
 );
