@@ -2,8 +2,11 @@
 import axios from "axios";
 
 // CRA / plain React env variables must start with REACT_APP_*
-const baseURL =
-  process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+// Prefer an explicit env var for the API base URL, but fall back to
+// a relative "/api" path so deployed builds don't accidentally call
+// localhost. This lets the frontend talk to whatever host serves it
+// without hard-coding development URLs.
+const baseURL = process.env.REACT_APP_API_URL || "/api";
 
 const api = axios.create({ baseURL });
 
