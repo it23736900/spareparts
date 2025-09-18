@@ -126,10 +126,10 @@ export default function Footer({ onInquire }) {
   <h4 className="mb-4 text-base font-semibold luxury-gold">Connect With Us</h4>
   <div className="flex items-center justify-center gap-5">
     {[
-      { icon: FaFacebookF, url: "https://facebook.com", label: "Facebook" },
-      { icon: FaInstagram, url: "https://instagram.com", label: "Instagram" },
+      { icon: FaFacebookF, url: "https://web.facebook.com/profile.php?id=61580201289240", label: "Facebook" },
+      { icon: FaInstagram, url: "https://www.instagram.com/eurotec_automotive/", label: "Instagram" },
       { icon: FaWhatsapp, url: "https://wa.me/94785264854", label: "WhatsApp" },
-      { icon: FaTiktok, url: "https://tiktok.com", label: "TikTok" },
+      { icon: FaTiktok, url: "https://www.tiktok.com/@eurotec_automotive?lang=e", label: "TikTok" },
     ].map(({ icon: Icon, url, label }, i) => (
       <a
         key={i}

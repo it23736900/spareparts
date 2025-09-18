@@ -43,7 +43,7 @@ const LoginSystem = ({ onClose, onSwitchToSignup }) => {
           &times;
         </button>
 
-        <h2 className="mb-1 text-3xl font-bold text-center text-yellow-400">🚪 Sign in</h2>
+        <h2 className="mb-1 text-3xl font-bold text-center text-yellow-400">Sign in</h2>
         <p className="mb-6 text-center text-gray-400">Use your account credentials</p>
 
         <div className="space-y-4">

@@ -1,3 +1,4 @@
+// src/components/TestimonialCarousel.jsx
 import React, { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -32,68 +33,76 @@ export default function TestimonialCarousel() {
   }, []);
 
   return (
-    <section
-      id="testimonials"
-      className="max-w-6xl px-4 py-12 mx-auto bg-transparent"
-    >
-      <h2
-        className="text-3xl font-extrabold text-center text-white sm:text-4xl"
-        data-aos="fade-up"
-      >
-        What Our Clients Say
-      </h2>
-
-      <div
-        className="mx-auto mt-4 mb-8 h-[2px] w-28 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"
-        data-aos="fade-up"
-        data-aos-delay="100"
-      />
-
-      <div data-aos="fade-up" data-aos-delay="200">
-        <Swiper
-          modules={[Autoplay]}
-          loop
-          autoplay={{ delay: 5200, disableOnInteraction: false }}
-          spaceBetween={24}
-          slidesPerView={1}
-          breakpoints={{
-            768: { slidesPerView: 2, spaceBetween: 28 },
-            1024: { slidesPerView: 2, spaceBetween: 32 },
-          }}
-          className="w-full"
+    <section id="testimonials" className="relative py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl px-4">
+        {/* Title matches your section heading style */}
+        <h2
+          className="text-center text-3xl md:text-4xl font-extrabold text-white"
+          data-aos="fade-up"
         >
-          {testimonials.map((t, i) => (
-            <SwiperSlide key={i} className="h-full">
-              <div
-                className="
-                  relative h-full min-h-[240px] sm:min-h-[260px]
-                  flex flex-col p-6 rounded-2xl
-                  bg-[#07140F]  /* solid dark green */
-                  border border-[#D4AF37]/70  /* gold border */
-                  shadow-[0_0_30px_-12px_rgba(212,175,55,0.35)]
-                  hover:shadow-[0_0_50px_-10px_rgba(212,175,55,0.55)]
-                  transition-shadow duration-300
-                "
-              >
-                <div className="relative mb-3 text-4xl leading-none text-[#D4AF37]/80 select-none">
-                  “
-                </div>
+          What Our Clients Say
+        </h2>
 
-                <p className="relative text-base italic leading-relaxed text-white/90">
-                  {t.message}
-                </p>
+        {/* Thin gold divider like elsewhere */}
+        <div
+          className="mx-auto mt-3 mb-8 h-[2px] w-28 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"
+          data-aos="fade-up"
+          data-aos-delay="100"
+        />
 
-                <div className="relative flex items-center gap-3 mt-6">
-                  <span className="block h-[1px] w-8 bg-gradient-to-r from-[#D4AF37] to-transparent" />
-                  <span className="text-sm font-semibold text-[#D4AF37]">
-                    {t.name}
-                  </span>
-                  <span className="text-sm text-white/70">({t.location})</span>
+        <div data-aos="fade-up" data-aos-delay="200">
+          <Swiper
+            modules={[Autoplay]}
+            loop
+            autoplay={{ delay: 6500, disableOnInteraction: false }}
+            spaceBetween={24}
+            slidesPerView={1}
+            breakpoints={{
+              768: { slidesPerView: 2, spaceBetween: 28 },
+              1024: { slidesPerView: 2, spaceBetween: 32 },
+            }}
+            className="w-full"
+          >
+            {testimonials.map((t, i) => (
+              <SwiperSlide key={i} className="h-full">
+                <div
+                  className="
+                    group relative overflow-hidden rounded-2xl p-6
+                    h-full min-h-[240px] sm:min-h-[260px]
+                    bg-card
+                    border border-emerald-500/25
+                    transition-all
+                    will-change-transform
+                    shadow-[0_18px_40px_-16px_rgba(0,0,0,0.55)]
+                    hover:-translate-y-[4px]
+                    hover:shadow-[0_18px_60px_-24px_rgba(23,167,122,0.45)]
+                  "
+                >
+                  {/* Quote mark in emerald to match services accents */}
+                  <div className="mb-3 text-4xl leading-none text-emerald-300/90 select-none">
+                    “
+                  </div>
+
+                  {/* Body text tones match services (soft teal/white) */}
+                  <p className="text-[15px] leading-relaxed text-[#cfe2df]">
+                    {t.message}
+                  </p>
+
+                  {/* Footer line + name/location styling consistent */}
+                  <div className="flex items-center gap-3 mt-6">
+                    <span className="block h-[1px] w-8 bg-emerald-400/70" />
+                    <span className="text-sm font-semibold luxury-gold">
+                      {t.name}
+                    </span>
+                    <span className="text-sm text-[#cfe2df]/70">
+                      ({t.location})
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       </div>
     </section>
   );

@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
@@ -6,23 +5,26 @@ import { auto } from "@cloudinary/url-gen/actions/resize";
 import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getUser, logout } from "../utils/auth";
-import GetQuotationForm from "./GetQuotationForm"; // keep if you want the navbar "Inquire Now" CTA
+import GetQuotationForm from "./GetQuotationForm";
 
 // Cloudinary assets
 const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
-const logo = cld.image("logo_e46o12").format("auto").quality("auto").resize(auto().width(100));
+const logo = cld.image("logo_e46o12").format("auto").quality("auto").resize(auto().width(120));
 const defaultAvatar = cld.image("default_avatar_khvzvj").format("auto").quality("auto").resize(auto().width(40));
 
-// Theme tokens
+// Theme
 const GOLD = "#E6C84F";
-const METALLIC_GREEN = `
+const METALLIC_GREEN_SOFT = `
   linear-gradient(
     135deg,
-    rgba(3,8,6,0.97) 0%,
-    rgba(8,20,15,0.95) 45%,
-    rgba(3,8,6,0.97) 100%
+    rgba(3,8,6,0.58) 0%,
+    rgba(8,20,15,0.52) 45%,
+    rgba(3,8,6,0.58) 100%
   )
 `;
+
+// Auto-hide delay (ms)
+const AUTO_HIDE_DELAY = 10000; // 10s
 
 export default function Navbar({ onSignInClick, onSignUpClick }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,17 +32,18 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isAuthMenuOpen, setIsAuthMenuOpen] = useState(false);
 
+  // START HIDDEN -> will fade in when the user scrolls
+  const [isVisible, setIsVisible] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
-
   const authMenuRef = useRef(null);
+  const hideTimerRef = useRef(null);
+  const rafRef = useRef(null);
 
-  // Keep avatar in sync with auth changes
+  // Sync avatar with auth updates
   useEffect(() => {
-    const handler = () => {
-      const u = getUser();
-      setAvatarSrc(u?.avatarUrl || null);
-    };
+    const handler = () => setAvatarSrc(getUser()?.avatarUrl || null);
     window.addEventListener("userUpdated", handler);
     window.addEventListener("storage", handler);
     return () => {
@@ -49,137 +52,368 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
     };
   }, []);
 
-  // Close menus on route change
+  // Close menus on route change + ensure bar visible briefly
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsAuthMenuOpen(false);
+    showNow(); // show when route changes
   }, [location.pathname]);
 
-  // Close auth dropdown on outside click
+  // Click-away for auth dropdown
   useEffect(() => {
-    function onClickAway(e) {
+    const onClickAway = (e) => {
       if (!authMenuRef.current) return;
       if (!authMenuRef.current.contains(e.target)) setIsAuthMenuOpen(false);
-    }
+    };
     document.addEventListener("mousedown", onClickAway);
     return () => document.removeEventListener("mousedown", onClickAway);
   }, []);
 
+  // Lock body scroll when mobile menu open
+  useEffect(() => {
+    const b = document.body;
+    if (isMobileMenuOpen) {
+      const prev = b.style.overflow;
+      b.style.overflow = "hidden";
+      return () => (b.style.overflow = prev);
+    }
+  }, [isMobileMenuOpen]);
+
+  // Show-on-scroll + auto-hide after inactivity
+  useEffect(() => {
+    const onActivity = () => {
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        showNow();
+        rafRef.current = null;
+      });
+    };
+
+    window.addEventListener("scroll", onActivity, { passive: true });
+    window.addEventListener("touchmove", onActivity, { passive: true });
+    const onKey = (e) => {
+      if (
+        ["PageUp", "PageDown", "Home", "End", "ArrowDown", "ArrowUp", " ", "Spacebar"].includes(e.key)
+      ) {
+        showNow();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+
+    if (window.scrollY > 0) showNow();
+
+    return () => {
+      window.removeEventListener("scroll", onActivity);
+      window.removeEventListener("touchmove", onActivity);
+      window.removeEventListener("keydown", onKey);
+      cancelAnimationFrame(rafRef.current || 0);
+      clearHideTimer();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobileMenuOpen, isAuthMenuOpen, isFormOpen]);
+
+  function clearHideTimer() {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  }
+
+  function showNow() {
+    if (!isVisible) setIsVisible(true);
+    resetHideTimer();
+  }
+
+  function resetHideTimer() {
+    clearHideTimer();
+    if (isMobileMenuOpen || isAuthMenuOpen || isFormOpen) return;
+    hideTimerRef.current = setTimeout(() => {
+      setIsVisible(false);
+    }, AUTO_HIDE_DELAY);
+  }
+
+  // ✅ Now includes "Services"
   const navLinks = [
     { label: "Home", to: "/" },
     { label: "About Us", to: "/about" },
+    { label: "Services", to: "/services" }, // added
     { label: "Contact Us", to: "/contact" },
   ];
 
   const user = getUser();
 
+  const pillShellStyle = {
+    background: METALLIC_GREEN_SOFT,
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+    border: `1.5px solid rgba(230,200,79,0.35)`,
+    borderRadius: "9999px",
+    boxShadow:
+      "0 12px 28px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.35), inset 0 0 16px rgba(230,200,79,0.10)",
+    transition: "opacity 300ms ease, transform 320ms ease",
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible ? "translateY(0px)" : "translateY(-10px)",
+    pointerEvents: isVisible ? "auto" : "none",
+  };
+
+  const linkBase = "relative px-5 py-2 transition-colors duration-300";
+
   return (
     <>
+      {/* Fixed header */}
       <header
-        className="fixed top-0 left-0 z-50 w-full shadow-xl"
-        style={{
-          background: METALLIC_GREEN,
-          backdropFilter: "blur(6px)",
-          WebkitBackdropFilter: "blur(6px)",
-          boxShadow: "inset 0 0 18px rgba(255,255,255,0.05), 0 6px 22px rgba(0,0,0,0.6)",
-        }}
+        className="fixed top-0 left-0 z-50 w-full pt-[env(safe-area-inset-top)]"
+        style={{ background: "transparent" }}
       >
-        <div className="flex items-center justify-between px-6 py-4 mx-auto max-w-7xl">
-          {/* Logo */}
-          <Link to="/" aria-label="Go to home" className="shrink-0">
-            <AdvancedImage cldImg={logo} className="object-contain h-10" />
-          </Link>
-
-          {/* Desktop Nav */}
-          <nav className="hidden gap-10 text-sm font-semibold md:flex">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.to;
-              return (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="relative px-4 py-2 transition-colors duration-300"
-                  style={{ color: isActive ? GOLD : "#E9EDEB" }}
-                >
-                  {link.label}
-                  {isActive && (
-                    <span
-                      className="absolute left-0 -bottom-1 h-[2px] w-full"
-                      style={{ background: GOLD }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Right cluster */}
-          <div className="items-center hidden md:flex gap-5 -translate-x-[2px]">
-            {/* Inquire Now — opens form */}
-            <button
-              onClick={() => setIsFormOpen(true)}
-              className="relative inline-flex h-11 items-center justify-center px-7 text-sm font-semibold transition-all duration-300 focus:outline-none hover:scale-[1.03]"
-              style={{
-                color: GOLD,
-                border: `2px solid ${GOLD}`,
-                borderRadius: "0.6rem",
-                background: METALLIC_GREEN,
-                boxShadow: "0 0 12px rgba(230,200,79,0.45), inset 0 0 8px rgba(230,200,79,0.25)",
-              }}
+        <div className="px-2 sm:px-4 md:px-6 mt-3 md:mt-5">
+          <div
+            className="mx-auto"
+            style={{ maxWidth: "min(1760px, 97.5vw)", position: "relative" }}
+          >
+            {/* Floating pill bar */}
+            <div
+              className="flex items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 md:px-7 lg:px-8 py-2.5 sm:py-3 md:py-3.5"
+              style={pillShellStyle}
             >
-              Inquire Now
-            </button>
+              {/* Logo */}
+              <Link to="/" aria-label="Go to home" className="shrink-0">
+                <AdvancedImage cldImg={logo} className="object-contain h-9 md:h-10" />
+              </Link>
 
-            {/* Account menu: shows avatar if logged in, else user icon */}
-            <div className="relative" ref={authMenuRef}>
-              <button
-                onClick={() => setIsAuthMenuOpen((v) => !v)}
-                className="relative grid w-10 h-10 overflow-hidden transition border-2 rounded-full hover:scale-110 place-items-center"
-                style={{
-                  borderColor: GOLD,
-                  boxShadow: "0 0 8px rgba(230,200,79,0.35)",
-                  background: "transparent",
-                  color: "#E9EDEB",
-                }}
-                aria-label="Account menu"
-              >
-                {user ? (
-                  avatarSrc ? (
-                    <img
-                      src={avatarSrc}
-                      alt="Profile"
-                      className="object-cover w-full h-full"
-                      onError={() => setAvatarSrc(null)}
-                    />
-                  ) : (
-                    <AdvancedImage cldImg={defaultAvatar} className="object-cover w-full h-full" alt="Profile" />
-                  )
-                ) : (
-                  <FaUserCircle size={20} />
-                )}
-              </button>
+              {/* Desktop Nav */}
+              <nav className="hidden md:flex gap-3 lg:gap-6 text-[0.98rem] font-semibold">
+                {navLinks.map((link) => {
+                  const isActive = location.pathname === link.to;
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className={linkBase}
+                      style={{ color: isActive ? GOLD : "#E9EDEB" }}
+                      onClick={showNow}
+                    >
+                      <span>{link.label}</span>
+                      <span
+                        className="absolute left-5 right-5 -bottom-[2px] h-[2px]"
+                        style={{
+                          background:
+                            "linear-gradient(90deg, rgba(230,200,79,0.0) 0%, rgba(230,200,79,1) 50%, rgba(230,200,79,0.0) 100%)",
+                          transform: `scaleX(${isActive ? 1 : 0})`,
+                          transformOrigin: "left",
+                          transition: "transform 420ms ease",
+                        }}
+                      />
+                    </Link>
+                  );
+                })}
+              </nav>
 
-              {isAuthMenuOpen && (
-                <div
-                  className="absolute right-0 z-50 mt-2 w-48 rounded-xl overflow-hidden border shadow-xl bg-[#0B1C1F]/95 backdrop-blur-lg"
-                  style={{ borderColor: "rgba(212,175,55,0.45)" }}
+              {/* Right cluster */}
+              <div className="items-center hidden md:flex gap-3 lg:gap-6 -translate-x-[2px]">
+                <button
+                  onClick={() => {
+                    setIsFormOpen(true);
+                    showNow();
+                  }}
+                  className="relative inline-flex h-10 md:h-11 items-center justify-center px-6 md:px-7 text-sm font-semibold transition-all duration-300 focus:outline-none hover:scale-[1.03]"
+                  style={{
+                    color: GOLD,
+                    border: `1.5px solid ${GOLD}`,
+                    borderRadius: "9999px",
+                    background: METALLIC_GREEN_SOFT,
+                    boxShadow:
+                      "0 0 10px rgba(230,200,79,0.30), inset 0 0 10px rgba(230,200,79,0.18)",
+                  }}
                 >
-                  {!user ? (
+                  Inquire Now
+                </button>
+
+                {/* Account menu */}
+                <div className="relative" ref={authMenuRef}>
+                  <button
+                    onClick={() => {
+                      setIsAuthMenuOpen((v) => !v);
+                      showNow();
+                    }}
+                    className="relative grid w-10 h-10 overflow-hidden transition border rounded-full hover:scale-110 place-items-center"
+                    style={{
+                      borderColor: GOLD,
+                      boxShadow: "0 0 8px rgba(230,200,79,0.22)",
+                      background: "transparent",
+                      color: "#E9EDEB",
+                    }}
+                    aria-label="Account menu"
+                    aria-haspopup="menu"
+                    aria-expanded={isAuthMenuOpen}
+                  >
+                    {getUser() ? (
+                      avatarSrc ? (
+                        <img
+                          src={avatarSrc}
+                          alt="Profile"
+                          className="object-cover w-full h-full"
+                          onError={() => setAvatarSrc(null)}
+                        />
+                      ) : (
+                        <AdvancedImage
+                          cldImg={defaultAvatar}
+                          className="object-cover w-full h-full"
+                          alt="Profile"
+                        />
+                      )
+                    ) : (
+                      <FaUserCircle size={20} />
+                    )}
+                  </button>
+
+                  {isAuthMenuOpen && (
+                    <div
+                      role="menu"
+                      className="absolute right-0 z-50 mt-2 w-56 rounded-2xl overflow-hidden border shadow-2xl bg-[#0B1C1F]/95 backdrop-blur-lg"
+                      style={{ borderColor: "rgba(212,175,55,0.45)" }}
+                      onMouseEnter={() => clearHideTimer()}
+                      onMouseLeave={() => resetHideTimer()}
+                    >
+                      {!getUser() ? (
+                        <>
+                          <button
+                            role="menuitem"
+                            className="w-full px-5 py-3 text-sm text-left hover:bg-white/10"
+                            onClick={() => {
+                              setIsAuthMenuOpen(false);
+                              onSignInClick?.();
+                            }}
+                          >
+                            Log in
+                          </button>
+                          <button
+                            role="menuitem"
+                            className="w-full px-5 py-3 text-sm text-left hover:bg-white/10"
+                            onClick={() => {
+                              setIsAuthMenuOpen(false);
+                              onSignUpClick?.();
+                            }}
+                          >
+                            Sign up
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            role="menuitem"
+                            to="/profile"
+                            className="block px-5 py-3 text-sm hover:bg-white/10"
+                            onClick={() => setIsAuthMenuOpen(false)}
+                          >
+                            Profile
+                          </Link>
+                          <button
+                            role="menuitem"
+                            className="flex items-center w-full gap-2 px-5 py-3 text-sm text-left hover:bg-white/10"
+                            onClick={() => {
+                              setIsAuthMenuOpen(false);
+                              logout();
+                              navigate("/");
+                            }}
+                          >
+                            <FaSignOutAlt /> Logout
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Mobile Menu Button */}
+              <div className="md:hidden">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen((v) => !v);
+                    showNow();
+                  }}
+                  className="relative p-3 text-white"
+                  aria-label="Toggle menu"
+                >
+                  {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="px-2 sm:px-4 md:hidden pb-3">
+            <div
+              className="mt-2 rounded-2xl overflow-hidden"
+              style={{
+                background: METALLIC_GREEN_SOFT,
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                border: `1.5px solid rgba(230,200,79,0.35)`,
+                boxShadow:
+                  "0 10px 24px rgba(0,0,0,0.45), inset 0 0 12px rgba(230,200,79,0.12)",
+              }}
+              onMouseEnter={() => clearHideTimer()}
+              onMouseLeave={() => resetHideTimer()}
+            >
+              <div className="px-3 pt-2 pb-3 space-y-1 text-[1.02rem]">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block px-4 py-3 rounded-xl transition"
+                    style={{ color: location.pathname === link.to ? GOLD : "#E9EDEB" }}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+
+                <button
+                  onClick={() => {
+                    setIsFormOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="relative inline-flex h-[44px] items-center justify-center px-8 text-[0.98rem] font-semibold transition-all duration-300 focus:outline-none hover:scale-[1.02] w-full mt-2 rounded-full"
+                  style={{
+                    color: GOLD,
+                    border: `1.5px solid ${GOLD}`,
+                    background: METALLIC_GREEN_SOFT,
+                    boxShadow:
+                      "0 0 10px rgba(230,200,79,0.30), inset 0 0 10px rgba(230,200,79,0.18)",
+                  }}
+                >
+                  Inquire Now
+                </button>
+
+                <div className="flex gap-2 pt-2">
+                  {!getUser() ? (
                     <>
                       <button
-                        className="w-full px-4 py-3 text-sm text-left hover:bg-white/10"
                         onClick={() => {
-                          setIsAuthMenuOpen(false);
                           onSignInClick?.();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="flex-1 border rounded-full h-[44px] px-4"
+                        style={{
+                          color: "#E9EDEB",
+                          borderColor: "rgba(212,175,55,0.45)",
                         }}
                       >
                         Log in
                       </button>
                       <button
-                        className="w-full px-4 py-3 text-sm text-left hover:bg-white/10"
                         onClick={() => {
-                          setIsAuthMenuOpen(false);
                           onSignUpClick?.();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="flex-1 rounded-full h-[44px] px-4"
+                        style={{
+                          color: "#0B1C1F",
+                          background: GOLD,
+                          border: "1.5px solid " + GOLD,
                         }}
                       >
                         Sign up
@@ -189,130 +423,46 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                     <>
                       <Link
                         to="/profile"
-                        className="block px-4 py-3 text-sm hover:bg-white/10"
-                        onClick={() => setIsAuthMenuOpen(false)}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="grid flex-1 border rounded-full h-[44px] place-items-center px-4"
+                        style={{
+                          color: "#E9EDEB",
+                          borderColor: "rgba(212,175,55,0.45)",
+                        }}
                       >
                         Profile
                       </Link>
                       <button
-                        className="flex items-center w-full gap-2 px-4 py-3 text-sm text-left hover:bg-white/10"
                         onClick={() => {
-                          setIsAuthMenuOpen(false);
                           logout();
+                          setIsMobileMenuOpen(false);
                           navigate("/");
                         }}
+                        className="grid flex-1 rounded-full h-[44px] place-items-center px-4"
+                        style={{
+                          color: "#0B1C1F",
+                          background: GOLD,
+                          border: "1.5px solid " + GOLD,
+                        }}
                       >
-                        <FaSignOutAlt /> Logout
+                        Logout
                       </button>
                     </>
                   )}
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen((v) => !v)}
-              className="relative p-2 text-white"
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="px-4 pt-2 pb-4 space-y-2 text-sm md:hidden bg-gradient-to-b from-[#021C15]/95 to-[#083E2D]/95">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 transition rounded-lg"
-                style={{ color: location.pathname === link.to ? GOLD : "#E9EDEB" }}
-              >
-                {link.label}
-              </Link>
-            ))}
-
-            {/* Inquire Now (mobile) */}
-            <button
-              onClick={() => {
-                setIsFormOpen(true);
-                setIsMobileMenuOpen(false);
-              }}
-              className="relative inline-flex h-11 items-center justify-center px-8 text-sm font-semibold transition-all duration-300 focus:outline-none hover:scale-[1.02] w-full"
-              style={{
-                color: GOLD,
-                border: `2px solid ${GOLD}`,
-                borderRadius: "0.6rem",
-                background: METALLIC_GREEN,
-                boxShadow: "0 0 12px rgba(230,200,79,0.45), inset 0 0 8px rgba(230,200,79,0.25)",
-              }}
-            >
-              Inquire Now
-            </button>
-
-            {/* Account actions (mobile) */}
-            <div className="flex gap-2 pt-2">
-              {!user ? (
-                <>
-                  <button
-                    onClick={() => {
-                      onSignInClick?.();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex-1 border rounded-lg h-11"
-                    style={{ color: "#E9EDEB", borderColor: "rgba(212,175,55,0.45)" }}
-                  >
-                    Log in
-                  </button>
-                  <button
-                    onClick={() => {
-                      onSignUpClick?.();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex-1 rounded-lg h-11"
-                    style={{ color: "#0B1C1F", background: GOLD, border: "2px solid " + GOLD }}
-                  >
-                    Sign up
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/profile"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="grid flex-1 border rounded-lg h-11 place-items-center"
-                    style={{ color: "#E9EDEB", borderColor: "rgba(212,175,55,0.45)" }}
-                  >
-                    Profile
-                  </Link>
-                  <button
-                    onClick={() => {
-                      logout();
-                      setIsMobileMenuOpen(false);
-                      navigate("/");
-                    }}
-                    className="grid flex-1 rounded-lg h-11 place-items-center"
-                    style={{ color: "#0B1C1F", background: GOLD, border: "2px solid " + GOLD }}
-                  >
-                    Logout
-                  </button>
-                </>
-              )}
+              </div>
             </div>
           </div>
         )}
       </header>
 
-      {/* Inquiry Form Modal (if you want the header CTA to open it) */}
+      {/* Inquiry Form Modal */}
       <GetQuotationForm
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
+        onClose={() => {
+          setIsFormOpen(false);
+          setTimeout(() => resetHideTimer(), 0);
+        }}
         prefill={{}}
       />
     </>

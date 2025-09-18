@@ -21,7 +21,12 @@ const ukFlag = cld
 
 const Hero = () => {
   return (
-    <section className="relative w-full h-screen overflow-hidden group">
+    <section
+      className="
+        relative w-full h-screen overflow-hidden group
+        pt-[80px] md:pt-[90px]   /* 🔑 offset for navbar height */
+      "
+    >
       {/* 🔲 Background Video */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <AdvancedVideo
@@ -36,7 +41,7 @@ const Hero = () => {
       </div>
 
       {/* 🔲 Foreground Content */}
-      <div className="relative z-10 flex items-center justify-start h-full px-10">
+      <div className="relative z-10 flex items-center justify-start h-full px-6 sm:px-10">
         <div className="max-w-xl space-y-6">
           {/* 🇱🇰🇬🇧 Flags Row */}
           <div className="flex items-center gap-4">

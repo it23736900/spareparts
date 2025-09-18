@@ -4,27 +4,20 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 
-/* === Theme (darker green + thin gold, premium) === */
-const GOLD = "#D4AF37";
+/* === Theme (emerald + gold) === */
 const COLORS = {
-  cardFrontGradient: `
-    linear-gradient(
-      135deg,
-      rgba(6,18,15,0.98) 0%,
-      rgba(12,36,28,0.96) 45%,
-      rgba(6,18,15,0.98) 100%
-    )
-  `,
-  cardBackSolid: "#08110F",
-  border: "rgba(212,175,55,0.28)",
+  cardFrontSolid: "#0B1C1F",
+  cardBackSolid: "#0A1716",
+  emeraldBorder: "rgba(23,167,122,0.35)",
+  goldBorder: "rgba(212,175,55,0.28)",
   shadow: "0 18px 40px -16px rgba(0,0,0,0.55)",
   text: "#E8ECEA",
 };
 
 /* Cloudinary */
 const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
-const img = (id) =>
-  cld.image(id).format("auto").quality("auto").resize(auto().width(500));
+const img = (id, w = 360) =>
+  cld.image(id).format("auto").quality("auto").resize(auto().width(w));
 
 /* Data */
 const allBrands = [
@@ -47,7 +40,7 @@ const allBrands = [
 const mod = (n, m) => ((n % m) + m) % m;
 
 /* Marquee hook (endless horizontal + manual drag + wheel) */
-function useMarqueeRow({ speedPxPerSec = 40, reverse = false }) {
+function useMarqueeRow({ speedPxPerSec = 28, reverse = false }) {
   const wrapRef = useRef(null);
   const trackRef = useRef(null);
   const firstCycleFirstRef = useRef(null);
@@ -61,7 +54,7 @@ function useMarqueeRow({ speedPxPerSec = 40, reverse = false }) {
   const dragStartX = useRef(0);
   const dragStartOffset = useRef(0);
   const rafRef = useRef(0);
-  const DRAG_THRESHOLD = 6;
+  const DRAG_THRESHOLD = 8;
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -85,7 +78,8 @@ function useMarqueeRow({ speedPxPerSec = 40, reverse = false }) {
       const width = widthRef.current;
       const track = trackRef.current;
       if (track && width > 0 && !paused && !dragging.current && !mayDrag.current) {
-        offsetRef.current = mod(offsetRef.current + dir * speedPxPerSec * dt, width);
+        const v = speedPxPerSec;
+        offsetRef.current = mod(offsetRef.current + dir * v * dt, width);
         track.style.transform = `translate3d(${-offsetRef.current}px,0,0)`;
       }
       rafRef.current = requestAnimationFrame(tick);
@@ -94,7 +88,6 @@ function useMarqueeRow({ speedPxPerSec = 40, reverse = false }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [paused, reverse, speedPxPerSec]);
 
-  // Manual drag (mouse/touch)
   const onPointerDown = (e) => {
     if (e.button !== undefined && e.button !== 0) return;
     if (e.target.closest('[data-no-drag], button, a, input, textarea, select')) return;
@@ -102,42 +95,38 @@ function useMarqueeRow({ speedPxPerSec = 40, reverse = false }) {
     dragStartX.current = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
     dragStartOffset.current = offsetRef.current;
     setPaused(true);
+    wrapRef.current?.setPointerCapture?.(e.pointerId);
+    if (wrapRef.current) wrapRef.current.style.cursor = "grabbing";
   };
+
   const onPointerMove = (e) => {
     if (!mayDrag.current) return;
     const cx = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
     const dx = cx - dragStartX.current;
     const absDx = Math.abs(dx);
     const width = widthRef.current;
-    if (!dragging.current && absDx >= DRAG_THRESHOLD) {
-      dragging.current = true;
-      wrapRef.current?.setPointerCapture?.(e.pointerId);
-      if (wrapRef.current) wrapRef.current.style.cursor = "grabbing";
-    }
+    if (!dragging.current && absDx >= DRAG_THRESHOLD) dragging.current = true;
     if (dragging.current && width > 0) {
       offsetRef.current = mod(dragStartOffset.current - dx, width);
       if (trackRef.current) trackRef.current.style.transform = `translate3d(${-offsetRef.current}px,0,0)`;
     }
   };
-  const endDrag = (e) => {
-    if (dragging.current) {
-      try { wrapRef.current?.releasePointerCapture?.(e.pointerId); } catch {}
-      if (wrapRef.current) wrapRef.current.style.cursor = "";
-    }
+
+  const endDrag = () => {
+    if (wrapRef.current) wrapRef.current.style.cursor = "";
     dragging.current = false; mayDrag.current = false;
-    setTimeout(() => setPaused(false), 400);
+    setTimeout(() => setPaused(false), 250);
   };
 
-  // Horizontal wheel support
   const onWheel = (e) => {
     if (!trackRef.current || widthRef.current <= 0) return;
-    const delta = (e.deltaX || e.deltaY) * 0.8;
+    const delta = (e.deltaX || e.deltaY) * 0.7;
     if (!delta) return;
     setPaused(true);
     offsetRef.current = mod(offsetRef.current + delta, widthRef.current);
     trackRef.current.style.transform = `translate3d(${-offsetRef.current}px,0,0)`;
     clearTimeout(onWheel._t);
-    onWheel._t = setTimeout(() => setPaused(false), 500);
+    onWheel._t = setTimeout(() => setPaused(false), 300);
   };
 
   return {
@@ -153,27 +142,27 @@ function useMarqueeRow({ speedPxPerSec = 40, reverse = false }) {
   };
 }
 
-/* Component */
+/* === Fixed logo box for uniform sizing === */
+const LOGO_BOX =
+  "w-[140px] h-[140px] sm:w-[150px] sm:h-[150px] md:w-[160px] md:h-[160px] lg:w-[170px] lg:h-[170px]";
+
+/* ——— Component ——— */
 const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`) }) => {
   const mid = Math.ceil(allBrands.length / 2);
   const topBrands = allBrands.slice(0, mid);
   const bottomBrands = allBrands.slice(mid);
 
-  const rowTop = useMarqueeRow({ speedPxPerSec: 40, reverse: false });
-  const rowBottom = useMarqueeRow({ speedPxPerSec: 40, reverse: true });
+  const rowTop = useMarqueeRow({ speedPxPerSec: 26, reverse: false });
+  const rowBottom = useMarqueeRow({ speedPxPerSec: 26, reverse: true });
 
   const Card = (brand, i, rowKey) => (
     <div
       key={`${rowKey}-${i}-${brand.title}`}
-      className="w-[340px] h-[340px] sm:w-[360px] sm:h-[360px] md:w-[400px] md:h-[400px]
+      className="w-[min(64vw,320px)] h-[min(64vw,320px)] sm:w-[min(44vw,300px)] sm:h-[min(44vw,300px)] md:w-[min(32vw,320px)] md:h-[min(32vw,320px)] lg:w-[min(24vw,340px)] lg:h-[min(24vw,340px)] xl:w-[min(20vw,360px)] xl:h-[min(20vw,360px)] 2xl:w-[360px] 2xl:h-[360px]
                  flex-shrink-0 group [perspective:1000px] select-none
-                 transition-transform duration-300 hover:scale-[1.04] hover:z-10"
-      onMouseEnter={() =>
-        (rowKey === "top" ? rowTop.setPaused(true) : rowBottom.setPaused(true))
-      }
-      onMouseLeave={() =>
-        (rowKey === "top" ? rowTop.setPaused(false) : rowBottom.setPaused(false))
-      }
+                 transition-transform duration-300 hover:scale-[1.03] hover:z-10"
+      onMouseEnter={() => (rowKey === "top" ? rowTop.setPaused(true) : rowBottom.setPaused(true))}
+      onMouseLeave={() => (rowKey === "top" ? rowTop.setPaused(false) : rowBottom.setPaused(false))}
       style={{ padding: "2px" }}
       role="group"
       aria-label={`${brand.title} card`}
@@ -181,89 +170,76 @@ const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`
       <div className="relative w-full h-full duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
         {/* FRONT */}
         <div
-          className="absolute inset-0 rounded-[22px] flex flex-col items-center justify-center p-6 border [backface-visibility:hidden]"
+          className="absolute inset-0 rounded-[20px] flex flex-col items-center justify-between p-5 border [backface-visibility:hidden]"
           style={{
-            background: COLORS.cardFrontGradient,
-            borderColor: COLORS.border,
-            boxShadow: `${COLORS.shadow}, 0 0 0 1px rgba(255,255,255,0.03) inset, 0 0 18px rgba(212,175,55,0.10)`,
+            background: COLORS.cardFrontSolid,
+            borderColor: COLORS.emeraldBorder,
+            boxShadow: `${COLORS.shadow}, inset 0 0 0 1px rgba(255,255,255,0.02)`,
           }}
         >
-          <AdvancedImage
-            cldImg={img(brand.imageId)}
-            style={{
-              width: "clamp(260px, 30vw, 340px)",
-              height: "clamp(260px, 30vw, 340px)",
-            }}
-            className="object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-2xl"
-            alt={brand.title}
-          />
-          <p
-            className="mt-3 text-center text-[18px] font-semibold"
-            style={{ color: "#FFD95A" }}
-          >
-            {brand.title}
-          </p>
+          <div className="flex-1 w-full flex items-center justify-center">
+            <div className={`${LOGO_BOX} flex items-center justify-center`}>
+              <AdvancedImage
+                cldImg={img(brand.imageId, 360)}
+                className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-[1.05]"
+                alt={brand.title}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  filter: "brightness(0.9) saturate(0.2) contrast(1.1)",
+                }}
+              />
+            </div>
+          </div>
+          <div className="mt-3 h-6 flex items-center justify-center">
+            <p className="text-center text-[16px] sm:text-[17px] font-extrabold text-[#E8ECEA] tracking-wide">
+              {brand.title}
+            </p>
+          </div>
         </div>
 
         {/* BACK */}
         <div
-          className="absolute inset-0 rounded-[22px] flex flex-col border [transform:rotateY(180deg)] [backface-visibility:hidden] overflow-hidden"
+          className="absolute inset-0 rounded-[20px] flex flex-col border [transform:rotateY(180deg)] [backface-visibility:hidden] overflow-hidden"
           style={{
-            background: COLORS.cardBackSolid,
-            borderColor: COLORS.border,
-            boxShadow: `${COLORS.shadow}, 0 0 14px rgba(212,175,55,0.12)`,
-            padding: "24px",
+            background: COLORS.cardFrontSolid,
+            borderColor: COLORS.emeraldBorder,
+            boxShadow: `${COLORS.shadow}, inset 0 0 0 1px rgba(255,255,255,0.02)`,
           }}
         >
-          <p
-            className="text-[20px] md:text-[22px] font-bold mb-3 text-center"
-            style={{ color: "#FFD95A" }}
-          >
+          {/* Brand title — white (no shimmer) */}
+          <h3 className="text-lg sm:text-xl font-bold text-[#E8ECEA] text-center mb-1 tracking-wide uppercase">
             {brand.title}
+          </h3>
+          <div className="h-[2px] w-14 mx-auto mb-3 bg-gradient-to-r from-transparent via-[#FFD95A] to-transparent" />
+
+          <p className="text-sm text-emerald-300 text-center mb-3 italic">
+            Genuine UK-Imported Parts
           </p>
 
-          <div className="flex-1 overflow-auto" style={{ scrollbarWidth: "none" }}>
+          <div className="flex-1 overflow-auto pr-1" style={{ scrollbarWidth: "none" }}>
             <p
-              style={{
-                fontSize: "clamp(18px, 2.4vw, 20px)",
-                lineHeight: 1.5,
-                textAlign: "justify",
-                color: COLORS.text,
-              }}
+              className="text-[13px] sm:text-[14px] md:text-[15px] text-[#E8ECEA]/90 leading-relaxed md:leading-[1.55]
+                         text-left md:text-justify hyphens-auto"
+              style={{ textAlignLast: "left" }}
             >
               {brand.description}
             </p>
           </div>
 
-          {/* Inquire button (works + not swallowed by drag/flip) */}
-          <div className="flex justify-center pt-6 pb-2">
+          {/* Inquire button — emerald outline & text */}
+          <div className="flex justify-center pt-5 pb-1">
             <button
               data-no-drag
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                onInquire(brand.title); // pass a string
+                onInquire(brand.title);
               }}
-              className="px-8 py-3 font-semibold transition-all duration-300"
-              style={{
-                background: "linear-gradient(145deg, #05120E, #0B1C1F)",
-                border: "1.5px solid #E6C84F",
-                color: "#E6C84F",
-                fontSize: "16px",
-                borderRadius: "50px",
-                boxShadow: "0 0 6px rgba(230,200,79,0.15)",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 0 18px rgba(230,200,79,0.55), inset 0 0 10px rgba(0,0,0,0.4)";
-                e.currentTarget.style.transform = "scale(1.05)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 0 6px rgba(230,200,79,0.15)";
-                e.currentTarget.style.transform = "scale(1)";
-              }}
+              className="px-6 py-2 rounded-full text-sm font-semibold border border-emerald-400 text-emerald-400
+                         hover:bg-emerald-400/10 hover:shadow-[0_0_12px_rgba(23,167,122,0.5)]
+                         focus:outline-none focus:ring-2 focus:ring-emerald-400/40
+                         transition-all"
               aria-label={`Inquire now about ${brand.title}`}
             >
               Inquire Now
@@ -274,7 +250,6 @@ const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`
     </div>
   );
 
-  /* Row: endless horizontal loop + manual control */
   const Row = ({ brands, rowHook, rowKey }) => {
     const {
       wrapRef,
@@ -287,12 +262,12 @@ const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`
       onWheel,
     } = rowHook;
 
-    const tripled = useMemo(() => [...brands, ...brands, ...brands], [brands]);
+    const doubled = useMemo(() => [...brands, ...brands], [brands]);
 
     return (
       <div
         ref={wrapRef}
-        className="py-4 overflow-x-hidden overflow-y-visible select-none cursor-grab"
+        className="py-2 overflow-x-hidden overflow-y-visible select-none cursor-grab"
         style={{ touchAction: "pan-y" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -300,20 +275,15 @@ const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`
         onPointerCancel={endDrag}
         onPointerLeave={endDrag}
         onWheel={onWheel}
-        aria-label={`brands-row-${rowKey}`}
       >
         <div
           ref={trackRef}
-          className="flex gap-6 md:gap-8 w-max will-change-transform"
+          className="flex gap-4 sm:gap-6 md:gap-7 w-max will-change-transform"
           style={{ transform: "translate3d(0,0,0)" }}
         >
-          {tripled.map((b, i) => {
+          {doubled.map((b, i) => {
             const refProp =
-              i === 0
-                ? { ref: firstCycleFirstRef }
-                : i === brands.length
-                ? { ref: secondCycleFirstRef }
-                : {};
+              i === 0 ? { ref: firstCycleFirstRef } : i === brands.length ? { ref: secondCycleFirstRef } : {};
             return (
               <div key={`${rowKey}-${i}`} {...refProp}>
                 {Card(b, i, rowKey)}
@@ -326,23 +296,31 @@ const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`
   };
 
   return (
-    <section
-      id="brands"
-      className="relative z-0 px-4 py-20 text-white sm:py-24 font-poppins scroll-mt-28"
-      style={{ overflow: "visible" }}
-      aria-labelledby="brands-heading"
-    >
-      <h2
-        id="brands-heading"
-        className="mb-10 text-3xl font-bold text-center md:text-5xl md:mb-12"
-        style={{ color: "#FFD95A", textShadow: "0 0 14px rgba(212,175,55,0.25)" }}
-      >
-        Our Supportive Brands
+    <section id="brands" className="relative z-0 px-3 sm:px-4 py-12 sm:py-16 md:py-20 text-white font-poppins scroll-mt-24">
+      <h2 id="brands-heading" className="mb-6 sm:mb-8 md:mb-10 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center">
+        Brands We <span className="luxury-gold">Support</span>
       </h2>
 
       <Row brands={topBrands} rowHook={rowTop} rowKey="top" />
-      <div className="h-10 sm:h-12" />
+      <div className="h-6 sm:h-8 md:h-10" />
       <Row brands={bottomBrands} rowHook={rowBottom} rowKey="bottom" />
+
+      <style>{`
+        .luxury-gold {
+          background: linear-gradient(90deg, #FFD95A, #E8B923, #FFD95A);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: shine 3s linear infinite;
+        }
+        @keyframes shine {
+          0% { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          [aria-label^='brands-row-'] div[style*='translate3d'] { transform: none !important; }
+        }
+      `}</style>
     </section>
   );
 };

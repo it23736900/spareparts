@@ -72,7 +72,7 @@ const SignupModal = ({ onClose, onSwitchToLogin }) => {
         </button>
 
         {/* Header */}
-        <h2 className="mb-1 text-3xl font-bold text-center text-yellow-400">📝 Sign Up</h2>
+        <h2 className="mb-1 text-3xl font-bold text-center text-yellow-400"> Sign Up</h2>
         <p className="mb-6 text-center text-gray-400">Create your account to access features</p>
 
         {/* Form */}

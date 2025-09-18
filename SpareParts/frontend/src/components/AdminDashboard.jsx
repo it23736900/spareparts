@@ -10,6 +10,8 @@ import {
   FaSignOutAlt,
   FaSearch,
   FaCheckCircle,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -52,6 +54,27 @@ const STAGE_COLORS = {
   Dispatched: GOLD_DEEP,
   Delivered: "#E3D38A",
 };
+
+/* =========================================
+   Helpers: Responsive container width hook
+   ========================================= */
+function useContainerWidth() {
+  const ref = useRef(null);
+  const [w, setW] = useState(720);
+  useEffect(() => {
+    if (!ref.current) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const cw = entry.contentRect.width;
+        // clamp to sensible bounds
+        setW(Math.max(320, Math.min(cw, 1400)));
+      }
+    });
+    ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, []);
+  return { ref, width: w };
+}
 
 /* =========================================
    Advanced Line Chart (dual-series)
@@ -233,8 +256,20 @@ function LineChartAdvanced({
   );
 }
 
+function LineChartResponsive({ series }) {
+  const { ref, width } = useContainerWidth();
+  // scale height a bit on small screens
+  const h = width < 480 ? 240 : 300;
+  return (
+    <div ref={ref}>
+      <LineChartAdvanced series={series} width={width} height={h} />
+    </div>
+  );
+}
+
 /* Donut + Stage bars */
 function DonutChart({ series }) {
+  // size adapts for small screens
   const size = 240;
   const stroke = 22;
   const r = (size - stroke) / 2;
@@ -296,9 +331,9 @@ function StageBars({ counts }) {
 }
 
 /* =========================================
-   Sidebar
+   Sidebar (mobile-friendly)
    ========================================= */
-function AdminSidebar({ active, onChange, onLogout }) {
+function AdminSidebar({ active, onChange, onLogout, open, onClose }) {
   const items = [
     { key: "dashboard", label: "Dashboard", icon: <FaTachometerAlt /> },
     { key: "tracking", label: "Tracking", icon: <FaShippingFast /> },
@@ -306,68 +341,150 @@ function AdminSidebar({ active, onChange, onLogout }) {
     { key: "reports", label: "Reports", icon: <FaChartBar /> },
   ];
 
+  // Desktop fixed sidebar
   return (
-    <aside
-      className="fixed top-0 left-0 z-40 flex flex-col h-screen w-72"
-      style={{
-        background: SIDEBAR_METALLIC,
-        borderRight: "1px solid rgba(212,175,55,0.10)",
-        boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.04), 0 28px 90px rgba(0,0,0,0.6)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-      }}
-    >
-      <div className="p-6">
-        <div className="text-2xl font-bold tracking-wide uppercase select-none luxury-gold">EuroTech Admin</div>
-      </div>
+    <>
+      {/* Desktop */}
+      <aside
+        className="hidden md:flex fixed top-0 left-0 z-30 flex-col h-screen w-72"
+        style={{
+          background: SIDEBAR_METALLIC,
+          borderRight: "1px solid rgba(212,175,55,0.10)",
+          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.04), 0 28px 90px rgba(0,0,0,0.6)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+        }}
+      >
+        <div className="p-6">
+          <div className="text-2xl font-bold tracking-wide uppercase select-none luxury-gold">EuroTech Admin</div>
+        </div>
 
-      <nav className="flex-1 px-4 pb-4 space-y-3">
-        {items.map((it) => {
-          const isActive = active === it.key;
-          return (
-            <motion.button
-              key={it.key}
-              onClick={() => onChange(it.key)}
-              whileHover={{ y: -2, boxShadow: "0 0 26px rgba(212,175,55,0.18)" }}
-              transition={{ type: "spring", stiffness: 260, damping: 18 }}
-              className="relative flex items-center w-full gap-4 px-5 py-4 text-left group rounded-xl"
-              style={{
-                color: "#E9EDEB",
-                background: isActive ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.035)",
-                border: "1px solid rgba(255,255,255,0.06)",
-              }}
-            >
-              <span
-                className="absolute left-2 top-2 bottom-2 w-[3px] rounded-full transition-all"
+        <nav className="flex-1 px-4 pb-4 space-y-3">
+          {items.map((it) => {
+            const isActive = active === it.key;
+            return (
+              <motion.button
+                key={it.key}
+                onClick={() => onChange(it.key)}
+                whileHover={{ y: -2, boxShadow: "0 0 26px rgba(212,175,55,0.18)" }}
+                transition={{ type: "spring", stiffness: 260, damping: 18 }}
+                className="relative flex items-center w-full gap-4 px-5 py-4 text-left group rounded-xl"
                 style={{
-                  background: isActive ? GOLD : "transparent",
-                  boxShadow: isActive ? "0 0 10px rgba(212,175,55,0.55)" : "none",
+                  color: "#E9EDEB",
+                  background: isActive ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.035)",
+                  border: "1px solid rgba(255,255,255,0.06)",
                 }}
-              />
-              <span className="grid transition rounded-lg place-items-center w-9 h-9" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                {it.icon}
-              </span>
-              <span className="font-semibold tracking-wide">{it.label}</span>
-              <span className="absolute inset-0 transition opacity-0 pointer-events-none group-hover:opacity-100 rounded-xl" style={{ boxShadow: "0 0 24px rgba(212,175,55,0.18) inset" }} />
-            </motion.button>
-          );
-        })}
-      </nav>
+              >
+                <span
+                  className="absolute left-2 top-2 bottom-2 w-[3px] rounded-full transition-all"
+                  style={{
+                    background: isActive ? GOLD : "transparent",
+                    boxShadow: isActive ? "0 0 10px rgba(212,175,55,0.55)" : "none",
+                  }}
+                />
+                <span className="grid transition rounded-lg place-items-center w-9 h-9" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  {it.icon}
+                </span>
+                <span className="font-semibold tracking-wide">{it.label}</span>
+                <span className="absolute inset-0 transition opacity-0 pointer-events-none group-hover:opacity-100 rounded-xl" style={{ boxShadow: "0 0 24px rgba(212,175,55,0.18) inset" }} />
+              </motion.button>
+            );
+          })}
+        </nav>
 
-      <div className="p-4">
-        <motion.button
-          whileHover={{ y: -1 }}
-          onClick={onLogout}
-          className="relative flex items-center w-full gap-3 px-5 py-4 text-left rounded-xl"
-          style={{ color: "#E9EDEB", background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.08)" }}
+        <div className="p-4">
+          <motion.button
+            whileHover={{ y: -1 }}
+            onClick={onLogout}
+            className="relative flex items-center w-full gap-3 px-5 py-4 text-left rounded-xl"
+            style={{ color: "#E9EDEB", background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <span className="grid border rounded-lg place-items-center w-9 h-9 bg-white/5 border-white/10">
+              <FaSignOutAlt />
+            </span>
+            <span className="tracking-wide text-md">Logout</span>
+          </motion.button>
+        </div>
+      </aside>
+
+      {/* Mobile drawer */}
+      <div
+        className={`md:hidden fixed inset-0 z-40 transition ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        aria-hidden={!open}
+      >
+        {/* Overlay */}
+        <div
+          onClick={onClose}
+          className={`absolute inset-0 bg-black/50 transition ${open ? "opacity-100" : "opacity-0"}`}
+        />
+        {/* Drawer panel */}
+        <aside
+          className={`absolute left-0 top-0 h-full w-[82%] max-w-[320px] bg-[#06120F] shadow-2xl transition-transform duration-300 ${
+            open ? "translate-x-0" : "-translate-x-full"
+          }`}
+          style={{
+            background: SIDEBAR_METALLIC,
+            borderRight: "1px solid rgba(212,175,55,0.10)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+          }}
+          role="dialog"
+          aria-modal="true"
         >
-          <span className="grid border rounded-lg place-items-center w-9 h-9 bg-white/5 border-white/10">
-            <FaSignOutAlt />
-          </span>
-          <span className="tracking-wide text-md">Logout</span>
-        </motion.button>
+          <div className="flex items-center justify-between p-5">
+            <div className="text-xl font-bold tracking-wide uppercase luxury-gold">EuroTech Admin</div>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-md bg-white/5 border border-white/10"
+              aria-label="Close sidebar"
+            >
+              <FaTimes />
+            </button>
+          </div>
+
+          <nav className="px-4 pb-4 space-y-2">
+            {items.map((it) => {
+              const isActive = active === it.key;
+              return (
+                <button
+                  key={it.key}
+                  onClick={() => {
+                    onChange(it.key);
+                    onClose();
+                  }}
+                  className="relative flex items-center w-full gap-3 px-4 py-3 text-left rounded-lg"
+                  style={{
+                    color: "#E9EDEB",
+                    background: isActive ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <span className="grid transition rounded-lg place-items-center w-8 h-8 bg-white/5 border border-white/10">
+                    {it.icon}
+                  </span>
+                  <span className="font-medium tracking-wide">{it.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="p-4">
+            <button
+              onClick={() => {
+                onLogout();
+                onClose();
+              }}
+              className="flex items-center w-full gap-3 px-4 py-3 text-left rounded-lg bg-white/5 border border-white/10"
+            >
+              <span className="grid rounded-lg place-items-center w-8 h-8 bg-white/5 border border-white/10">
+                <FaSignOutAlt />
+              </span>
+              <span className="tracking-wide">Logout</span>
+            </button>
+          </div>
+        </aside>
       </div>
-    </aside>
+    </>
   );
 }
 
@@ -409,19 +526,19 @@ function DashboardPage({ inquiries }) {
   return (
     <>
       {/* KPIs */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((k, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05, duration: 0.35 }}
-            className="p-6 border rounded-xl backdrop-blur-md"
+            className="p-4 md:p-6 border rounded-xl backdrop-blur-md"
             style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)" }}
           >
-            <div className="mb-2 text-3xl">{k.icon}</div>
-            <p className="text-sm text-gray-300">{k.title}</p>
-            <h3 className="text-2xl font-semibold" style={{ color: GOLD_SOFT }}>
+            <div className="mb-1 text-2xl md:text-3xl">{k.icon}</div>
+            <p className="text-xs md:text-sm text-gray-300">{k.title}</p>
+            <h3 className="text-xl md:text-2xl font-semibold" style={{ color: GOLD_SOFT }}>
               {k.value}
             </h3>
           </motion.div>
@@ -429,15 +546,15 @@ function DashboardPage({ inquiries }) {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 gap-6 mt-8 xl:grid-cols-3">
-        <div className="p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
-          <h4 className="mb-3 text-lg font-semibold text-white/90">Weekly Performance</h4>
-          <LineChartAdvanced series={series} />
+      <div className="grid grid-cols-1 gap-4 mt-6 xl:grid-cols-3">
+        <div className="p-4 md:p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
+          <h4 className="mb-3 text-base md:text-lg font-semibold text-white/90">Weekly Performance</h4>
+          <LineChartResponsive series={series} />
         </div>
-        <div className="p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
-          <h4 className="mb-3 text-lg font-semibold text-white/90">Pipeline Breakdown</h4>
+        <div className="p-4 md:p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
+          <h4 className="mb-3 text-base md:text-lg font-semibold text-white/90">Pipeline Breakdown</h4>
           <DonutChart series={donutSeries.length ? donutSeries : [{ label: "None", value: 1, color: "rgba(255,255,255,.25)" }]} />
-          <div className="grid grid-cols-2 mt-3 text-sm gap-x-4 gap-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 mt-3 text-sm gap-x-4 gap-y-1">
             {donutSeries.map((s, i) => (
               <div key={i} className="flex items-center gap-2">
                 <span className="inline-block w-3 h-3 rounded-full" style={{ background: s.color }} />
@@ -447,8 +564,8 @@ function DashboardPage({ inquiries }) {
             ))}
           </div>
         </div>
-        <div className="p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
-          <h4 className="mb-3 text-lg font-semibold text-white/90">Stage Progress</h4>
+        <div className="p-4 md:p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
+          <h4 className="mb-3 text-base md:text-lg font-semibold text-white/90">Stage Progress</h4>
           <StageBars counts={stageCounts} />
         </div>
       </div>
@@ -473,7 +590,7 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="relative flex-1">
           <FaSearch className="absolute -translate-y-1/2 left-3 top-1/2 text-white/60" />
           <input
@@ -486,7 +603,8 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
         </div>
       </div>
 
-      <div className="overflow-x-auto border rounded-xl" style={{ borderColor: "rgba(255,255,255,0.08)", background: PANEL }}>
+      {/* Desktop / tablet table */}
+      <div className="hidden md:block overflow-x-auto border rounded-xl" style={{ borderColor: "rgba(255,255,255,0.08)", background: PANEL }}>
         <table className="min-w-full text-sm">
           <thead className="bg-white/5">
             <tr className="text-left text-white/75">
@@ -504,7 +622,9 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
                 <td className="p-3">
                   {r.name} <span className="text-white/60">({r.email})</span>
                 </td>
-                <td className="p-3">{r.brand} — {r.item}</td>
+                <td className="p-3">
+                  {r.brand} — {r.item}
+                </td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">
                     <select
@@ -539,6 +659,51 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
           </tbody>
         </table>
       </div>
+
+      {/* Mobile: stacked cards */}
+      <div className="md:hidden space-y-3">
+        {filtered.length ? (
+          filtered.map((r) => (
+            <div
+              key={r.id || r.ref}
+              className="p-3 rounded-lg border bg-white/5 border-white/10"
+              style={{ background: "rgba(255,255,255,0.04)" }}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="font-semibold text-white/90">{r.ref}</div>
+                <div className="text-xs text-white/60">{(r.createdAt || "").slice(0, 10)}</div>
+              </div>
+              <div className="mt-1 text-sm text-white/85">
+                {r.name} <span className="text-white/60">({r.email})</span>
+              </div>
+              <div className="mt-1 text-sm text-white/85">
+                {r.brand} — {r.item}
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <select
+                  value={r.status}
+                  onChange={(e) => save(r, e.target.value)}
+                  className="px-2 py-2 text-sm text-white border rounded-md outline-none bg-white/5 border-white/10 w-full"
+                  style={{ color: STAGE_COLORS[r.status] || GOLD, background: "rgba(255,255,255,0.06)" }}
+                >
+                  {STAGES.map((s) => (
+                    <option key={s} value={s} className="bg-[#0B1F19]" style={{ color: STAGE_COLORS[s] || GOLD }}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                {savedRef === r.ref && (
+                  <span className="flex items-center text-xs text-yellow-300 whitespace-nowrap">
+                    <FaCheckCircle className="mr-1" /> Saved
+                  </span>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center text-white/75 py-6">No matches.</div>
+        )}
+      </div>
     </div>
   );
 }
@@ -551,7 +716,8 @@ function HistoryPage({ inquiries }) {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto border rounded-xl" style={{ borderColor: "rgba(255,255,255,0.08)", background: PANEL }}>
+      {/* Desktop/tablet table */}
+      <div className="hidden md:block overflow-x-auto border rounded-xl" style={{ borderColor: "rgba(255,255,255,0.08)", background: PANEL }}>
         <table className="min-w-full text-sm">
           <thead className="bg-white/5">
             <tr className="text-left text-white/75">
@@ -567,13 +733,36 @@ function HistoryPage({ inquiries }) {
               <tr key={r.id || r.ref} className="transition border-t border-white/10 hover:bg-white/5">
                 <td className="p-3 font-semibold text-white/90">{r.ref}</td>
                 <td className="p-3">{r.name}</td>
-                <td className="p-3">{r.brand} — {r.item}</td>
-                <td className="p-3" style={{ color: STAGE_COLORS[r.status] || GOLD }}>{r.status}</td>
+                <td className="p-3">
+                  {r.brand} — {r.item}
+                </td>
+                <td className="p-3" style={{ color: STAGE_COLORS[r.status] || GOLD }}>
+                  {r.status}
+                </td>
                 <td className="p-3">{(r.createdAt || "").slice(0, 10)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile: stacked cards */}
+      <div className="md:hidden space-y-3">
+        {slice.map((r) => (
+          <div key={r.id || r.ref} className="p-3 rounded-lg border bg-white/5 border-white/10" style={{ background: "rgba(255,255,255,0.04)" }}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="font-semibold text-white/90">{r.ref}</div>
+              <div className="text-xs text-white/60">{(r.createdAt || "").slice(0, 10)}</div>
+            </div>
+            <div className="mt-1 text-sm text-white/85">{r.name}</div>
+            <div className="mt-1 text-sm text-white/85">
+              {r.brand} — {r.item}
+            </div>
+            <div className="mt-1 text-sm" style={{ color: STAGE_COLORS[r.status] || GOLD }}>
+              {r.status}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Pager */}
@@ -586,7 +775,9 @@ function HistoryPage({ inquiries }) {
         >
           Prev
         </button>
-        <span className="text-sm text-white/80">Page {page} / {totalPages}</span>
+        <span className="text-sm text-white/80">
+          Page {page} / {totalPages}
+        </span>
         <button
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           className="px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-white/85 disabled:opacity-40"
@@ -619,17 +810,17 @@ function ReportsPage({ inquiries }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-      <div className="p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
-        <h4 className="mb-3 text-lg font-semibold text-white/90">Inquiry Trend</h4>
-        <LineChartAdvanced series={lineSeries} />
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+      <div className="p-4 md:p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
+        <h4 className="mb-3 text-base md:text-lg font-semibold text-white/90">Inquiry Trend</h4>
+        <LineChartResponsive series={lineSeries} />
       </div>
-      <div className="p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
-        <h4 className="mb-3 text-lg font-semibold text-white/90">Stage Breakdown</h4>
+      <div className="p-4 md:p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
+        <h4 className="mb-3 text-base md:text-lg font-semibold text-white/90">Stage Breakdown</h4>
         <StageBars counts={stageCounts} />
       </div>
-      <div className="p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
-        <h4 className="mb-3 text-lg font-semibold text-white/90">Pipeline Donut</h4>
+      <div className="p-4 md:p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
+        <h4 className="mb-3 text-base md:text-lg font-semibold text-white/90">Pipeline Donut</h4>
         <DonutChart series={donutSeries.length ? donutSeries : [{ label: "None", value: 1, color: "rgba(255,255,255,.25)" }]} />
       </div>
     </div>
@@ -637,7 +828,7 @@ function ReportsPage({ inquiries }) {
 }
 
 /* =========================================
-   Root
+   Root (with mobile header + drawer)
    ========================================= */
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -646,6 +837,7 @@ const AdminDashboard = () => {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Read user from localStorage (supports both keys)
   const readUser = () => {
@@ -734,41 +926,62 @@ const AdminDashboard = () => {
 
   return (
     <div className="relative flex min-h-screen overflow-hidden text-white">
-      {/* Metallic emerald background */}
+      {/* Background */}
       <div className="fixed inset-0 -z-10" style={{ background: BG_APP_DEEP }} />
-      {/* Soft vignette + scanlines */}
       <div className="fixed inset-0 pointer-events-none -z-10" style={{ background: "radial-gradient(70% 55% at 50% 0%, rgba(16,94,66,0.12), transparent 60%)" }} />
       <div className="fixed inset-0 pointer-events-none -z-10 animate-scanlines" style={{ opacity: 0.06 }} />
 
-      <AdminSidebar active={active} onChange={setActive} onLogout={handleLogout} />
+      {/* Sidebar (desktop) + Drawer (mobile) */}
+      <AdminSidebar
+        active={active}
+        onChange={setActive}
+        onLogout={handleLogout}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <main className="flex-1 p-6 ml-0 md:p-10 md:ml-72">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold md:text-4xl text-white/95">
-            {active === "dashboard" && "Dashboard"}
-            {active === "tracking" && "Tracking"}
-            {active === "history" && "Inquiry History"}
-            {active === "reports" && "Reports"}
-          </h1>
-          <p className="mt-1 text-gray-300">
-            Welcome
-            {user?.name ? `, ${user.name}` : user?.email ? `, ${user.email}` : ""}. Admin control center.
-          </p>
+      {/* Main */}
+      <main className="flex-1 w-full md:ml-72">
+        {/* Sticky header */}
+        <div className="sticky top-0 z-20 border-b bg-black/20 backdrop-blur-md border-white/10">
+          <div className="flex items-center gap-3 px-4 py-3 sm:px-6 md:px-8">
+            {/* Hamburger (mobile only) */}
+            <button
+              className="md:hidden p-2 rounded-md bg-white/5 border border-white/10"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <FaBars />
+            </button>
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white/95">
+                {active === "dashboard" && "Dashboard"}
+                {active === "tracking" && "Tracking"}
+                {active === "history" && "Inquiry History"}
+                {active === "reports" && "Reports"}
+              </h1>
+              <p className="mt-0.5 text-xs sm:text-sm text-gray-300">
+                Welcome
+                {user?.name ? `, ${user.name}` : user?.email ? `, ${user.email}` : ""}. Admin control center.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Body */}
-        {err && <div className="mb-4 text-red-300">{err}</div>}
-        {loading ? (
-          <div className="text-white/80">Loading…</div>
-        ) : (
-          <motion.div key={active} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }}>
-            {content}
-          </motion.div>
-        )}
+        <div className="px-4 sm:px-6 md:px-8 py-6">
+          {err && <div className="mb-4 text-red-300">{err}</div>}
+          {loading ? (
+            <div className="text-white/80">Loading…</div>
+          ) : (
+            <motion.div key={active} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28 }}>
+              {content}
+            </motion.div>
+          )}
 
-        {/* Footer */}
-        <footer className="mt-12 text-sm text-center text-gray-400">© 2025 EuroTech Admin Console</footer>
+          {/* Footer */}
+          <footer className="mt-12 text-xs sm:text-sm text-center text-gray-400">© 2025 EuroTech Admin Console</footer>
+        </div>
       </main>
     </div>
   );
