@@ -2,7 +2,6 @@
   "name": "frontend",
   "version": "1.0.0",
   "private": true,
-  "proxy": "http://127.0.0.1:5000",
   "dependencies": {
     "@cloudinary/react": "^1.14.3",
     "@cloudinary/url-gen": "^1.21.0",
@@ -39,7 +38,7 @@
   },
   "scripts": {
     "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
-    "build": "react-scripts build",
+    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

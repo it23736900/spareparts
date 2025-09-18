@@ -14,26 +14,30 @@ import productRoutes from "./routes/products.routes.js";
 const app = express();
 
 /* ---------- Security / Infra ---------- */
-app.set("trust proxy", 1); // if behind nginx/proxy so rate-limit gets real IP
+app.set("trust proxy", 1); // behind nginx
 app.use(helmet());
 app.use(express.json());
 app.use(morgan("dev"));
 
-/* ---------- CORS (dev-friendly) ---------- */
+/* ---------- CORS ---------- */
+const allowedOrigins = [
+  "http://localhost:3000",          // dev
+  "http://127.0.0.1:3000",          // dev
+  "http://72.60.97.47"              // your live site (no https, raw IP)
+];
+
 const corsOptions = {
   origin: (origin, cb) => {
-    // allow same-origin, curl / server-to-server, and local dev
+    // allow same-origin/non-browser (curl) with no Origin
     if (!origin) return cb(null, true);
-    if (/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) return cb(null, true);
-    if (origin === process.env.CLIENT_ORIGIN) return cb(null, true);
-    return cb(new Error("CORS not allowed"), false);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error("CORS not allowed: " + origin), false);
   },
-  credentials: false, // using Authorization header (JWT), not cookies
+  credentials: true, // safe to leave on; works for JWT headers and for cookies if you switch later
 };
 app.use(cors(corsOptions));
-// handle preflight quickly
 
-/* ---------- Rate limit ---------- */
+/* ---------- Rate limiting ---------- */
 app.use(
   rateLimit({
     windowMs: 60_000,
@@ -43,7 +47,7 @@ app.use(
   })
 );
 
-/* ---------- Health ----------- */
+/* ---------- Health ---------- */
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, env: process.env.NODE_ENV || "development" });
 });
@@ -62,7 +66,6 @@ app.use((req, res, next) => {
 });
 
 app.use((err, _req, res, _next) => {
-  // CORS errors will land here too
   const status = err.status || 500;
   const message = err.message || "Server error";
   if (process.env.NODE_ENV !== "production") {
