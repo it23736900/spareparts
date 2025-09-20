@@ -5,7 +5,7 @@ import { auto } from "@cloudinary/url-gen/actions/resize";
 
 // Cloudinary config
 const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
-const video = cld.video("hero-video_at12yv");
+const video = cld.video("0829_6_yqjseg");
 
 const sriLankanFlag = cld
   .image("sri_lanka_elrjw8")
@@ -77,44 +77,47 @@ const Hero = () => {
           </p>
 
           {/* 🔘 CTA Button */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              document
-                .getElementById("brands")
-                ?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
-            className="
-              relative inline-block px-8 py-4 rounded-xl font-semibold
-              text-[clamp(0.95rem,2.5vw,1.1rem)]
-              transition-all duration-300
-              hover:scale-105
-            "
-            style={{
-              background: `
-                linear-gradient(
-                  135deg,
-                  rgba(5,15,12,0.98) 0%,
-                  rgba(12,36,28,0.96) 45%,
-                  rgba(5,15,12,0.98) 100%
-                )
-              `,
-              border: "2px solid #D4AF37",
-              color: "#FFD95A",
-              boxShadow: "0 0 16px rgba(212,175,55,0.35)",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow =
-                "0 0 28px rgba(212,175,55,0.65)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow =
-                "0 0 16px rgba(212,175,55,0.35)";
-            }}
-          >
-            Explore Brands
-          </button>
+<button
+  onClick={(e) => {
+    e.preventDefault();
+    document
+      .getElementById("brands")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }}
+  className="
+    relative inline-block px-8 py-4 rounded-xl font-semibold
+    text-[clamp(0.95rem,2.5vw,1.1rem)]
+    transition-all duration-300
+    hover:scale-105
+  "
+  style={{
+    background: `
+      linear-gradient(
+        135deg,
+        rgba(5,15,12,0.98) 0%,
+        rgba(12,36,28,0.96) 45%,
+        rgba(5,15,12,0.98) 100%
+      )
+    `,
+    border: "2px solid #17A77A",     // Emerald border
+    color: "#17A77A",                 // Emerald text
+    boxShadow: "0 0 16px rgba(23,167,122,0.35)", // Emerald glow
+    cursor: "pointer",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.boxShadow = "0 0 28px rgba(23,167,122,0.65)";
+    e.currentTarget.style.background =
+      "linear-gradient(135deg, rgba(12,36,28,0.96) 0%, rgba(5,15,12,0.98) 100%)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.boxShadow = "0 0 16px rgba(23,167,122,0.35)";
+    e.currentTarget.style.background =
+      "linear-gradient(135deg, rgba(5,15,12,0.98) 0%, rgba(12,36,28,0.96) 45%, rgba(5,15,12,0.98) 100%)";
+  }}
+>
+  Explore Brands
+</button>
+
         </div>
       </div>
     </section>

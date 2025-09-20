@@ -103,9 +103,7 @@ function useMarqueeRow({ speedPxPerSec = 28, reverse = false }) {
     if (!mayDrag.current) return;
     const cx = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
     const dx = cx - dragStartX.current;
-    const absDx = Math.abs(dx);
     const width = widthRef.current;
-    if (!dragging.current && absDx >= DRAG_THRESHOLD) dragging.current = true;
     if (dragging.current && width > 0) {
       offsetRef.current = mod(dragStartOffset.current - dx, width);
       if (trackRef.current) trackRef.current.style.transform = `translate3d(${-offsetRef.current}px,0,0)`;
@@ -205,30 +203,37 @@ const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`
             background: COLORS.cardFrontSolid,
             borderColor: COLORS.emeraldBorder,
             boxShadow: `${COLORS.shadow}, inset 0 0 0 1px rgba(255,255,255,0.02)`,
+            padding: "18px",
           }}
         >
-          {/* Brand title — white (no shimmer) */}
-          <h3 className="text-lg sm:text-xl font-bold text-[#E8ECEA] text-center mb-1 tracking-wide uppercase">
+          {/* Brand title — smaller, white, and NO underline */}
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#E8ECEA] text-center mb-2 tracking-wide uppercase">
             {brand.title}
           </h3>
-          <div className="h-[2px] w-14 mx-auto mb-3 bg-gradient-to-r from-transparent via-[#FFD95A] to-transparent" />
 
-          <p className="text-sm text-emerald-300 text-center mb-3 italic">
+          {/* Tagline */}
+          <p className="text-[12px] sm:text-[13px] text-emerald-300 text-center mb-3 italic">
             Genuine UK-Imported Parts
           </p>
 
+          {/* Description — smaller, justified, no odd hyphen splits */}
           <div className="flex-1 overflow-auto pr-1" style={{ scrollbarWidth: "none" }}>
             <p
-              className="text-[13px] sm:text-[14px] md:text-[15px] text-[#E8ECEA]/90 leading-relaxed md:leading-[1.55]
-                         text-left md:text-justify hyphens-auto"
-              style={{ textAlignLast: "left" }}
+              className="text-[12.5px] sm:text-[13.5px] md:text-[14px] text-[#E8ECEA]/90 leading-[1.6] md:leading-[1.65] text-justify"
+              style={{
+                textAlignLast: "left",
+                hyphens: "manual",        // avoid automatic weird splits
+                wordBreak: "normal",
+                overflowWrap: "anywhere",
+                textWrap: "pretty",       // nicer wrapping in modern browsers
+              }}
             >
               {brand.description}
             </p>
           </div>
 
           {/* Inquire button — emerald outline & text */}
-          <div className="flex justify-center pt-5 pb-1">
+          <div className="flex justify-center pt-4 pb-1">
             <button
               data-no-drag
               type="button"
@@ -236,7 +241,7 @@ const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`
                 e.stopPropagation();
                 onInquire(brand.title);
               }}
-              className="px-6 py-2 rounded-full text-sm font-semibold border border-emerald-400 text-emerald-400
+              className="px-5 py-2 rounded-full text-[13px] sm:text-sm font-semibold border border-emerald-400 text-emerald-400
                          hover:bg-emerald-400/10 hover:shadow-[0_0_12px_rgba(23,167,122,0.5)]
                          focus:outline-none focus:ring-2 focus:ring-emerald-400/40
                          transition-all"

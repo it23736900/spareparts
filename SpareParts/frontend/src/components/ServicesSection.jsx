@@ -88,19 +88,32 @@ export default function ServicesSection({ onInquire = () => {} }) {
   return (
     <section className="bg-transparent px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
       {/* Heading */}
-      <div className="max-w-6xl mx-auto text-center mb-10 md:mb-12">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-white">Our Services</h2>
-        <div
-          className="mx-auto mt-4 h-[2px] w-36 rounded-full"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(0,0,0,0), #FFD45A 20%, #D4AF37 60%, rgba(0,0,0,0))",
-            boxShadow:
-              "0 0px 12px rgba(212,175,55,0.6), 0 0 36px rgba(212,175,55,0.35)",
-            filter: "blur(0.3px)",
-          }}
-        />
-      </div>
+<div className="max-w-6xl mx-auto text-center mb-10 md:mb-12">
+  <h2 className="mb-1 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white">
+    Our <span className="luxury-gold">Expertise</span>
+  </h2>
+  <div
+    className="mx-auto mt-3 h-[2px] w-36 rounded-full"
+    style={{
+      background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.9), transparent)",
+    }}
+  />
+</div>
+
+<style>{`
+  .luxury-gold {
+    background: linear-gradient(90deg, #FFD95A, #E8B923, #FFD95A);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite;
+  }
+  @keyframes shine {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+`}</style>
+
 
       {/* Grid → 1 on mobile, 2 on md/lg/xl (as requested) */}
       <div className="max-w-6xl mx-auto grid gap-6 sm:gap-8 md:grid-cols-2">

@@ -21,10 +21,13 @@ app.use(morgan("dev"));
 
 /* ---------- CORS ---------- */
 const allowedOrigins = [
-  "http://localhost:3000",          // dev
-  "http://127.0.0.1:3000",          // dev
-  "http://72.60.97.47"              // your live site (no https, raw IP)
+  "http://localhost:3000",          // frontend dev
+  "http://127.0.0.1:3000",          // frontend dev alt
+  "http://localhost:8080",          // backend dev
+  "http://127.0.0.1:8080",          // backend dev alt
+  "http://72.60.97.47"              // live site
 ];
+
 
 const corsOptions = {
   origin: (origin, cb) => {

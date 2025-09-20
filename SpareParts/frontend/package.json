@@ -2,6 +2,8 @@
   "name": "frontend",
   "version": "1.0.0",
   "private": true,
+  "homepage": ".",
+  "proxy": "http://localhost:8080",
   "dependencies": {
     "@cloudinary/react": "^1.14.3",
     "@cloudinary/url-gen": "^1.21.0",
@@ -33,6 +35,7 @@
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "cross-env": "^7.0.3",
+    "http-proxy-middleware": "^3.0.5",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
   },
@@ -43,17 +46,10 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "extends": ["react-app", "react-app/jest"]
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",

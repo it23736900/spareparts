@@ -7,13 +7,17 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getUser, logout } from "../utils/auth";
 import GetQuotationForm from "./GetQuotationForm";
 
-// Cloudinary assets
+/* =========================
+   Cloudinary assets
+   ========================= */
 const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
-const logo = cld.image("logo_e46o12").format("auto").quality("auto").resize(auto().width(120));
+const logo = cld.image("newlogoeuro_dd7xjc_c_crop_ar_16_9_ip5gt0").format("auto").quality("auto").resize(auto().width(120));
 const defaultAvatar = cld.image("default_avatar_khvzvj").format("auto").quality("auto").resize(auto().width(40));
 
-// Theme
-const GOLD = "#E6C84F";
+/* =========================
+   Theme (EMERALD)
+   ========================= */
+const EMERALD = "#17A77A";
 const METALLIC_GREEN_SOFT = `
   linear-gradient(
     135deg,
@@ -23,7 +27,7 @@ const METALLIC_GREEN_SOFT = `
   )
 `;
 
-// Auto-hide delay (ms)
+/* Auto-hide delay (ms) */
 const AUTO_HIDE_DELAY = 10000; // 10s
 
 export default function Navbar({ onSignInClick, onSignUpClick }) {
@@ -41,7 +45,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
   const hideTimerRef = useRef(null);
   const rafRef = useRef(null);
 
-  // Sync avatar with auth updates
+  /* Sync avatar with auth updates */
   useEffect(() => {
     const handler = () => setAvatarSrc(getUser()?.avatarUrl || null);
     window.addEventListener("userUpdated", handler);
@@ -52,14 +56,14 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
     };
   }, []);
 
-  // Close menus on route change + ensure bar visible briefly
+  /* Close menus on route change + ensure bar visible briefly */
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsAuthMenuOpen(false);
-    showNow(); // show when route changes
+    showNow();
   }, [location.pathname]);
 
-  // Click-away for auth dropdown
+  /* Click-away for auth dropdown */
   useEffect(() => {
     const onClickAway = (e) => {
       if (!authMenuRef.current) return;
@@ -69,7 +73,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
     return () => document.removeEventListener("mousedown", onClickAway);
   }, []);
 
-  // Lock body scroll when mobile menu open
+  /* Lock body scroll when mobile menu open */
   useEffect(() => {
     const b = document.body;
     if (isMobileMenuOpen) {
@@ -79,7 +83,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
     }
   }, [isMobileMenuOpen]);
 
-  // Show-on-scroll + auto-hide after inactivity
+  /* Show-on-scroll + auto-hide after inactivity */
   useEffect(() => {
     const onActivity = () => {
       if (rafRef.current) return;
@@ -92,9 +96,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
     window.addEventListener("scroll", onActivity, { passive: true });
     window.addEventListener("touchmove", onActivity, { passive: true });
     const onKey = (e) => {
-      if (
-        ["PageUp", "PageDown", "Home", "End", "ArrowDown", "ArrowUp", " ", "Spacebar"].includes(e.key)
-      ) {
+      if (["PageUp", "PageDown", "Home", "End", "ArrowDown", "ArrowUp", " ", "Spacebar"].includes(e.key)) {
         showNow();
       }
     };
@@ -127,29 +129,26 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
   function resetHideTimer() {
     clearHideTimer();
     if (isMobileMenuOpen || isAuthMenuOpen || isFormOpen) return;
-    hideTimerRef.current = setTimeout(() => {
-      setIsVisible(false);
-    }, AUTO_HIDE_DELAY);
+    hideTimerRef.current = setTimeout(() => setIsVisible(false), AUTO_HIDE_DELAY);
   }
 
-  // ✅ Now includes "Services"
+  /* Nav links */
   const navLinks = [
     { label: "Home", to: "/" },
     { label: "About Us", to: "/about" },
-    { label: "Services", to: "/services" }, // added
+    { label: "Services", to: "/services" },
     { label: "Contact Us", to: "/contact" },
   ];
 
-  const user = getUser();
-
+  /* Shell style (glass pill) */
   const pillShellStyle = {
     background: METALLIC_GREEN_SOFT,
     backdropFilter: "blur(10px)",
     WebkitBackdropFilter: "blur(10px)",
-    border: `1.5px solid rgba(230,200,79,0.35)`,
+    border: `1.5px solid rgba(23,167,122,0.35)`,
     borderRadius: "9999px",
     boxShadow:
-      "0 12px 28px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.35), inset 0 0 16px rgba(230,200,79,0.10)",
+      "0 12px 28px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.35), inset 0 0 16px rgba(23,167,122,0.10)",
     transition: "opacity 300ms ease, transform 320ms ease",
     opacity: isVisible ? 1 : 0,
     transform: isVisible ? "translateY(0px)" : "translateY(-10px)",
@@ -161,20 +160,11 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
   return (
     <>
       {/* Fixed header */}
-      <header
-        className="fixed top-0 left-0 z-50 w-full pt-[env(safe-area-inset-top)]"
-        style={{ background: "transparent" }}
-      >
+      <header className="fixed top-0 left-0 z-50 w-full pt-[env(safe-area-inset-top)]" style={{ background: "transparent" }}>
         <div className="px-2 sm:px-4 md:px-6 mt-3 md:mt-5">
-          <div
-            className="mx-auto"
-            style={{ maxWidth: "min(1760px, 97.5vw)", position: "relative" }}
-          >
+          <div className="mx-auto" style={{ maxWidth: "min(1760px, 97.5vw)", position: "relative" }}>
             {/* Floating pill bar */}
-            <div
-              className="flex items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 md:px-7 lg:px-8 py-2.5 sm:py-3 md:py-3.5"
-              style={pillShellStyle}
-            >
+            <div className="flex items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 md:px-7 lg:px-8 py-2.5 sm:py-3 md:py-3.5" style={pillShellStyle}>
               {/* Logo */}
               <Link to="/" aria-label="Go to home" className="shrink-0">
                 <AdvancedImage cldImg={logo} className="object-contain h-9 md:h-10" />
@@ -189,7 +179,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                       key={link.to}
                       to={link.to}
                       className={linkBase}
-                      style={{ color: isActive ? GOLD : "#E9EDEB" }}
+                      style={{ color: isActive ? EMERALD : "#E9EDEB" }}
                       onClick={showNow}
                     >
                       <span>{link.label}</span>
@@ -197,7 +187,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                         className="absolute left-5 right-5 -bottom-[2px] h-[2px]"
                         style={{
                           background:
-                            "linear-gradient(90deg, rgba(230,200,79,0.0) 0%, rgba(230,200,79,1) 50%, rgba(230,200,79,0.0) 100%)",
+                            "linear-gradient(90deg, rgba(23,167,122,0.0) 0%, rgba(23,167,122,1) 50%, rgba(23,167,122,0.0) 100%)",
                           transform: `scaleX(${isActive ? 1 : 0})`,
                           transformOrigin: "left",
                           transition: "transform 420ms ease",
@@ -210,6 +200,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
 
               {/* Right cluster */}
               <div className="items-center hidden md:flex gap-3 lg:gap-6 -translate-x-[2px]">
+                {/* Inquire Now — Emerald Outline */}
                 <button
                   onClick={() => {
                     setIsFormOpen(true);
@@ -217,12 +208,11 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                   }}
                   className="relative inline-flex h-10 md:h-11 items-center justify-center px-6 md:px-7 text-sm font-semibold transition-all duration-300 focus:outline-none hover:scale-[1.03]"
                   style={{
-                    color: GOLD,
-                    border: `1.5px solid ${GOLD}`,
+                    color: EMERALD,
+                    border: `1.5px solid ${EMERALD}`,
                     borderRadius: "9999px",
                     background: METALLIC_GREEN_SOFT,
-                    boxShadow:
-                      "0 0 10px rgba(230,200,79,0.30), inset 0 0 10px rgba(230,200,79,0.18)",
+                    boxShadow: "0 0 10px rgba(23,167,122,0.30), inset 0 0 10px rgba(23,167,122,0.18)",
                   }}
                 >
                   Inquire Now
@@ -237,8 +227,8 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                     }}
                     className="relative grid w-10 h-10 overflow-hidden transition border rounded-full hover:scale-110 place-items-center"
                     style={{
-                      borderColor: GOLD,
-                      boxShadow: "0 0 8px rgba(230,200,79,0.22)",
+                      borderColor: EMERALD,
+                      boxShadow: "0 0 8px rgba(23,167,122,0.22)",
                       background: "transparent",
                       color: "#E9EDEB",
                     }}
@@ -255,11 +245,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                           onError={() => setAvatarSrc(null)}
                         />
                       ) : (
-                        <AdvancedImage
-                          cldImg={defaultAvatar}
-                          className="object-cover w-full h-full"
-                          alt="Profile"
-                        />
+                        <AdvancedImage cldImg={defaultAvatar} className="object-cover w-full h-full" alt="Profile" />
                       )
                     ) : (
                       <FaUserCircle size={20} />
@@ -270,7 +256,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                     <div
                       role="menu"
                       className="absolute right-0 z-50 mt-2 w-56 rounded-2xl overflow-hidden border shadow-2xl bg-[#0B1C1F]/95 backdrop-blur-lg"
-                      style={{ borderColor: "rgba(212,175,55,0.45)" }}
+                      style={{ borderColor: "rgba(23,167,122,0.45)" }}
                       onMouseEnter={() => clearHideTimer()}
                       onMouseLeave={() => resetHideTimer()}
                     >
@@ -351,9 +337,8 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                 background: METALLIC_GREEN_SOFT,
                 backdropFilter: "blur(10px)",
                 WebkitBackdropFilter: "blur(10px)",
-                border: `1.5px solid rgba(230,200,79,0.35)`,
-                boxShadow:
-                  "0 10px 24px rgba(0,0,0,0.45), inset 0 0 12px rgba(230,200,79,0.12)",
+                border: `1.5px solid rgba(23,167,122,0.35)`,
+                boxShadow: "0 10px 24px rgba(0,0,0,0.45), inset 0 0 12px rgba(23,167,122,0.12)",
               }}
               onMouseEnter={() => clearHideTimer()}
               onMouseLeave={() => resetHideTimer()}
@@ -365,7 +350,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                     to={link.to}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-4 py-3 rounded-xl transition"
-                    style={{ color: location.pathname === link.to ? GOLD : "#E9EDEB" }}
+                    style={{ color: location.pathname === link.to ? EMERALD : "#E9EDEB" }}
                   >
                     {link.label}
                   </Link>
@@ -378,11 +363,10 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                   }}
                   className="relative inline-flex h-[44px] items-center justify-center px-8 text-[0.98rem] font-semibold transition-all duration-300 focus:outline-none hover:scale-[1.02] w-full mt-2 rounded-full"
                   style={{
-                    color: GOLD,
-                    border: `1.5px solid ${GOLD}`,
+                    color: EMERALD,
+                    border: `1.5px solid ${EMERALD}`,
                     background: METALLIC_GREEN_SOFT,
-                    boxShadow:
-                      "0 0 10px rgba(230,200,79,0.30), inset 0 0 10px rgba(230,200,79,0.18)",
+                    boxShadow: "0 0 10px rgba(23,167,122,0.30), inset 0 0 10px rgba(23,167,122,0.18)",
                   }}
                 >
                   Inquire Now
@@ -397,10 +381,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                           setIsMobileMenuOpen(false);
                         }}
                         className="flex-1 border rounded-full h-[44px] px-4"
-                        style={{
-                          color: "#E9EDEB",
-                          borderColor: "rgba(212,175,55,0.45)",
-                        }}
+                        style={{ color: "#E9EDEB", borderColor: "rgba(23,167,122,0.45)" }}
                       >
                         Log in
                       </button>
@@ -412,8 +393,8 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                         className="flex-1 rounded-full h-[44px] px-4"
                         style={{
                           color: "#0B1C1F",
-                          background: GOLD,
-                          border: "1.5px solid " + GOLD,
+                          background: EMERALD,
+                          border: "1.5px solid " + EMERALD,
                         }}
                       >
                         Sign up
@@ -425,10 +406,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                         to="/profile"
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="grid flex-1 border rounded-full h-[44px] place-items-center px-4"
-                        style={{
-                          color: "#E9EDEB",
-                          borderColor: "rgba(212,175,55,0.45)",
-                        }}
+                        style={{ color: "#E9EDEB", borderColor: "rgba(23,167,122,0.45)" }}
                       >
                         Profile
                       </Link>
@@ -441,8 +419,8 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                         className="grid flex-1 rounded-full h-[44px] place-items-center px-4"
                         style={{
                           color: "#0B1C1F",
-                          background: GOLD,
-                          border: "1.5px solid " + GOLD,
+                          background: EMERALD,
+                          border: "1.5px solid " + EMERALD,
                         }}
                       >
                         Logout

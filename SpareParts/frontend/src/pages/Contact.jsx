@@ -45,7 +45,7 @@ export default function Contact() {
         {/* Contact Info */}
         <section className="bg-[#102d2f]/80 rounded-xl p-6 sm:p-8 shadow-lg space-y-4">
           <p>
-            📧 Email:{" "}
+            Email:{" "}
             <a
               href="mailto:Info@eurotec.lk"
               className="text-green-400 hover:underline"
@@ -54,13 +54,13 @@ export default function Contact() {
             </a>
           </p>
           <p>
-            📞 Phone:{" "}
+            Phone:{" "}
             <a href="tel:+94723085654" className="text-green-400 hover:underline">
               +94723085654
             </a>
           </p>
           <p>
-            📍 Address:{" "}
+            Address:{" "}
             <span className="text-gray-300">
               No.63, Buthgamuwa Road, Rajagiriya, 10100, Sri Lanka
             </span>

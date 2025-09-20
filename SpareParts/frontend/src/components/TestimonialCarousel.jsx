@@ -35,17 +35,33 @@ export default function TestimonialCarousel() {
   return (
     <section id="testimonials" className="relative py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4">
-        {/* Title matches your section heading style */}
+        {/* 🔥 Gold-gradient last word */}
         <h2
           className="text-center text-3xl md:text-4xl font-extrabold text-white"
           data-aos="fade-up"
         >
-          What Our Clients Say
+          What Our Clients{" "}
+          <span
+            className="bg-clip-text text-transparent"
+            style={{
+              backgroundImage:
+                "linear-gradient(90deg, #FFD95A 0%, #D4AF37 100%)",
+            }}
+          >
+            Say
+          </span>
         </h2>
 
-        {/* Thin gold divider like elsewhere */}
+        {/* Gold divider */}
         <div
-          className="mx-auto mt-3 mb-8 h-[2px] w-28 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"
+          className="mx-auto mt-3 mb-8 h-[2px] w-28 rounded-full"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, #FFD95A 20%, #D4AF37 60%, transparent)",
+            boxShadow:
+              "0 0px 12px rgba(212,175,55,0.6), 0 0 36px rgba(212,175,55,0.35)",
+            filter: "blur(0.3px)",
+          }}
           data-aos="fade-up"
           data-aos-delay="100"
         />
@@ -78,17 +94,14 @@ export default function TestimonialCarousel() {
                     hover:shadow-[0_18px_60px_-24px_rgba(23,167,122,0.45)]
                   "
                 >
-                  {/* Quote mark in emerald to match services accents */}
                   <div className="mb-3 text-4xl leading-none text-emerald-300/90 select-none">
                     “
                   </div>
 
-                  {/* Body text tones match services (soft teal/white) */}
                   <p className="text-[15px] leading-relaxed text-[#cfe2df]">
                     {t.message}
                   </p>
 
-                  {/* Footer line + name/location styling consistent */}
                   <div className="flex items-center gap-3 mt-6">
                     <span className="block h-[1px] w-8 bg-emerald-400/70" />
                     <span className="text-sm font-semibold luxury-gold">
