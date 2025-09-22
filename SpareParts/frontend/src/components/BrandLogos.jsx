@@ -3,6 +3,7 @@ import React, { useRef, useState, useLayoutEffect, useEffect, useMemo } from "re
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
+import { format, quality } from "@cloudinary/url-gen/actions/delivery";
 
 /* === Theme (emerald + gold) === */
 const COLORS = {
@@ -17,7 +18,11 @@ const COLORS = {
 /* Cloudinary */
 const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
 const img = (id, w = 360) =>
-  cld.image(id).format("auto").quality("auto").resize(auto().width(w));
+  cld
+    .image(id)
+    .delivery(format("auto"))    // auto choose best format (WebP, AVIF…)
+    .delivery(quality("auto"))   // auto balance compression
+    .resize(auto().width(w));
 
 /* Data */
 const allBrands = [
@@ -39,7 +44,7 @@ const allBrands = [
 /* Utils */
 const mod = (n, m) => ((n % m) + m) % m;
 
-/* Marquee hook (endless horizontal + manual drag + wheel) */
+/* Marquee hook */
 function useMarqueeRow({ speedPxPerSec = 28, reverse = false }) {
   const wrapRef = useRef(null);
   const trackRef = useRef(null);
@@ -54,7 +59,6 @@ function useMarqueeRow({ speedPxPerSec = 28, reverse = false }) {
   const dragStartX = useRef(0);
   const dragStartOffset = useRef(0);
   const rafRef = useRef(0);
-  const DRAG_THRESHOLD = 8;
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -144,7 +148,6 @@ function useMarqueeRow({ speedPxPerSec = 28, reverse = false }) {
 const LOGO_BOX =
   "w-[140px] h-[140px] sm:w-[150px] sm:h-[150px] md:w-[160px] md:h-[160px] lg:w-[170px] lg:h-[170px]";
 
-/* ——— Component ——— */
 const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`) }) => {
   const mid = Math.ceil(allBrands.length / 2);
   const topBrands = allBrands.slice(0, mid);
@@ -206,33 +209,26 @@ const BrandLogos = ({ onInquire = (brandTitle) => alert(`Inquire: ${brandTitle}`
             padding: "18px",
           }}
         >
-          {/* Brand title — smaller, white, and NO underline */}
           <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#E8ECEA] text-center mb-2 tracking-wide uppercase">
             {brand.title}
           </h3>
-
-          {/* Tagline */}
           <p className="text-[12px] sm:text-[13px] text-emerald-300 text-center mb-3 italic">
             Genuine UK-Imported Parts
           </p>
-
-          {/* Description — smaller, justified, no odd hyphen splits */}
           <div className="flex-1 overflow-auto pr-1" style={{ scrollbarWidth: "none" }}>
             <p
               className="text-[12.5px] sm:text-[13.5px] md:text-[14px] text-[#E8ECEA]/90 leading-[1.6] md:leading-[1.65] text-justify"
               style={{
                 textAlignLast: "left",
-                hyphens: "manual",        // avoid automatic weird splits
+                hyphens: "manual",
                 wordBreak: "normal",
                 overflowWrap: "anywhere",
-                textWrap: "pretty",       // nicer wrapping in modern browsers
+                textWrap: "pretty",
               }}
             >
               {brand.description}
             </p>
           </div>
-
-          {/* Inquire button — emerald outline & text */}
           <div className="flex justify-center pt-4 pb-1">
             <button
               data-no-drag

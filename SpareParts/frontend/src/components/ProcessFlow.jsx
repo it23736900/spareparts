@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 // --- Demo stock loops (free GIFs/WEBPs hosted externally) ---
 // You can later replace these with Cloudinary links if you want full control
 const DEMO_MEDIA = {
-  inquiry: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExd3l4b3gxaWI1bThvcDNwMHl1OHFqdWljM3UzY2FyOTBkcWY1ZGxiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/mLZ6kvGkH31z0BAKUX/giphy.gif", // writing
-  touch: "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNzlvd2JpN3Vpd240anMya3NxODBtZ3Z0eWo2b3dpdjM3NHFucGMxMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Pkm4BdrRYlfiKPGJiW/giphy.gif", // talking headset
+  inquiry: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGF5OThlMmRwOXQydDFxYWl4eWFmOTdtcG5zZDhldGdwb2t1dmp0NSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3ohryiYkE0DVwdLAys/giphy.gif", // writing
+  touch: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2x2b29sY2NoNzhkZ3cwMGkyNnhtcGFpMXptZzJzdzJqMDAzeHhxeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/W4Q5C6bHBwa8sgWbS0/giphy.gif", // talking headset
   quote: "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWd1YjJzY3Z5ZXpwaGxydGI3cDQ0cjI2eHF4b2VpcTFhdjVxZWlkZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fvjBHSTYMcE1fKcrP9/giphy.gif", // document/price
   payment: "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbzRnYTE2OXFxN2Vpc3VyY2F5cGt2MG1qamZpeXgyNzFkOWt1bGdxZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l4KibWpBGWchSqCRy/giphy.gif", // credit card
   logistics: "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZWY1a3Q0MWd0bHJxZXZ3OXZ2aTlta2U4d2gzYWljMDU1MzdzaXh2cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2U1WOzgmZVw2Y/giphy.gif", // truck

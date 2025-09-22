@@ -14,6 +14,8 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
+import InquiryDetailModal from "./InquiryDetailModal";
+
 
 /* =========================================
    THEME — deeper metallic emerald + gold
@@ -573,11 +575,23 @@ function DashboardPage({ inquiries }) {
   );
 }
 
+
 function TrackingPage({ inquiries, onUpdateStatus }) {
   const [q, setQ] = useState("");
   const [savedRef, setSavedRef] = useState(null);
-  const filtered = inquiries.filter((i) => (i.ref || "").toLowerCase().includes(q.toLowerCase()));
+  const [selected, setSelected] = useState(null); // NEW: for opening the detail modal
 
+  // Global search across Ref, Name, Email, Brand, Part(Item)
+  const filtered = useMemo(() => {
+    const n = q.toLowerCase().trim();
+    if (!n) return inquiries;
+    return inquiries.filter((i) => {
+      const hay = `${i.ref} ${i.name} ${i.email} ${i.brand} ${i.item}`.toLowerCase();
+      return hay.includes(n);
+    });
+  }, [q, inquiries]);
+
+  // Save status (unchanged, but we stop row click when using the <select>)
   const save = async (row, newStatus) => {
     try {
       await onUpdateStatus?.(row, newStatus);
@@ -588,15 +602,30 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
     }
   };
 
+  // Add note from modal (tries backend; still updates UI even if endpoint is missing)
+  const handleAddNote = async (id, message) => {
+    const newNote = { agent: "Admin", message, timestamp: Date.now() };
+    try {
+      // If your backend has this route, it will be used; if not, UI still updates.
+      await api.post(`/inquiries/${id}/notes`, newNote);
+    } catch (_) {}
+    setSelected((prev) =>
+      prev && prev.id === id
+        ? { ...prev, notes: [...(prev.notes || []), newNote] }
+        : prev
+    );
+  };
+
   return (
     <div className="space-y-4">
+      {/* Search bar */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="relative flex-1">
           <FaSearch className="absolute -translate-y-1/2 left-3 top-1/2 text-white/60" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search by reference..."
+            placeholder="Search by reference, name, email, brand or part..."
             className="w-full py-3 pl-10 pr-3 text-white border rounded-lg outline-none bg-white/5 border-white/10 placeholder-white/50"
             style={{ background: "rgba(255,255,255,0.04)" }}
           />
@@ -604,37 +633,55 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
       </div>
 
       {/* Desktop / tablet table */}
-      <div className="hidden md:block overflow-x-auto border rounded-xl" style={{ borderColor: "rgba(255,255,255,0.08)", background: PANEL }}>
+      <div
+        className="hidden md:block overflow-x-auto border rounded-xl"
+        style={{ borderColor: "rgba(255,255,255,0.08)", background: PANEL }}
+      >
         <table className="min-w-full text-sm">
           <thead className="bg-white/5">
             <tr className="text-left text-white/75">
               <th className="p-3">Ref</th>
-              <th className="p-3">Customer</th>
-              <th className="p-3">Brand / Item</th>
+              <th className="p-3">Name</th>         {/* was “Customer” */}
+              <th className="p-3">Email</th>        {/* NEW */}
+              <th className="p-3">Brand / Part</th> {/* same info as before */}
               <th className="p-3">Status</th>
-              <th className="p-3">Created</th>
+              <th className="p-3">Date Submitted</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((r) => (
-              <tr key={r.id || r.ref} className="transition border-t border-white/10 hover:bg-white/5">
+              <tr
+                key={r.id || r.ref}
+                onClick={() => setSelected(r)}
+                className="transition border-t border-white/10 hover:bg-white/5 cursor-pointer"
+              >
                 <td className="p-3 font-semibold text-white/90">{r.ref}</td>
-                <td className="p-3">
-                  {r.name} <span className="text-white/60">({r.email})</span>
-                </td>
+                <td className="p-3">{r.name}</td>
+                <td className="p-3 text-white/80">{r.email}</td>
                 <td className="p-3">
                   {r.brand} — {r.item}
                 </td>
                 <td className="p-3">
-                  <div className="flex items-center gap-2">
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={(e) => e.stopPropagation()}  // don’t open modal when using the select
+                  >
                     <select
                       value={r.status}
                       onChange={(e) => save(r, e.target.value)}
                       className="px-2 py-1 text-white border rounded-md outline-none bg-white/5 border-white/10"
-                      style={{ color: STAGE_COLORS[r.status] || GOLD, background: "rgba(255,255,255,0.04)" }}
+                      style={{
+                        color: STAGE_COLORS[r.status] || GOLD,
+                        background: "rgba(255,255,255,0.04)",
+                      }}
                     >
                       {STAGES.map((s) => (
-                        <option key={s} value={s} className="bg-[#0B1F19]" style={{ color: STAGE_COLORS[s] || GOLD }}>
+                        <option
+                          key={s}
+                          value={s}
+                          className="bg-[#0B1F19]"
+                          style={{ color: STAGE_COLORS[s] || GOLD }}
+                        >
                           {s}
                         </option>
                       ))}
@@ -651,7 +698,7 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
             ))}
             {!filtered.length && (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-white/75">
+                <td colSpan={6} className="p-6 text-center text-white/75">
                   No matches.
                 </td>
               </tr>
@@ -666,28 +713,41 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
           filtered.map((r) => (
             <div
               key={r.id || r.ref}
-              className="p-3 rounded-lg border bg-white/5 border-white/10"
+              onClick={() => setSelected(r)}
+              className="p-3 rounded-lg border bg-white/5 border-white/10 cursor-pointer"
               style={{ background: "rgba(255,255,255,0.04)" }}
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="font-semibold text-white/90">{r.ref}</div>
-                <div className="text-xs text-white/60">{(r.createdAt || "").slice(0, 10)}</div>
+                <div className="text-xs text-white/60">
+                  {(r.createdAt || "").slice(0, 10)}
+                </div>
               </div>
-              <div className="mt-1 text-sm text-white/85">
-                {r.name} <span className="text-white/60">({r.email})</span>
-              </div>
+              <div className="mt-1 text-sm text-white/85">{r.name}</div>
+              <div className="mt-0.5 text-xs text-white/70">{r.email}</div>
               <div className="mt-1 text-sm text-white/85">
                 {r.brand} — {r.item}
               </div>
-              <div className="mt-2 flex items-center gap-2">
+              <div
+                className="mt-2 flex items-center gap-2"
+                onClick={(e) => e.stopPropagation()} // keep select usable without opening modal
+              >
                 <select
                   value={r.status}
                   onChange={(e) => save(r, e.target.value)}
                   className="px-2 py-2 text-sm text-white border rounded-md outline-none bg-white/5 border-white/10 w-full"
-                  style={{ color: STAGE_COLORS[r.status] || GOLD, background: "rgba(255,255,255,0.06)" }}
+                  style={{
+                    color: STAGE_COLORS[r.status] || GOLD,
+                    background: "rgba(255,255,255,0.06)",
+                  }}
                 >
                   {STAGES.map((s) => (
-                    <option key={s} value={s} className="bg-[#0B1F19]" style={{ color: STAGE_COLORS[s] || GOLD }}>
+                    <option
+                      key={s}
+                      value={s}
+                      className="bg-[#0B1F19]"
+                      style={{ color: STAGE_COLORS[s] || GOLD }}
+                    >
                       {s}
                     </option>
                   ))}
@@ -704,9 +764,20 @@ function TrackingPage({ inquiries, onUpdateStatus }) {
           <div className="text-center text-white/75 py-6">No matches.</div>
         )}
       </div>
+
+      {/* Detail modal (opens when a row/card is clicked) */}
+      <InquiryDetailModal
+        inquiry={selected}
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        onAddNote={handleAddNote}
+      />
     </div>
   );
 }
+
+
+
 
 function HistoryPage({ inquiries }) {
   const [page, setPage] = useState(1);

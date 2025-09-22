@@ -1,4 +1,3 @@
-// server.js
 import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
@@ -10,6 +9,7 @@ import { rateLimit } from "express-rate-limit";
 import inquiryRoutes from "./routes/inquiry.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/products.routes.js";
+import { sendInquiryEmail } from "./utils/mailer.js"; // 👈 import mailer
 
 const app = express();
 
@@ -28,15 +28,13 @@ const allowedOrigins = [
   "http://72.60.97.47"              // live site
 ];
 
-
 const corsOptions = {
   origin: (origin, cb) => {
-    // allow same-origin/non-browser (curl) with no Origin
-    if (!origin) return cb(null, true);
+    if (!origin) return cb(null, true); // allow same-origin/non-browser
     if (allowedOrigins.includes(origin)) return cb(null, true);
     return cb(new Error("CORS not allowed: " + origin), false);
   },
-  credentials: true, // safe to leave on; works for JWT headers and for cookies if you switch later
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -59,6 +57,28 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+
+/* ---------- Test email route ---------- */
+app.get("/api/test-email", async (req, res) => {
+  try {
+    const to = req.query.to || "youremail@gmail.com"; // test target
+    const name = "Test User";
+    const refCode = "REF-123456";
+
+    // Send test to customer
+    await sendInquiryEmail(to, name, refCode);
+
+    // Send a copy to admin inbox
+    if (process.env.EMAIL_USER) {
+      await sendInquiryEmail(process.env.EMAIL_USER, "ADMIN COPY", refCode);
+    }
+
+    res.json({ success: true, message: `Test email sent to ${to}` });
+  } catch (err) {
+    console.error("Test email error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 /* ---------- 404 & Error handling ---------- */
 app.use((req, res, next) => {

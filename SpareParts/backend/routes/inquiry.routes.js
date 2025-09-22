@@ -1,6 +1,6 @@
-// backend/routes/inquiry.routes.js
 import { Router } from "express";
 import Inquiry from "../models/Inquiry.js";
+import { sendInquiryEmail } from "../utils/mailer.js";
 
 const router = Router();
 
@@ -32,12 +32,11 @@ function makeRef(brandRaw) {
   const y = String(d.getFullYear()).slice(-2);
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  const rand = Math.floor(Math.random() * 9000 + 1000); // 4 digits
+  const rand = Math.floor(Math.random() * 9000 + 1000);
 
   return `${prefix}-${y}${m}${day}-${rand}`;
 }
 
-// 6-char base36 short code (prefixed with REF-)
 function makeShort() {
   return `REF-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 }
@@ -77,26 +76,40 @@ router.post("/", async (req, res) => {
       phone: String(phone).trim(),
       vehicleBrand: String(vehicleBrand).trim(),
       description: String(description).trim(),
-      refCode: makeRef(vehicleBrand), // brand-aware
+      refCode: makeRef(vehicleBrand),
       shortCode: makeShort(),
-      // status defaults are handled in the model (e.g., "Submitted")
     };
 
-    // Try create; on rare collisions regenerate and retry
+    let doc;
     for (let i = 0; i < 5; i++) {
       try {
-        const doc = await Inquiry.create(payload);
-        return res.status(201).json(doc);
+        doc = await Inquiry.create(payload);
+        break;
       } catch (e) {
         if (e?.code === 11000) {
-          if (e?.keyPattern?.refCode) payload.refCode = makeRef(payload.vehicleBrand);
+          if (e?.keyPattern?.refCode)
+            payload.refCode = makeRef(payload.vehicleBrand);
           if (e?.keyPattern?.shortCode) payload.shortCode = makeShort();
           continue;
         }
         throw e;
       }
     }
-    return res.status(500).json({ message: "Failed to create inquiry" });
+
+    if (!doc) {
+      return res.status(500).json({ message: "Failed to create inquiry" });
+    }
+
+    let emailSent = false;
+    try {
+      await sendInquiryEmail(doc.email, doc.fullName, doc.refCode);
+      emailSent = true;
+      await Inquiry.findByIdAndUpdate(doc._id, { $set: { emailSent } });
+    } catch (err) {
+      console.error("Failed to send confirmation email:", err.message);
+    }
+
+    return res.status(201).json({ ...doc.toObject(), emailSent });
   } catch (e) {
     console.warn("Create inquiry error:", e);
     return res.status(500).json({ message: "Failed to create inquiry" });
@@ -104,18 +117,21 @@ router.post("/", async (req, res) => {
 });
 
 /* -------------------------------------------
-   Track by ref (supports refCode or shortCode)
-   GET /api/inquiries/track/:ref
+   Track by ref
 -------------------------------------------- */
 router.get("/track/:ref", async (req, res) => {
   try {
     const ref = String(req.params.ref || "").trim();
     if (!ref) return res.status(400).json({ message: "Missing reference" });
 
-    // exact or case-insensitive match
     const rx = new RegExp(`^${escapeRegExp(ref)}$`, "i");
     const doc = await Inquiry.findOne({
-      $or: [{ refCode: ref }, { shortCode: ref }, { refCode: rx }, { shortCode: rx }],
+      $or: [
+        { refCode: ref },
+        { shortCode: ref },
+        { refCode: rx },
+        { shortCode: rx },
+      ],
     }).lean();
 
     if (!doc) return res.status(404).json({ message: "Not found" });
@@ -127,8 +143,7 @@ router.get("/track/:ref", async (req, res) => {
 });
 
 /* -------------------------------------------
-   List inquiries OR find one by ?ref=...
-   GET /api/inquiries
+   List inquiries
 -------------------------------------------- */
 router.get("/", async (req, res) => {
   try {
@@ -136,7 +151,12 @@ router.get("/", async (req, res) => {
     if (ref) {
       const rx = new RegExp(`^${escapeRegExp(String(ref))}$`, "i");
       const doc = await Inquiry.findOne({
-        $or: [{ refCode: ref }, { shortCode: ref }, { refCode: rx }, { shortCode: rx }],
+        $or: [
+          { refCode: ref },
+          { shortCode: ref },
+          { refCode: rx },
+          { shortCode: rx },
+        ],
       }).lean();
       return res.json(doc || null);
     }
@@ -150,8 +170,7 @@ router.get("/", async (req, res) => {
 });
 
 /* -------------------------------------------
-   Update status (used by AdminDashboard)
-   PATCH /api/inquiries/:id
+   Update status
 -------------------------------------------- */
 const ALLOWED_STAGES = [
   "Submitted",

@@ -34,11 +34,13 @@ import Services from "./pages/Services";
 import Contact from "./pages/Contact";
 
 /* ---------------- Home page composition ---------------- */
-function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
+function HomePage({ onSignInClick, onSignUpClick, onInquire, heroPlay }) {
   return (
     <>
       <Navbar onSignInClick={onSignInClick} onSignUpClick={onSignUpClick} />
-      <Hero />
+
+      {/* ✅ Video only plays when heroPlay === true */}
+      <Hero play={heroPlay} />
 
       {/* 🌍 Futuristic interactive world map with right-side copy */}
       <WorldMapShowcase />
@@ -57,6 +59,8 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire }) {
 function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignupModal] = useState(false);
+
+  // 🔑 Controls LandingScreen and when the Hero video starts
   const [started, setStarted] = useState(false);
 
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
@@ -76,6 +80,7 @@ function App() {
   return (
     // ✅ Global rich dark-emerald background + soft text
     <div className="relative min-h-screen bg-app text-soft">
+      {/* Splash overlay that blocks the UI until clicked */}
       {!started && <LandingScreen onStart={() => setStarted(true)} />}
 
       <AnimatePresence mode="wait">
@@ -90,6 +95,7 @@ function App() {
                 transition={{ duration: 0.4 }}
               >
                 <HomePage
+                  heroPlay={started}
                   onSignInClick={() => setShowLogin(true)}
                   onSignUpClick={() => setShowSignupModal(true)}
                   onInquire={openInquiry}
@@ -113,7 +119,7 @@ function App() {
         prefill={{ brand: selectedBrand }}
       />
 
-      {/* 🔑 Auth modals — THIS is the new bit */}
+      {/* 🔑 Auth modals */}
       {showLogin && (
         <LoginSystem
           onClose={() => setShowLogin(false)}
@@ -141,4 +147,3 @@ function App() {
 }
 
 export default App;
-

@@ -11,8 +11,16 @@ import GetQuotationForm from "./GetQuotationForm";
    Cloudinary assets
    ========================= */
 const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
-const logo = cld.image("newlogoeuro_dd7xjc_c_crop_ar_16_9_ip5gt0").format("auto").quality("auto").resize(auto().width(120));
-const defaultAvatar = cld.image("default_avatar_khvzvj").format("auto").quality("auto").resize(auto().width(40));
+const logo = cld
+  .image("newlogoeuro_dd7xjc_c_crop_ar_16_9_ip5gt0_c_crop_w_1080_h_300_xvilbd")
+  .format("auto")
+  .quality("auto")
+  .resize(auto().width(240));
+const defaultAvatar = cld
+  .image("default_avatar_khvzvj")
+  .format("auto")
+  .quality("auto")
+  .resize(auto().width(40));
 
 /* =========================
    Theme (EMERALD)
@@ -27,23 +35,17 @@ const METALLIC_GREEN_SOFT = `
   )
 `;
 
-/* Auto-hide delay (ms) */
-const AUTO_HIDE_DELAY = 10000; // 10s
-
 export default function Navbar({ onSignInClick, onSignUpClick }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(getUser()?.avatarUrl || null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isAuthMenuOpen, setIsAuthMenuOpen] = useState(false);
-
-  // START HIDDEN -> will fade in when the user scrolls
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [hoveredTo, setHoveredTo] = useState(""); // controls hover-only effects
 
   const location = useLocation();
   const navigate = useNavigate();
   const authMenuRef = useRef(null);
-  const hideTimerRef = useRef(null);
-  const rafRef = useRef(null);
 
   /* Sync avatar with auth updates */
   useEffect(() => {
@@ -56,11 +58,10 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
     };
   }, []);
 
-  /* Close menus on route change + ensure bar visible briefly */
+  /* Close menus on route change */
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsAuthMenuOpen(false);
-    showNow();
   }, [location.pathname]);
 
   /* Click-away for auth dropdown */
@@ -83,54 +84,19 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
     }
   }, [isMobileMenuOpen]);
 
-  /* Show-on-scroll + auto-hide after inactivity */
+  /* Show/hide navbar based on scroll direction */
   useEffect(() => {
-    const onActivity = () => {
-      if (rafRef.current) return;
-      rafRef.current = requestAnimationFrame(() => {
-        showNow();
-        rafRef.current = null;
-      });
+    let lastScrollY = window.scrollY;
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY <= 0) setIsVisible(true);
+      else if (currentScrollY > lastScrollY) setIsVisible(false);
+      else setIsVisible(true);
+      lastScrollY = currentScrollY;
     };
-
-    window.addEventListener("scroll", onActivity, { passive: true });
-    window.addEventListener("touchmove", onActivity, { passive: true });
-    const onKey = (e) => {
-      if (["PageUp", "PageDown", "Home", "End", "ArrowDown", "ArrowUp", " ", "Spacebar"].includes(e.key)) {
-        showNow();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-
-    if (window.scrollY > 0) showNow();
-
-    return () => {
-      window.removeEventListener("scroll", onActivity);
-      window.removeEventListener("touchmove", onActivity);
-      window.removeEventListener("keydown", onKey);
-      cancelAnimationFrame(rafRef.current || 0);
-      clearHideTimer();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobileMenuOpen, isAuthMenuOpen, isFormOpen]);
-
-  function clearHideTimer() {
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-  }
-
-  function showNow() {
-    if (!isVisible) setIsVisible(true);
-    resetHideTimer();
-  }
-
-  function resetHideTimer() {
-    clearHideTimer();
-    if (isMobileMenuOpen || isAuthMenuOpen || isFormOpen) return;
-    hideTimerRef.current = setTimeout(() => setIsVisible(false), AUTO_HIDE_DELAY);
-  }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   /* Nav links */
   const navLinks = [
@@ -155,42 +121,85 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
     pointerEvents: isVisible ? "auto" : "none",
   };
 
-  const linkBase = "relative px-5 py-2 transition-colors duration-300";
+  const linkBase =
+    "relative px-5 py-2 font-semibold transition-colors duration-300";
 
   return (
     <>
       {/* Fixed header */}
-      <header className="fixed top-0 left-0 z-50 w-full pt-[env(safe-area-inset-top)]" style={{ background: "transparent" }}>
+      <header
+        className="fixed top-0 left-0 z-50 w-full pt-[env(safe-area-inset-top)]"
+        style={{ background: "transparent" }}
+      >
         <div className="px-2 sm:px-4 md:px-6 mt-3 md:mt-5">
-          <div className="mx-auto" style={{ maxWidth: "min(1760px, 97.5vw)", position: "relative" }}>
+          <div
+            className="mx-auto"
+            style={{ maxWidth: "min(1760px, 97.5vw)", position: "relative" }}
+          >
             {/* Floating pill bar */}
-            <div className="flex items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 md:px-7 lg:px-8 py-2.5 sm:py-3 md:py-3.5" style={pillShellStyle}>
+            <div
+              className="flex items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 md:px-7 lg:px-8 py-2.5 sm:py-3 md:py-3.5"
+              style={pillShellStyle}
+            >
               {/* Logo */}
-              <Link to="/" aria-label="Go to home" className="shrink-0">
-                <AdvancedImage cldImg={logo} className="object-contain h-9 md:h-10" />
+              <Link to="/" aria-label="Go to home" className="shrink-0 flex items-center">
+                <AdvancedImage
+                  cldImg={logo}
+                  className="object-contain max-h-12 w-auto"
+                />
               </Link>
 
               {/* Desktop Nav */}
-              <nav className="hidden md:flex gap-3 lg:gap-6 text-[0.98rem] font-semibold">
+              <nav className="hidden md:flex gap-3 lg:gap-6 text-[0.98rem]">
                 {navLinks.map((link) => {
-                  const isActive = location.pathname === link.to;
+                  const isHover = hoveredTo === link.to; // ✨ hover-only
+
                   return (
                     <Link
                       key={link.to}
                       to={link.to}
                       className={linkBase}
-                      style={{ color: isActive ? EMERALD : "#E9EDEB" }}
-                      onClick={showNow}
+                      onMouseEnter={() => setHoveredTo(link.to)}
+                      onMouseLeave={() => setHoveredTo("")}
+                      onFocus={() => setHoveredTo(link.to)}   // keyboard focus = hover
+                      onBlur={() => setHoveredTo("")}
+                      style={{
+                        color: isHover ? EMERALD : "#E9EDEB",
+                        textShadow: isHover
+                          ? "0 0 3px rgba(23,167,122,0.28), 0 0 6px rgba(23,167,122,0.2)"
+                          : "none",
+                        transition:
+                          "color 200ms ease, text-shadow 180ms ease, transform 160ms ease",
+                        willChange: "transform",
+                      }}
                     >
-                      <span>{link.label}</span>
                       <span
-                        className="absolute left-5 right-5 -bottom-[2px] h-[2px]"
+                        style={{
+                          display: "inline-block",
+                          transform: isHover ? "translateY(-0.5px)" : "none",
+                          transition: "transform 160ms ease",
+                        }}
+                      >
+                        {link.label}
+                      </span>
+
+                      {/* Underline: strictly hover/focus only */}
+                      <span
+                        aria-hidden
+                        className="absolute left-5 right-5 -bottom-[3px] h-[2px]"
                         style={{
                           background:
                             "linear-gradient(90deg, rgba(23,167,122,0.0) 0%, rgba(23,167,122,1) 50%, rgba(23,167,122,0.0) 100%)",
-                          transform: `scaleX(${isActive ? 1 : 0})`,
+                          transform: `scaleX(${isHover ? 1 : 0})`,
                           transformOrigin: "left",
-                          transition: "transform 420ms ease",
+                          opacity: isHover ? 1 : 0,        // <- prevents any faint line
+                          visibility: isHover ? "visible" : "hidden", // <- extra safety
+                          transition:
+                            "transform 320ms cubic-bezier(.22,.61,.36,1), opacity 120ms ease",
+                          boxShadow: isHover
+                            ? "0 0 6px rgba(23,167,122,0.28)"
+                            : "none",
+                          pointerEvents: "none",
                         }}
                       />
                     </Link>
@@ -200,19 +209,17 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
 
               {/* Right cluster */}
               <div className="items-center hidden md:flex gap-3 lg:gap-6 -translate-x-[2px]">
-                {/* Inquire Now — Emerald Outline */}
+                {/* Inquire Now */}
                 <button
-                  onClick={() => {
-                    setIsFormOpen(true);
-                    showNow();
-                  }}
+                  onClick={() => setIsFormOpen(true)}
                   className="relative inline-flex h-10 md:h-11 items-center justify-center px-6 md:px-7 text-sm font-semibold transition-all duration-300 focus:outline-none hover:scale-[1.03]"
                   style={{
                     color: EMERALD,
                     border: `1.5px solid ${EMERALD}`,
                     borderRadius: "9999px",
                     background: METALLIC_GREEN_SOFT,
-                    boxShadow: "0 0 10px rgba(23,167,122,0.30), inset 0 0 10px rgba(23,167,122,0.18)",
+                    boxShadow:
+                      "0 0 10px rgba(23,167,122,0.30), inset 0 0 10px rgba(23,167,122,0.18)",
                   }}
                 >
                   Inquire Now
@@ -221,10 +228,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                 {/* Account menu */}
                 <div className="relative" ref={authMenuRef}>
                   <button
-                    onClick={() => {
-                      setIsAuthMenuOpen((v) => !v);
-                      showNow();
-                    }}
+                    onClick={() => setIsAuthMenuOpen((v) => !v)}
                     className="relative grid w-10 h-10 overflow-hidden transition border rounded-full hover:scale-110 place-items-center"
                     style={{
                       borderColor: EMERALD,
@@ -232,9 +236,6 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                       background: "transparent",
                       color: "#E9EDEB",
                     }}
-                    aria-label="Account menu"
-                    aria-haspopup="menu"
-                    aria-expanded={isAuthMenuOpen}
                   >
                     {getUser() ? (
                       avatarSrc ? (
@@ -245,7 +246,11 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                           onError={() => setAvatarSrc(null)}
                         />
                       ) : (
-                        <AdvancedImage cldImg={defaultAvatar} className="object-cover w-full h-full" alt="Profile" />
+                        <AdvancedImage
+                          cldImg={defaultAvatar}
+                          className="object-cover w-full h-full"
+                          alt="Profile"
+                        />
                       )
                     ) : (
                       <FaUserCircle size={20} />
@@ -257,8 +262,6 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                       role="menu"
                       className="absolute right-0 z-50 mt-2 w-56 rounded-2xl overflow-hidden border shadow-2xl bg-[#0B1C1F]/95 backdrop-blur-lg"
                       style={{ borderColor: "rgba(23,167,122,0.45)" }}
-                      onMouseEnter={() => clearHideTimer()}
-                      onMouseLeave={() => resetHideTimer()}
                     >
                       {!getUser() ? (
                         <>
@@ -314,12 +317,8 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
               {/* Mobile Menu Button */}
               <div className="md:hidden">
                 <button
-                  onClick={() => {
-                    setIsMobileMenuOpen((v) => !v);
-                    showNow();
-                  }}
+                  onClick={() => setIsMobileMenuOpen((v) => !v)}
                   className="relative p-3 text-white"
-                  aria-label="Toggle menu"
                 >
                   {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                 </button>
@@ -338,10 +337,9 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                 backdropFilter: "blur(10px)",
                 WebkitBackdropFilter: "blur(10px)",
                 border: `1.5px solid rgba(23,167,122,0.35)`,
-                boxShadow: "0 10px 24px rgba(0,0,0,0.45), inset 0 0 12px rgba(23,167,122,0.12)",
+                boxShadow:
+                  "0 10px 24px rgba(0,0,0,0.45), inset 0 0 12px rgba(23,167,122,0.12)",
               }}
-              onMouseEnter={() => clearHideTimer()}
-              onMouseLeave={() => resetHideTimer()}
             >
               <div className="px-3 pt-2 pb-3 space-y-1 text-[1.02rem]">
                 {navLinks.map((link) => (
@@ -350,7 +348,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                     to={link.to}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-4 py-3 rounded-xl transition"
-                    style={{ color: location.pathname === link.to ? EMERALD : "#E9EDEB" }}
+                    style={{ color: "#E9EDEB" }} // mobile keeps simple
                   >
                     {link.label}
                   </Link>
@@ -366,7 +364,8 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                     color: EMERALD,
                     border: `1.5px solid ${EMERALD}`,
                     background: METALLIC_GREEN_SOFT,
-                    boxShadow: "0 0 10px rgba(23,167,122,0.30), inset 0 0 10px rgba(23,167,122,0.18)",
+                    boxShadow:
+                      "0 0 10px rgba(23,167,122,0.30), inset 0 0 10px rgba(23,167,122,0.18)",
                   }}
                 >
                   Inquire Now
@@ -381,7 +380,10 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                           setIsMobileMenuOpen(false);
                         }}
                         className="flex-1 border rounded-full h-[44px] px-4"
-                        style={{ color: "#E9EDEB", borderColor: "rgba(23,167,122,0.45)" }}
+                        style={{
+                          color: "#E9EDEB",
+                          borderColor: "rgba(23,167,122,0.45)",
+                        }}
                       >
                         Log in
                       </button>
@@ -406,7 +408,10 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                         to="/profile"
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="grid flex-1 border rounded-full h-[44px] place-items-center px-4"
-                        style={{ color: "#E9EDEB", borderColor: "rgba(23,167,122,0.45)" }}
+                        style={{
+                          color: "#E9EDEB",
+                          borderColor: "rgba(23,167,122,0.45)",
+                        }}
                       >
                         Profile
                       </Link>
@@ -437,10 +442,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
       {/* Inquiry Form Modal */}
       <GetQuotationForm
         isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setTimeout(() => resetHideTimer(), 0);
-        }}
+        onClose={() => setIsFormOpen(false)}
         prefill={{}}
       />
     </>

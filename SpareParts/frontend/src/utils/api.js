@@ -1,19 +1,12 @@
+// src/utils/api.js
 import axios from "axios";
 
-let baseURL;
+// Always use same-origin (works in prod & dev behind proxy)
+const baseURL =
+  typeof window !== "undefined"
+    ? `${window.location.origin}/api`
+    : "http://72.60.97.47/api";  // fallback for server-side
 
-// If running in development, point directly to backend
-if (process.env.NODE_ENV === "development") {
-  baseURL = "http://localhost:8080/api";
-} else {
-  // In production, let nginx handle /api proxy
-  baseURL = "/api";
-}
-
-const api = axios.create({
-  baseURL,
-  timeout: 20000,
-  withCredentials: true, // optional, in case you use cookies
-});
+const api = axios.create({ baseURL });
 
 export default api;

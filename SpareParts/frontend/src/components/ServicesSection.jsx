@@ -1,3 +1,4 @@
+// src/components/ServicesSection.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import { Cloudinary } from "@cloudinary/url-gen";
@@ -17,7 +18,6 @@ const clImg = (id) =>
     .image(id)
     .format("auto")
     .quality("auto")
-    // 4K source → responsive downscale; keep it crisp on large screens
     .resize(clAuto().width(1600));
 
 /* =========================
@@ -26,14 +26,13 @@ const clImg = (id) =>
 const ACCENT = "#17A77A";
 
 /* =========================
-   IMAGES — replace these with your real public IDs
-   e.g. "services/engine_4k_abcd1234"
+   IMAGES (Cloudinary IDs)
    ========================= */
 const CLOUD_IMAGES = {
-  engine:     "/engine_usewdv",      // <— REPLACE
-  mechanical: "/mechanical_xjbgoi",  // <— REPLACE
-  body:       "/bodypart_aep6hj",        // <— REPLACE
-  electronic: "/electronic_a92a01",  // <— REPLACE
+  engine: "engine_usewdv",
+  mechanical: "mechanical_xjbgoi",
+  body: "bodypart_aep6hj",
+  electronic: "electronic_a92a01",
 };
 
 /* =========================
@@ -84,38 +83,38 @@ const fadeUp = {
   }),
 };
 
-export default function ServicesSection({ onInquire = () => {} }) {
+export default function ServicesSection() {
   return (
     <section className="bg-transparent px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
       {/* Heading */}
-<div className="max-w-6xl mx-auto text-center mb-10 md:mb-12">
-  <h2 className="mb-1 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white">
-    Our <span className="luxury-gold">Expertise</span>
-  </h2>
-  <div
-    className="mx-auto mt-3 h-[2px] w-36 rounded-full"
-    style={{
-      background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.9), transparent)",
-    }}
-  />
-</div>
+      <div className="max-w-6xl mx-auto text-center mb-10 md:mb-12">
+        <h2 className="mb-1 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white">
+          Our <span className="luxury-gold">Expertise</span>
+        </h2>
+        <div
+          className="mx-auto mt-3 h-[2px] w-36 rounded-full"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(212,175,55,0.9), transparent)",
+          }}
+        />
+      </div>
 
-<style>{`
-  .luxury-gold {
-    background: linear-gradient(90deg, #FFD95A, #E8B923, #FFD95A);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine 3s linear infinite;
-  }
-  @keyframes shine {
-    0% { background-position: 0% center; }
-    100% { background-position: 200% center; }
-  }
-`}</style>
+      <style>{`
+        .luxury-gold {
+          background: linear-gradient(90deg, #FFD95A, #E8B923, #FFD95A);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: shine 3s linear infinite;
+        }
+        @keyframes shine {
+          0% { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+      `}</style>
 
-
-      {/* Grid → 1 on mobile, 2 on md/lg/xl (as requested) */}
+      {/* Grid */}
       <div className="max-w-6xl mx-auto grid gap-6 sm:gap-8 md:grid-cols-2">
         {services.map((s, i) => (
           <motion.article
@@ -136,29 +135,31 @@ export default function ServicesSection({ onInquire = () => {} }) {
               boxShadow: "0 14px 34px rgba(0,0,0,0.45)",
             }}
           >
-            {/* ===== Media (photo with gradient + subtle glow) ===== */}
+            {/* ===== Media ===== */}
             <div className="relative aspect-[16/9] overflow-hidden">
               {s.imageId ? (
                 <>
                   <AdvancedImage
                     cldImg={clImg(s.imageId)}
-                    plugins={[
-                      lazyload(),                 // lazy load off-screen
-                      placeholder({ mode: "blur" }) // blur-up placeholder
-                    ]}
+                    loading="lazy"
+                    plugins={[lazyload(), placeholder({ mode: "blur" })]}
                     className="w-full h-full object-cover will-change-transform"
                     alt={s.title}
+                    fetchpriority={i === 0 ? "high" : "auto"}
                   />
-                  {/* Vignette + emerald tint for brand consistency */}
-                  <div className="absolute inset-0 pointer-events-none"
-                       style={{
-                         background:
-                           "radial-gradient(120% 120% at 50% 0%, rgba(23,167,122,0.10), rgba(0,0,0,0) 60%), linear-gradient(180deg, rgba(2,10,18,0) 40%, rgba(2,10,18,0.55))"
-                       }}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background:
+                        "radial-gradient(120% 120% at 50% 0%, rgba(23,167,122,0.10), rgba(0,0,0,0) 60%), linear-gradient(180deg, rgba(2,10,18,0) 40%, rgba(2,10,18,0.55))",
+                    }}
                   />
-                  {/* Soft inner border glow */}
-                  <div className="absolute inset-3 rounded-2xl"
-                       style={{ boxShadow: "inset 0 0 0 1px rgba(23,167,122,0.30)" }} />
+                  <div
+                    className="absolute inset-3 rounded-2xl"
+                    style={{
+                      boxShadow: "inset 0 0 0 1px rgba(23,167,122,0.30)",
+                    }}
+                  />
                 </>
               ) : (
                 <div
@@ -184,25 +185,20 @@ export default function ServicesSection({ onInquire = () => {} }) {
             </div>
 
             {/* ===== Body ===== */}
-<div className="p-5 md:p-6 flex flex-col gap-3">
-  <h3
-    className="text-xl md:text-[22px] font-extrabold"
-    style={{ color: ACCENT, textShadow: "0 0 10px rgba(23,167,122,0.28)" }}
-  >
-    {s.title}
-  </h3>
-
-  <p className="text-white/85 leading-relaxed text-[0.98rem]">
-    {s.desc}
-  </p>
-</div>
-
-
-            {/* Hover sheen */}
-            <span
-              className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition"
-              style={{ boxShadow: "0 0 32px 6px rgba(23,167,122,0.18)" }}
-            />
+            <div className="p-5 md:p-6 flex flex-col items-center text-center gap-3">
+              <h3
+                className="text-xl md:text-[22px] font-extrabold"
+                style={{
+                  color: ACCENT,
+                  textShadow: "0 0 10px rgba(23,167,122,0.28)",
+                }}
+              >
+                {s.title}
+              </h3>
+              <p className="text-white/85 leading-relaxed text-[0.98rem]">
+                {s.desc}
+              </p>
+            </div>
           </motion.article>
         ))}
       </div>

@@ -131,11 +131,11 @@ export default function WorldMapShowcase() {
       <style>{`
         /* Slow the flowing dash animation */
         @keyframes dash { to { stroke-dashoffset: -1000; } }
-        .route-dash-anim { stroke-dasharray: 6 8; animation: dash 12s linear infinite; opacity: .9 }
+        .route-dash-anim { stroke-dasharray: 6 8; animation: dash 20s linear infinite; opacity: .9 }
 
         /* Slow the traveling glow/dot animation */
         @keyframes travel { 0% { stroke-dashoffset: 250 } 100% { stroke-dashoffset: -250 } }
-        .route-travel-anim { stroke-dasharray: 1 250; animation: travel 5s ease-in-out infinite; }
+        .route-travel-anim { stroke-dasharray: 1 250; animation: travel 12s ease-in-out infinite; }
       `}</style>
 
       <div
