@@ -10,12 +10,12 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-const METALLIC_GREEN = `
+const PREMIUM_GRADIENT = `
   linear-gradient(
     135deg,
-    rgba(3,8,6,0.97) 0%,
-    rgba(8,20,15,0.95) 45%,
-    rgba(3,8,6,0.97) 100%
+    #000000 0%,
+    #000000 70%,
+    #014421 100%
   )
 `;
 
@@ -24,53 +24,49 @@ export default function Footer() {
     <footer
       className="relative px-6 py-8 overflow-hidden text-white border-t"
       style={{
-        background: METALLIC_GREEN,
-        // emerald divider at top
-        borderColor: "rgba(23,167,122,0.28)",
+        background: PREMIUM_GRADIENT, // black dominant, green blended
+        borderColor: "#014421", // green for dividers
       }}
     >
       {/* Main Grid */}
       <div
         className="grid max-w-6xl gap-8 pb-8 mx-auto border-b md:grid-cols-4"
-        style={{ borderColor: "rgba(23,167,122,0.22)" }}
+        style={{ borderColor: "#014421" }}
       >
         {/* Company Info */}
         <div>
-          <h4 className="mb-3 text-base font-semibold emerald-accent">Company</h4>
+          <h4 className="mb-3 text-base font-semibold yellow-accent">Company</h4>
 
           <a
             href="https://maps.google.com/?q=No.63,+Buthgamuwa+Road,+Rajagiriya,+10100,+Sri+Lanka"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-white/80 transition-colors hover:text-emerald-300"
-            aria-label="View address in Google Maps"
+            className="flex items-center gap-2 text-sm text-white/80 transition-colors hover:text-[#E3C85C]"
           >
-            <FaMapMarkerAlt className="text-emerald-300/90" />
+            <FaMapMarkerAlt className="text-[#E3C85C]/90" />
             No.63, Buthgamuwa Road, Rajagiriya, 10100, Sri Lanka.
           </a>
 
           <a
             href="tel:+94759687372"
-            className="flex items-center gap-2 mt-2 text-sm text-white/80 transition-colors hover:text-emerald-300"
-            aria-label="Call +94 75 968 7372"
+            className="flex items-center gap-2 mt-2 text-sm text-white/80 transition-colors hover:text-[#E3C85C]"
           >
-            <FaPhoneAlt className="text-emerald-300/90" />
+            <FaPhoneAlt className="text-[#E3C85C]/90" />
             +94 75 968 7372
           </a>
 
           <a
             href="mailto:info@eurotec.lk"
-            className="flex items-center gap-2 mt-2 text-sm text-white/80 transition-colors hover:text-emerald-300"
-            aria-label="Email info@eurotec.lk"
+            className="flex items-center gap-2 mt-2 text-sm text-white/80 transition-colors hover:text-[#E3C85C]"
           >
-            <FaEnvelope className="text-emerald-300/90" />
+            <FaEnvelope className="text-[#E3C85C]/90" />
             info@eurotec.lk
           </a>
         </div>
 
         {/* Business Hours */}
         <div>
-          <h4 className="mb-3 text-base font-semibold emerald-accent">Business Hours</h4>
+          <h4 className="mb-3 text-base font-semibold yellow-accent">Business Hours</h4>
           {[
             "Mon: 8.30 AM – 5.30 PM",
             "Tue: 8.30 AM – 5.30 PM",
@@ -79,16 +75,16 @@ export default function Footer() {
             "Fri: 8.30 AM – 5.30 PM",
             "Sat: 8.30 AM – 5.30 PM",
           ].map((t) => (
-            <p key={t} className="text-sm text-white/75">
+            <p key={t} className="text-sm text-gray-300">
               {t}
             </p>
           ))}
-          <p className="mt-1 text-sm text-white/75">Sun : Closed</p>
+          <p className="mt-1 text-sm text-gray-300">Sun : Closed</p>
         </div>
 
         {/* Quick Links */}
         <div>
-          <h4 className="mb-3 text-base font-semibold emerald-accent">Quick Links</h4>
+          <h4 className="mb-3 text-base font-semibold yellow-accent">Quick Links</h4>
           <ul className="space-y-1.5 text-sm">
             {[
               { label: "Home", href: "/home" },
@@ -99,7 +95,7 @@ export default function Footer() {
               <li key={l.href}>
                 <a
                   href={l.href}
-                  className="text-white/80 transition-colors hover:text-emerald-300"
+                  className="transition-colors text-white/80 hover:text-[#E3C85C]"
                 >
                   {l.label}
                 </a>
@@ -108,12 +104,12 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Find Us (Map Embed) */}
+        {/* Find Us */}
         <div>
-          <h4 className="mb-3 text-base font-semibold emerald-accent">Find Us</h4>
+          <h4 className="mb-3 text-base font-semibold yellow-accent">Find Us</h4>
           <div
             className="w-full overflow-hidden rounded-md shadow h-28 md:h-40 lg:h-48"
-            style={{ boxShadow: "0 0 0 1px rgba(23,167,122,0.22) inset" }}
+            style={{ boxShadow: "0 0 0 1px #014421 inset" }}
           >
             <iframe
               title="Map to Our Location"
@@ -130,10 +126,11 @@ export default function Footer() {
             href="https://maps.google.com?q=No.63,+Buthgamuwa+Road,+Rajagiriya"
             target="_blank"
             rel="noopener noreferrer"
-            className="block mt-2.5 px-3 py-2 text-xs text-white rounded-md border transition-colors"
+            className="block mt-2.5 px-3 py-2 text-xs rounded-md border transition-colors"
             style={{
-              borderColor: "rgba(23,167,122,0.35)",
-              background: "rgba(23,167,122,0.10)",
+              borderColor: "#014421",
+              background: "rgba(1,68,33,0.2)",
+              color: "#fff",
             }}
           >
             Get Directions
@@ -142,8 +139,8 @@ export default function Footer() {
       </div>
 
       {/* Connect */}
-      <div className="mt-7 text-center">
-        <h4 className="mb-4 text-base font-semibold emerald-accent">Connect With Us</h4>
+      <div className="text-center mt-7">
+        <h4 className="mb-4 text-base font-semibold yellow-accent">Connect With Us</h4>
         <div className="flex items-center justify-center gap-5">
           {[
             {
@@ -173,22 +170,21 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={label}
-              className="flex items-center justify-center rounded-full w-9 h-9 border transition"
+              className="flex items-center justify-center transition border rounded-full w-9 h-9"
               style={{
-                borderColor: "rgba(23,167,122,0.45)",
-                boxShadow: "0 0 0 0 rgba(23,167,122,0)",
+                borderColor: "#014421",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(23,167,122,0.12)";
+                e.currentTarget.style.backgroundColor = "rgba(227,200,92,0.15)";
                 e.currentTarget.style.boxShadow =
-                  "0 0 16px 2px rgba(23,167,122,0.25)";
+                  "0 0 16px 2px rgba(227,200,92,0.45)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.boxShadow = "0 0 0 0 rgba(23,167,122,0)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             >
-              <Icon className="text-emerald-300 text-[1rem]" />
+              <Icon className="text-[#E3C85C] text-[1rem]" />
             </a>
           ))}
         </div>
@@ -196,28 +192,28 @@ export default function Footer() {
 
       {/* Bottom */}
       <div
-        className="pt-4 mt-7 text-xs text-center text-white/70"
-        style={{ borderTop: "1px solid rgba(23,167,122,0.22)" }}
+        className="pt-4 text-xs text-center mt-7 text-white/70"
+        style={{ borderTop: "1px solid #014421" }}
       >
         <p>
-          © 2025 <span className="emerald-accent">EuroTec</span>. All Rights Reserved.
+          © 2025 <span className="yellow-accent">EuroTec</span>. All Rights Reserved.
         </p>
       </div>
 
-      {/* Emerald accent text */}
+      {/* Yellow shimmer effect */}
       <style>{`
-        .emerald-accent {
-          background: linear-gradient(90deg, #A6FFE7, #32D6A7, #0BA57F, #32D6A7, #A6FFE7);
-          background-size: 200% auto;
+        .yellow-accent {
+          background: linear-gradient(90deg, #E3C85C, #FFF1A8, #E3C85C);
+          background-size: 220% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
           text-fill-color: transparent;
-          animation: emeraldShine 6s linear infinite;
+          animation: yellowShine 6s linear infinite;
         }
-        @keyframes emeraldShine {
+        @keyframes yellowShine {
           0% { background-position: 0% center; }
-          100% { background-position: 200% center; }
+          100% { background-position: 220% center; }
         }
       `}</style>
     </footer>

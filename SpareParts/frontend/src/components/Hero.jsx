@@ -13,19 +13,8 @@ const video = cld
   .delivery(format("auto"))
   .delivery(quality("auto"));
 
-// 🇱🇰 Sri Lanka flag
-const sriLankanFlag = cld
-  .image("sri_lanka_elrjw8")
-  .delivery(format("auto"))
-  .delivery(quality("auto"))
-  .resize(auto().width(32));
 
-// 🇬🇧 UK flag
-const ukFlag = cld
-  .image("UK_j0lfab")
-  .delivery(format("auto"))
-  .delivery(quality("auto"))
-  .resize(auto().width(32));
+
 
 const Hero = () => {
   return (
@@ -52,7 +41,7 @@ const Hero = () => {
       {/* 🔲 Foreground Content */}
       <div className="relative z-10 flex items-center justify-start h-full px-6 sm:px-10">
         <div className="max-w-xl space-y-6">
-          {/* 🇱🇰🇬🇧 Flags */}
+          
           
 
           {/* 🏷️ Heading */}
