@@ -5,6 +5,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { rateLimit } from "express-rate-limit";
+import cookieParser from "cookie-parser";
+
 
 import inquiryRoutes from "./routes/inquiry.routes.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -17,6 +19,8 @@ const app = express();
 app.set("trust proxy", 1); // behind nginx
 app.use(helmet());
 app.use(express.json());
+app.use(cookieParser());
+
 app.use(morgan("dev"));
 
 /* ---------- CORS ---------- */

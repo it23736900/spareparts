@@ -1,15 +1,13 @@
-// src/App.jsx
 import { useEffect, useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import BrandLogos from "./components/BrandLogos";
 import Footer from "./components/Footer";
-import LoginSystem from "./components/LoginSystem";
+import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
-import SignupModal from "./components/SignupModal";
 import FloatingWhatsAppButton from "./components/FloatingWhatsAppButton";
 import ProcessFlow from "./components/ProcessFlow";
 import TestimonialCarousel from "./components/TestimonialCarousel";
@@ -33,11 +31,14 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import Contact from "./pages/Contact";
 
+import { AuthProvider } from "./context/AuthContext";
+import RequireAuth from "./routes/RequireAuth";
+
 /* ---------------- Home page composition ---------------- */
-function HomePage({ onSignInClick, onSignUpClick, onInquire, heroPlay }) {
+function HomePage({ onInquire, heroPlay }) {
   return (
     <>
-      <Navbar onSignInClick={onSignInClick} onSignUpClick={onSignUpClick} />
+      <Navbar />
 
       {/* ✅ Video only plays when heroPlay === true */}
       <Hero play={heroPlay} />
@@ -57,9 +58,6 @@ function HomePage({ onSignInClick, onSignUpClick, onInquire, heroPlay }) {
 
 /* ---------------- App root ---------------- */
 function App() {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showSignup, setShowSignupModal] = useState(false);
-
   // 🔑 Controls LandingScreen and when the Hero video starts
   const [started, setStarted] = useState(false);
 
@@ -78,71 +76,56 @@ function App() {
   };
 
   return (
-    // ✅ Global rich dark-emerald background + soft text
-    <div className="relative min-h-screen bg-app text-soft">
-      {/* Splash overlay that blocks the UI until clicked */}
-      {!started && <LandingScreen onStart={() => setStarted(true)} />}
+    <AuthProvider>
+      <div className="relative min-h-screen bg-app text-soft">
+        {/* Splash overlay that blocks the UI until clicked */}
+        {!started && <LandingScreen onStart={() => setStarted(true)} />}
 
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route
-            path="/"
-            element={
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -40 }}
-                transition={{ duration: 0.4 }}
-              >
-                <HomePage
-                  heroPlay={started}
-                  onSignInClick={() => setShowLogin(true)}
-                  onSignUpClick={() => setShowSignupModal(true)}
-                  onInquire={openInquiry}
-                />
-              </motion.div>
-            }
-          />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/user" element={<UserDashboard />} />
-        </Routes>
-      </AnimatePresence>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route
+              path="/"
+              element={
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -40 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <HomePage heroPlay={started} onInquire={openInquiry} />
+                </motion.div>
+              }
+            />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/contact" element={<Contact />} />
 
-      {/* Inquiry form (CTA in navbar & elsewhere) */}
-      <GetQuotationForm
-        isOpen={isInquiryOpen}
-        onClose={() => setIsInquiryOpen(false)}
-        prefill={{ brand: selectedBrand }}
-      />
+            {/* Admin login + protected area */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<RequireAuth />}>
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+            </Route>
 
-      {/* 🔑 Auth modals */}
-      {showLogin && (
-        <LoginSystem
-          onClose={() => setShowLogin(false)}
-          onSwitchToSignup={() => {
-            setShowLogin(false);
-            setShowSignupModal(true);
-          }}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/user" element={<UserDashboard />} />
+
+            {/* Fallback → home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AnimatePresence>
+
+        {/* Inquiry form (CTA in navbar & elsewhere) */}
+        <GetQuotationForm
+          isOpen={isInquiryOpen}
+          onClose={() => setIsInquiryOpen(false)}
+          prefill={{ brand: selectedBrand }}
         />
-      )}
 
-      {showSignup && (
-        <SignupModal
-          onClose={() => setShowSignupModal(false)}
-          onSwitchToLogin={() => {
-            setShowSignupModal(false);
-            setShowLogin(true);
-          }}
-        />
-      )}
-
-      <FloatingWhatsAppButton />
-      <ToastContainer position="top-center" autoClose={3000} />
-    </div>
+        <FloatingWhatsAppButton />
+        <ToastContainer position="top-center" autoClose={3000} />
+      </div>
+    </AuthProvider>
   );
 }
 

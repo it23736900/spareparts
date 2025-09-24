@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
-import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getUser, logout } from "../utils/auth";
+import { FaBars, FaTimes } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
 import GetQuotationForm from "./GetQuotationForm";
 
 /* =========================
@@ -16,11 +15,6 @@ const logo = cld
   .format("auto")
   .quality("auto")
   .resize(auto().width(240));
-const defaultAvatar = cld
-  .image("default_avatar_khvzvj")
-  .format("auto")
-  .quality("auto")
-  .resize(auto().width(40));
 
 /* =========================
    Theme (EMERALD)
@@ -35,44 +29,18 @@ const METALLIC_GREEN_SOFT = `
   )
 `;
 
-export default function Navbar({ onSignInClick, onSignUpClick }) {
+export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [avatarSrc, setAvatarSrc] = useState(getUser()?.avatarUrl || null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isAuthMenuOpen, setIsAuthMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [hoveredTo, setHoveredTo] = useState(""); // controls hover-only effects
+  const [hoveredTo, setHoveredTo] = useState("");
 
   const location = useLocation();
-  const navigate = useNavigate();
-  const authMenuRef = useRef(null);
 
-  /* Sync avatar with auth updates */
-  useEffect(() => {
-    const handler = () => setAvatarSrc(getUser()?.avatarUrl || null);
-    window.addEventListener("userUpdated", handler);
-    window.addEventListener("storage", handler);
-    return () => {
-      window.removeEventListener("userUpdated", handler);
-      window.removeEventListener("storage", handler);
-    };
-  }, []);
-
-  /* Close menus on route change */
+  /* Close mobile menu on route change */
   useEffect(() => {
     setIsMobileMenuOpen(false);
-    setIsAuthMenuOpen(false);
   }, [location.pathname]);
-
-  /* Click-away for auth dropdown */
-  useEffect(() => {
-    const onClickAway = (e) => {
-      if (!authMenuRef.current) return;
-      if (!authMenuRef.current.contains(e.target)) setIsAuthMenuOpen(false);
-    };
-    document.addEventListener("mousedown", onClickAway);
-    return () => document.removeEventListener("mousedown", onClickAway);
-  }, []);
 
   /* Lock body scroll when mobile menu open */
   useEffect(() => {
@@ -84,7 +52,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
     }
   }, [isMobileMenuOpen]);
 
-  /* Show/hide navbar based on scroll direction */
+  /* Show/hide navbar based on scroll */
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const onScroll = () => {
@@ -152,8 +120,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
               {/* Desktop Nav */}
               <nav className="hidden md:flex gap-3 lg:gap-6 text-[0.98rem]">
                 {navLinks.map((link) => {
-                  const isHover = hoveredTo === link.to; // ✨ hover-only
-
+                  const isHover = hoveredTo === link.to;
                   return (
                     <Link
                       key={link.to}
@@ -161,7 +128,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                       className={linkBase}
                       onMouseEnter={() => setHoveredTo(link.to)}
                       onMouseLeave={() => setHoveredTo("")}
-                      onFocus={() => setHoveredTo(link.to)}   // keyboard focus = hover
+                      onFocus={() => setHoveredTo(link.to)}
                       onBlur={() => setHoveredTo("")}
                       style={{
                         color: isHover ? EMERALD : "#E9EDEB",
@@ -173,35 +140,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                         willChange: "transform",
                       }}
                     >
-                      <span
-                        style={{
-                          display: "inline-block",
-                          transform: isHover ? "translateY(-0.5px)" : "none",
-                          transition: "transform 160ms ease",
-                        }}
-                      >
-                        {link.label}
-                      </span>
-
-                      {/* Underline: strictly hover/focus only */}
-                      <span
-                        aria-hidden
-                        className="absolute left-5 right-5 -bottom-[3px] h-[2px]"
-                        style={{
-                          background:
-                            "linear-gradient(90deg, rgba(23,167,122,0.0) 0%, rgba(23,167,122,1) 50%, rgba(23,167,122,0.0) 100%)",
-                          transform: `scaleX(${isHover ? 1 : 0})`,
-                          transformOrigin: "left",
-                          opacity: isHover ? 1 : 0,        // <- prevents any faint line
-                          visibility: isHover ? "visible" : "hidden", // <- extra safety
-                          transition:
-                            "transform 320ms cubic-bezier(.22,.61,.36,1), opacity 120ms ease",
-                          boxShadow: isHover
-                            ? "0 0 6px rgba(23,167,122,0.28)"
-                            : "none",
-                          pointerEvents: "none",
-                        }}
-                      />
+                      {link.label}
                     </Link>
                   );
                 })}
@@ -224,94 +163,6 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                 >
                   Inquire Now
                 </button>
-
-                {/* Account menu */}
-                <div className="relative" ref={authMenuRef}>
-                  <button
-                    onClick={() => setIsAuthMenuOpen((v) => !v)}
-                    className="relative grid w-10 h-10 overflow-hidden transition border rounded-full hover:scale-110 place-items-center"
-                    style={{
-                      borderColor: EMERALD,
-                      boxShadow: "0 0 8px rgba(23,167,122,0.22)",
-                      background: "transparent",
-                      color: "#E9EDEB",
-                    }}
-                  >
-                    {getUser() ? (
-                      avatarSrc ? (
-                        <img
-                          src={avatarSrc}
-                          alt="Profile"
-                          className="object-cover w-full h-full"
-                          onError={() => setAvatarSrc(null)}
-                        />
-                      ) : (
-                        <AdvancedImage
-                          cldImg={defaultAvatar}
-                          className="object-cover w-full h-full"
-                          alt="Profile"
-                        />
-                      )
-                    ) : (
-                      <FaUserCircle size={20} />
-                    )}
-                  </button>
-
-                  {isAuthMenuOpen && (
-                    <div
-                      role="menu"
-                      className="absolute right-0 z-50 mt-2 w-56 rounded-2xl overflow-hidden border shadow-2xl bg-[#0B1C1F]/95 backdrop-blur-lg"
-                      style={{ borderColor: "rgba(23,167,122,0.45)" }}
-                    >
-                      {!getUser() ? (
-                        <>
-                          <button
-                            role="menuitem"
-                            className="w-full px-5 py-3 text-sm text-left hover:bg-white/10"
-                            onClick={() => {
-                              setIsAuthMenuOpen(false);
-                              onSignInClick?.();
-                            }}
-                          >
-                            Log in
-                          </button>
-                          <button
-                            role="menuitem"
-                            className="w-full px-5 py-3 text-sm text-left hover:bg-white/10"
-                            onClick={() => {
-                              setIsAuthMenuOpen(false);
-                              onSignUpClick?.();
-                            }}
-                          >
-                            Sign up
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <Link
-                            role="menuitem"
-                            to="/profile"
-                            className="block px-5 py-3 text-sm hover:bg-white/10"
-                            onClick={() => setIsAuthMenuOpen(false)}
-                          >
-                            Profile
-                          </Link>
-                          <button
-                            role="menuitem"
-                            className="flex items-center w-full gap-2 px-5 py-3 text-sm text-left hover:bg-white/10"
-                            onClick={() => {
-                              setIsAuthMenuOpen(false);
-                              logout();
-                              navigate("/");
-                            }}
-                          >
-                            <FaSignOutAlt /> Logout
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Mobile Menu Button */}
@@ -338,7 +189,8 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                 WebkitBackdropFilter: "blur(10px)",
                 border: `1.5px solid rgba(23,167,122,0.35)`,
                 boxShadow:
-                  "0 10px 24px rgba(0,0,0,0.45), inset 0 0 12px rgba(23,167,122,0.12)",
+  "0 10px 24px rgba(0,0,0,0.45), inset 0 0 12px rgba(23,167,122,0.12)",
+
               }}
             >
               <div className="px-3 pt-2 pb-3 space-y-1 text-[1.02rem]">
@@ -348,7 +200,7 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                     to={link.to}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-4 py-3 rounded-xl transition"
-                    style={{ color: "#E9EDEB" }} // mobile keeps simple
+                    style={{ color: "#E9EDEB" }}
                   >
                     {link.label}
                   </Link>
@@ -370,69 +222,6 @@ export default function Navbar({ onSignInClick, onSignUpClick }) {
                 >
                   Inquire Now
                 </button>
-
-                <div className="flex gap-2 pt-2">
-                  {!getUser() ? (
-                    <>
-                      <button
-                        onClick={() => {
-                          onSignInClick?.();
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="flex-1 border rounded-full h-[44px] px-4"
-                        style={{
-                          color: "#E9EDEB",
-                          borderColor: "rgba(23,167,122,0.45)",
-                        }}
-                      >
-                        Log in
-                      </button>
-                      <button
-                        onClick={() => {
-                          onSignUpClick?.();
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="flex-1 rounded-full h-[44px] px-4"
-                        style={{
-                          color: "#0B1C1F",
-                          background: EMERALD,
-                          border: "1.5px solid " + EMERALD,
-                        }}
-                      >
-                        Sign up
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <Link
-                        to="/profile"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="grid flex-1 border rounded-full h-[44px] place-items-center px-4"
-                        style={{
-                          color: "#E9EDEB",
-                          borderColor: "rgba(23,167,122,0.45)",
-                        }}
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={() => {
-                          logout();
-                          setIsMobileMenuOpen(false);
-                          navigate("/");
-                        }}
-                        className="grid flex-1 rounded-full h-[44px] place-items-center px-4"
-                        style={{
-                          color: "#0B1C1F",
-                          background: EMERALD,
-                          border: "1.5px solid " + EMERALD,
-                        }}
-                      >
-                        Logout
-                      </button>
-                    </>
-                  )}
-                </div>
               </div>
             </div>
           </div>

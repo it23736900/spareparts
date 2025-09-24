@@ -1,18 +1,19 @@
-// middleware/auth.js
 import jwt from "jsonwebtoken";
 
 /**
- * Require a valid JWT in Authorization: Bearer <token>.
- * Attaches req.user = { id, role, email }.
+ * Require a valid JWT, either from:
+ *  - Cookie: token
+ *  - Authorization: Bearer <token>
  */
 export function requireAuth(req, res, next) {
   const hdr = req.headers.authorization || "";
-  const token = hdr.startsWith("Bearer ") ? hdr.slice(7) : null;
+  const bearer = hdr.startsWith("Bearer ") ? hdr.slice(7) : null;
+  const cookieToken = req.cookies?.token;
+  const token = bearer || cookieToken;
   if (!token) return res.status(401).json({ message: "No token" });
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    // normalize fields
     req.user = {
       id: payload.sub || payload.id,
       role: payload.role,
@@ -27,11 +28,12 @@ export function requireAuth(req, res, next) {
 /**
  * Require that req.user.role is one of the provided roles.
  * Use after requireAuth.
- *   router.get("/admin", requireAuth, requireRole("ADMIN"), handler)
+ *   router.get("/admin", requireAuth, requireRole("admin"), handler)
  */
 export function requireRole(...roles) {
   return (req, res, next) => {
-    if (!req.user?.role) return res.status(401).json({ message: "Not authenticated" });
+    if (!req.user?.role)
+      return res.status(401).json({ message: "Not authenticated" });
     if (!roles.includes(req.user.role))
       return res.status(403).json({ message: "Forbidden" });
     next();
@@ -44,8 +46,11 @@ export function requireRole(...roles) {
  */
 export function optionalAuth(req, _res, next) {
   const hdr = req.headers.authorization || "";
-  const token = hdr.startsWith("Bearer ") ? hdr.slice(7) : null;
+  const bearer = hdr.startsWith("Bearer ") ? hdr.slice(7) : null;
+  const cookieToken = req.cookies?.token;
+  const token = bearer || cookieToken;
   if (!token) return next();
+
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = {
@@ -54,7 +59,7 @@ export function optionalAuth(req, _res, next) {
       email: payload.email,
     };
   } catch {
-    // ignore bad token for optional auth
+    // ignore bad token
   }
   next();
 }

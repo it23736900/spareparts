@@ -5,8 +5,11 @@ import axios from "axios";
 const baseURL =
   typeof window !== "undefined"
     ? `${window.location.origin}/api`
-    : "http://72.60.97.47/api";  // fallback for server-side
+    : "http://72.60.97.47/api"; // fallback for server-side
 
-const api = axios.create({ baseURL });
+const api = axios.create({
+  baseURL,
+  withCredentials: true,   // 👈 allow cookies
+});
 
 export default api;
