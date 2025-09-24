@@ -2,56 +2,10 @@
 import { useEffect, useState, useRef } from "react";
 import api from "../utils/api"; // axios instance with baseURL "/api"
 
-/* ---------- Colors ---------- */
-const GOLD = "#D4AF37";
-const GOLD_SOFT = "rgba(212,175,55,0.65)";
-const GOLD_BORDER = "rgba(212,175,55,0.45)";
-const TEXT_SOFT = "#E6E6E0";
+const ACCENT = "#00ffb3";
+const ACCENT_BORDER = "rgba(0,255,179,0.35)";
+const TEXT_SOFT = "#e5e7eb";
 
-const METALLIC_GREEN = `
-  linear-gradient(
-    135deg,
-    rgba(3,8,6,0.98) 0%,
-    rgba(8,20,15,0.96) 45%,
-    rgba(3,8,6,0.98) 100%
-  )
-`;
-const METALLIC_GREEN_SOFT = `
-  linear-gradient(
-    135deg,
-    rgba(5,14,11,0.92) 0%,
-    rgba(10,26,20,0.90) 45%,
-    rgba(5,14,11,0.92) 100%
-  )
-`;
-
-const INPUT_BG = "rgba(10,26,20,0.92)";
-const INPUT_BORDER = "rgba(35,72,58,0.65)";
-const INPUT_BORDER_FOCUS = GOLD_SOFT;
-const INPUT_RING = "0 0 0 4px rgba(212,175,55,0.12)";
-
-/* ---------- Helpers ---------- */
-const vehicleOptions = [
-  "Range Rover",
-  "BMW",
-  "Mercedes-Benz",
-  "Audi",
-  "Volvo",
-  "Volkswagen",
-  "Porsche",
-  "MG",
-  "Ford",
-  "Jaguar",
-  "Renault",
-  "Peugeot",
-  "Mini Cooper",
-  "Other (please specify)",
-];
-
-const emailOK = (v = "") => /\S+@\S+\.\S+/.test(v.trim());
-const phoneOK = (v = "") => v.replace(/\D/g, "").length >= 7;
-
-/* ---------- Component ---------- */
 export default function GetQuotationForm({
   isOpen = false,
   onClose = () => {},
@@ -77,6 +31,26 @@ export default function GetQuotationForm({
 
   const modalRef = useRef(null);
   const firstFieldRef = useRef(null);
+
+  const vehicleOptions = [
+    "Range Rover",
+    "BMW",
+    "Mercedes-Benz",
+    "Audi",
+    "Volvo",
+    "Volkswagen",
+    "Porsche",
+    "MG",
+    "Ford",
+    "Jaguar",
+    "Renault",
+    "Peugeot",
+    "Mini Cooper",
+    "Other (please specify)",
+  ];
+
+  const emailOK = (v = "") => /\S+@\S+\.\S+/.test(v.trim());
+  const phoneOK = (v = "") => v.replace(/\D/g, "").length >= 7;
 
   /* ---------- Prefill ---------- */
   useEffect(() => {
@@ -133,7 +107,8 @@ export default function GetQuotationForm({
 
   const formatError = (payload) => {
     if (!payload) return "Failed to submit inquiry";
-    if (payload.message && typeof payload.message === "string") return payload.message;
+    if (payload.message && typeof payload.message === "string")
+      return payload.message;
     return "Validation failed";
   };
 
@@ -142,7 +117,10 @@ export default function GetQuotationForm({
     if (!emailOK(form.email)) return "Valid email is required";
     if (!phoneOK(form.phone)) return "Valid phone is required";
     if (!form.vehicleBrand) return "Vehicle brand is required";
-    if (form.vehicleBrand === "Other (please specify)" && !form.customBrand.trim()) {
+    if (
+      form.vehicleBrand === "Other (please specify)" &&
+      !form.customBrand.trim()
+    ) {
       return "Please specify your vehicle brand/model";
     }
     if (!form.item.trim()) return "Part / Item is required";
@@ -219,119 +197,96 @@ export default function GetQuotationForm({
     <div
       className="fixed inset-0 z-[90] grid place-items-center px-3 sm:px-6"
       onMouseDown={handleBackdropClick}
-      aria-modal="true"
-      role="dialog"
     >
       <div
         className="absolute inset-0 backdrop-blur-sm"
         style={{
           background:
-            "radial-gradient(60% 35% at 50% 0%, rgba(212,175,55,0.08), transparent 60%), rgba(0,0,0,0.72)",
+            "radial-gradient(60% 35% at 50% 0%, rgba(0,255,179,0.08), transparent 60%), rgba(0,0,0,0.75)",
         }}
       />
 
       <div
         ref={modalRef}
         onMouseDown={(e) => e.stopPropagation()}
-        className="
-          relative w-full max-w-md sm:max-w-xl md:max-w-2xl
-          max-h-[90vh] overflow-y-auto
-          rounded-2xl p-4 sm:p-6 border
-          shadow-[0_10px_60px_-10px_rgba(0,0,0,0.75)]
-        "
-        style={{
-          background: METALLIC_GREEN,
-          borderColor: GOLD_BORDER,
-          boxShadow:
-            "0 0 0 1px rgba(255,255,255,0.04) inset, 0 30px 80px rgba(0,0,0,0.55)",
-        }}
+        className="relative w-full max-w-md sm:max-w-xl md:max-w-2xl
+                   h-[90vh] overflow-y-auto rounded-2xl
+                   bg-[#051111]/95 border border-[#00ffb3]/30
+                   backdrop-blur-xl p-6 sm:p-8 md:p-10
+                   shadow-[0_0_25px_rgba(0,255,179,0.08),inset_0_0_12px_rgba(255,255,255,0.03)]"
       >
         {/* Close button */}
         <button
           onClick={!loading ? onClose : undefined}
-          className="absolute text-2xl leading-none text-white/80 hover:text-white disabled:opacity-50"
-          aria-label="Close"
-          type="button"
-          disabled={loading}
-          style={{ top: 12, right: 16 }}
+          className="absolute z-50 text-emerald-400 hover:text-emerald-300
+                     transition-transform transform hover:scale-110
+                     bg-black/40 rounded-full p-2"
+          style={{
+            top: "calc(env(safe-area-inset-top, 0px) + 0.75rem)",
+            right: "1rem",
+          }}
         >
           ×
         </button>
 
         {/* Heading */}
         <div className="mb-6 text-center sm:mb-8">
-          <h2
-            className="mb-2 text-2xl font-extrabold tracking-tight sm:text-3xl"
-            style={{
-              color: GOLD,
-              textShadow: "0 0 16px rgba(212,175,55,0.25)",
-              letterSpacing: "0.02em",
-            }}
-          >
+          <h2 className="mb-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
             Parts Inquiry Form
           </h2>
-          <p
-            className="text-xs sm:text-sm"
-            style={{ color: "rgba(230,230,224,0.78)" }}
-          >
+          <p className="text-sm sm:text-base text-gray-300">
             Tell us about your vehicle and requirements
           </p>
         </div>
 
         {/* Success or Form */}
         {successCode ? (
-          <div
-            className="flex flex-col items-center p-5 sm:p-7 text-center rounded-xl"
-            style={{
-              background: METALLIC_GREEN_SOFT,
-              border: `1px solid ${GOLD_BORDER}`,
-              boxShadow:
-                "inset 0 0 24px rgba(255,255,255,0.04), 0 16px 60px rgba(0,0,0,0.6)",
-            }}
-          >
-            <h3 className="mb-2 text-xl font-bold sm:text-2xl" style={{ color: TEXT_SOFT }}>
+          <div className="flex flex-col items-center p-5 sm:p-7 text-center rounded-xl border border-[#00ffb3]/30 bg-[#0B1C1F]/90 shadow-inner">
+            <h3 className="mb-2 text-xl font-bold sm:text-2xl text-white">
               Inquiry Submitted Successfully!
             </h3>
 
             {emailSent ? (
-              <p className="mb-4 text-sm sm:text-base" aria-live="polite" style={{ color: "rgba(230,230,224,0.85)" }}>
+              <p className="mb-4 text-sm sm:text-base text-gray-300">
                 Email confirmation sent to{" "}
-                <span className="font-semibold" style={{ color: GOLD }}>
+                <span className="font-semibold text-emerald-400">
                   {submittedEmail}
                 </span>
               </p>
             ) : (
-              <p className="mb-4 text-sm sm:text-base" aria-live="polite" style={{ color: "rgba(230,230,224,0.85)" }}>
+              <p className="mb-4 text-sm sm:text-base text-gray-300">
                 We’ve received your request. Keep your reference code safe.
               </p>
             )}
 
-            <div
-              className="w-full max-w-xs px-6 py-4 mt-1 mb-3 rounded-xl"
-              style={{ background: "rgba(6,16,12,0.92)", border: "1px solid rgba(27,77,67,0.5)" }}
-            >
-              <span className="block mb-1 text-sm font-semibold" style={{ color: GOLD }}>
+            <div className="w-full max-w-xs px-6 py-4 mt-1 mb-3 rounded-xl bg-[#051111]/80 border border-[#00ffb3]/30">
+              <span className="block mb-1 text-sm font-semibold text-emerald-400">
                 Your Reference Code:
               </span>
               <div className="flex items-center justify-center gap-3">
-                <span className="text-xl font-bold tracking-wider" style={{ color: TEXT_SOFT }}>
+                <span className="text-xl font-bold tracking-wider text-white">
                   {successCode}
                 </span>
-                <button onClick={copyRef} className="text-xs px-3 py-1 rounded-md border" style={{ borderColor: GOLD_BORDER, color: GOLD }}>
+                <button
+                  onClick={copyRef}
+                  className="px-3 py-1 text-xs font-medium rounded-md border border-[#00ffb3]/50 text-emerald-400 hover:bg-emerald-400/10 transition"
+                >
                   {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
             </div>
 
             {inquiryId && (
-              <a href={`/track?ref=${encodeURIComponent(successCode)}`} className="mt-5 text-sm underline" style={{ color: GOLD }}>
+              <a
+                href={`/track?ref=${encodeURIComponent(successCode)}`}
+                className="mt-5 text-sm underline text-emerald-400"
+              >
                 Track this inquiry
               </a>
             )}
 
             <button
-              className="mt-6 px-5 py-3 rounded-lg text-sm font-semibold"
-              style={{ color: GOLD, background: METALLIC_GREEN, border: `1.5px solid ${GOLD_BORDER}` }}
+              className="mt-6 px-5 py-3 rounded-lg text-sm font-semibold border border-[#00ffb3]/40 text-emerald-400 hover:bg-emerald-400/10 transition"
               onClick={() => {
                 setSuccessCode(null);
                 setInquiryId(null);
@@ -342,51 +297,80 @@ export default function GetQuotationForm({
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6" noValidate>
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5 sm:space-y-6"
+            noValidate
+          >
             <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
-              <Field label="Full Name" name="fullName" value={form.fullName}
-                onChange={handleChange} placeholder="Enter your full name"
-                inputRef={firstFieldRef} autoComplete="name" />
-              <Field label="Email" name="email" type="email" value={form.email}
-                onChange={handleChange} placeholder="Enter your email"
-                autoComplete="email" />
+              <Field
+                label="Full Name"
+                name="fullName"
+                value={form.fullName}
+                onChange={handleChange}
+                placeholder="Enter your full name"
+                inputRef={firstFieldRef}
+                autoComplete="name"
+              />
+              <Field
+                label="Email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                autoComplete="email"
+              />
             </div>
 
             <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
-              <Field label="Phone" name="phone" value={form.phone}
-                onChange={handleChange} placeholder="Enter your phone number"
-                type="tel" inputMode="tel" autoComplete="tel" />
+              <Field
+                label="Phone"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="Enter your phone number"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+              />
 
               <div>
                 <Label htmlFor="vehicleBrand">Vehicle Brand</Label>
                 <select
                   id="vehicleBrand"
                   name="vehicleBrand"
-                  className="w-full p-4 rounded-lg text-base"
+                  className="w-full p-4 rounded-lg text-base bg-[#051111]/70 border border-[#00ffb3]/30 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
                   value={form.vehicleBrand}
                   onChange={handleChange}
-                  style={{
-                    color: TEXT_SOFT,
-                    background: INPUT_BG,
-                    border: `1px solid ${INPUT_BORDER}`,
-                  }}
                 >
                   <option value="">Select Vehicle Brand</option>
                   {vehicleOptions.map((brand, idx) => (
-                    <option key={idx} value={brand}>{brand}</option>
+                    <option key={idx} value={brand}>
+                      {brand}
+                    </option>
                   ))}
                 </select>
 
                 {form.vehicleBrand === "Other (please specify)" && (
-                  <Field className="mt-3" name="customBrand"
+                  <Field
+                    className="mt-3"
+                    name="customBrand"
                     placeholder="Enter your vehicle brand/model"
-                    value={form.customBrand} onChange={handleChange} />
+                    value={form.customBrand}
+                    onChange={handleChange}
+                  />
                 )}
               </div>
             </div>
 
-            <Field label="Part / Item" name="item" value={form.item}
-              onChange={handleChange} placeholder="e.g., Front Grille, ECU, ABS Sensor" />
+            <Field
+              label="Part / Item"
+              name="item"
+              value={form.item}
+              onChange={handleChange}
+              placeholder="e.g., Front Grille, ECU, ABS Sensor"
+            />
 
             <div>
               <Label htmlFor="description">Description</Label>
@@ -394,38 +378,31 @@ export default function GetQuotationForm({
                 id="description"
                 name="description"
                 placeholder="Describe your inquiry"
-                className="w-full p-4 rounded-lg text-base min-h-[110px] resize-y"
+                className="w-full p-4 rounded-lg text-base min-h-[110px] resize-y bg-[#051111]/70 border border-[#00ffb3]/30 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 value={form.description}
                 onChange={handleChange}
-                style={{
-                  color: TEXT_SOFT,
-                  background: INPUT_BG,
-                  border: `1px solid ${INPUT_BORDER}`,
-                }}
               />
             </div>
 
             {error && (
-              <p className="p-4 text-center rounded-lg"
-                style={{
-                  color: "rgba(255,120,120,0.9)",
-                  background: "rgba(60,10,10,0.25)",
-                  border: "1px solid rgba(255,120,120,0.35)",
-                }}
-                aria-live="polite">
+              <p className="p-4 text-center rounded-lg text-red-400 bg-red-900/30 border border-red-500/40">
                 {error}
               </p>
             )}
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <button type="button" onClick={() => !loading && onClose()}
-                className="w-full min-h-[44px] rounded-lg font-semibold border"
-                style={{ color: TEXT_SOFT, borderColor: GOLD_BORDER, background: "rgba(6,16,12,0.75)" }}>
+              <button
+                type="button"
+                onClick={() => !loading && onClose()}
+                className="w-full min-h-[44px] rounded-lg font-semibold border border-[#00ffb3]/40 text-white hover:bg-emerald-400/10 transition"
+              >
                 Cancel
               </button>
-              <button type="submit" disabled={loading}
-                className="w-full min-h-[44px] rounded-lg text-lg font-bold focus:outline-none disabled:opacity-60"
-                style={{ color: GOLD, background: METALLIC_GREEN, border: `1.5px solid ${GOLD_BORDER}` }}>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full min-h-[44px] rounded-lg text-lg font-bold text-white bg-emerald-500/90 hover:bg-emerald-400 focus:outline-none disabled:opacity-60 transition"
+              >
                 {loading ? "Submitting..." : "Inquire Now"}
               </button>
             </div>
@@ -439,7 +416,10 @@ export default function GetQuotationForm({
 /* ---------- Atoms ---------- */
 function Label({ children, htmlFor }) {
   return (
-    <label htmlFor={htmlFor} className="block mb-2 text-sm font-semibold" style={{ color: GOLD }}>
+    <label
+      htmlFor={htmlFor}
+      className="block mb-2 text-sm font-semibold text-emerald-400"
+    >
       {children}
     </label>
   );
@@ -471,12 +451,7 @@ function Field({
         ref={inputRef}
         autoComplete={autoComplete}
         inputMode={inputMode}
-        className="w-full p-4 rounded-lg text-base"
-        style={{
-          color: TEXT_SOFT,
-          background: INPUT_BG,
-          border: `1px solid ${INPUT_BORDER}`,
-        }}
+        className="w-full p-4 rounded-lg text-base bg-[#051111]/70 border border-[#00ffb3]/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400"
       />
     </div>
   );

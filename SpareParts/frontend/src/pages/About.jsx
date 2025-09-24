@@ -1,5 +1,5 @@
 // src/pages/About.jsx
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage, placeholder, responsive } from "@cloudinary/react";
@@ -25,6 +25,14 @@ export default function About() {
     navigate("/");
   };
 
+  // ✅ Lock body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   // ✅ Neon green divider
   const GreenDivider = () => (
     <div
@@ -49,16 +57,21 @@ export default function About() {
                    bg-[#051111]/80 border border-[#00ffb3]/30 backdrop-blur-2xl
                    shadow-[0_0_25px_rgba(0,255,179,0.08),inset_0_0_10px_rgba(255,255,255,0.03)]
                    w-full max-w-[95%] sm:max-w-[90%] md:max-w-4xl lg:max-w-7xl 
-                   max-h-[94vh] overflow-y-auto
+                   h-[94vh] overflow-y-auto
                    mx-auto
                    p-6 sm:p-10 lg:p-16 space-y-14 scroll-smooth"
         data-aos="zoom-in"
       >
-        {/* Close button */}
+        {/* Close button (safe-area aware) */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-emerald-400 hover:text-emerald-300 
-                     transition-transform transform hover:scale-110"
+          className="absolute z-50 text-emerald-400 hover:text-emerald-300 
+                     transition-transform transform hover:scale-110 
+                     bg-black/40 rounded-full p-2"
+          style={{
+            top: "calc(env(safe-area-inset-top, 0px) + 1rem)",
+            right: "1rem",
+          }}
         >
           <FaTimes size={26} />
         </button>

@@ -1,5 +1,5 @@
 // src/pages/Contact.jsx
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaTimes } from "react-icons/fa";
 
@@ -10,6 +10,14 @@ export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  // ✅ Prevent body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
 
   const handleClickOutside = (e) => {
     if (modalRef.current && !modalRef.current.contains(e.target)) {
@@ -60,17 +68,22 @@ export default function Contact() {
     >
       <div
         ref={modalRef}
-        className="relative w-full max-w-6xl max-h-[95vh] overflow-y-auto
+        className="relative w-full max-w-6xl h-[95vh] overflow-y-auto
                    rounded-2xl bg-[#051111]/80 border border-[#00ffb3]/30 
                    backdrop-blur-2xl p-8 sm:p-12 lg:p-16
                    shadow-[0_0_25px_rgba(0,255,179,0.08),inset_0_0_10px_rgba(255,255,255,0.03)]"
         data-aos="fade-up"
       >
-        {/* Close button (emerald X only) */}
+        {/* Close button (safe-area aware) */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-emerald-400 hover:text-emerald-300 
-                     transition-transform transform hover:scale-110"
+          className="absolute z-50 text-emerald-400 hover:text-emerald-300 
+                     transition-transform transform hover:scale-110 
+                     bg-black/40 rounded-full p-2"
+          style={{
+            top: "calc(env(safe-area-inset-top, 0px) + 1rem)",
+            right: "1rem",
+          }}
         >
           <FaTimes size={26} />
         </button>
