@@ -16,17 +16,23 @@ export default function AdminLogin() {
     e.preventDefault();
     setError("");
     setLoading(true);
+
     try {
       const user = await login(email, password);
 
-      // redirect back to requested admin page, or default dashboard
+      // ✅ Always send admins to dashboard after login
+      // If user came from a protected admin page, send them back there
       const dest =
-        location.state?.from?.pathname?.startsWith("/admin")
+        location.state?.from?.pathname?.startsWith("/admin") &&
+        location.state.from.pathname !== "/admin/login"
           ? location.state.from.pathname
-          : "/admin";
+          : "/admin/dashboard";
+
       navigate(dest, { replace: true });
     } catch (err) {
-      setError(err?.response?.data?.message || "Login failed. Check your email/password.");
+      setError(
+        err?.response?.data?.message || "Login failed. Check your email/password."
+      );
     } finally {
       setLoading(false);
     }
@@ -38,12 +44,18 @@ export default function AdminLogin() {
         onSubmit={handleLogin}
         className="bg-[#0B1C1F] text-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-yellow-400"
       >
-        <h2 className="mb-1 text-3xl font-bold text-center text-yellow-400">Admin Sign In</h2>
-        <p className="mb-6 text-center text-gray-400">Use your admin credentials</p>
+        <h2 className="mb-1 text-3xl font-bold text-center text-yellow-400">
+          Admin Sign In
+        </h2>
+        <p className="mb-6 text-center text-gray-400">
+          Use your admin credentials
+        </p>
 
         <div className="space-y-4">
           <div>
-            <label className="block mb-1 text-sm font-medium text-yellow-400">Email</label>
+            <label className="block mb-1 text-sm font-medium text-yellow-400">
+              Email
+            </label>
             <input
               type="email"
               value={email}
@@ -55,7 +67,9 @@ export default function AdminLogin() {
           </div>
 
           <div>
-            <label className="block mb-1 text-sm font-medium text-yellow-400">Password</label>
+            <label className="block mb-1 text-sm font-medium text-yellow-400">
+              Password
+            </label>
             <input
               type="password"
               value={password}

@@ -39,13 +39,8 @@ function HomePage({ onInquire, heroPlay }) {
   return (
     <>
       <Navbar />
-
-      {/* ✅ Video only plays when heroPlay === true */}
       <Hero play={heroPlay} />
-
-      {/* 🌍 Futuristic interactive world map with right-side copy */}
       <WorldMapShowcase />
-
       <TrackOrderSearch />
       <BrandLogos onInquire={onInquire} />
       <ServicesSection onInquire={onInquire} />
@@ -58,12 +53,9 @@ function HomePage({ onInquire, heroPlay }) {
 
 /* ---------------- App root ---------------- */
 function App() {
-  // 🔑 Controls LandingScreen and when the Hero video starts
   const [started, setStarted] = useState(false);
-
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState("");
-
   const location = useLocation();
 
   useEffect(() => {
@@ -78,7 +70,7 @@ function App() {
   return (
     <AuthProvider>
       <div className="relative min-h-screen bg-app text-soft">
-        {/* Splash overlay that blocks the UI until clicked */}
+        {/* Splash overlay until started */}
         {!started && <LandingScreen onStart={() => setStarted(true)} />}
 
         <AnimatePresence mode="wait">
@@ -100,11 +92,12 @@ function App() {
             <Route path="/services" element={<Services />} />
             <Route path="/contact" element={<Contact />} />
 
-            {/* Admin login + protected area */}
+            {/* ✅ Admin login (public) */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<RequireAuth />}>
-              <Route index element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="dashboard" element={<AdminDashboard />} />
+
+            {/* ✅ Protected admin routes */}
+            <Route element={<RequireAuth />}>
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
             </Route>
 
             <Route path="/profile" element={<Profile />} />
@@ -115,7 +108,7 @@ function App() {
           </Routes>
         </AnimatePresence>
 
-        {/* Inquiry form (CTA in navbar & elsewhere) */}
+        {/* Inquiry modal */}
         <GetQuotationForm
           isOpen={isInquiryOpen}
           onClose={() => setIsInquiryOpen(false)}
