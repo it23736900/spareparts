@@ -32,40 +32,30 @@ export default function TestimonialCarousel() {
     AOS.init({ duration: 800, once: true });
   }, []);
 
-  return (
-    <section id="testimonials" className="relative py-16 sm:py-20">
-      <div className="mx-auto max-w-6xl px-4">
-        {/* 🔥 Gold-gradient last word */}
-        <h2
-          className="text-center text-3xl md:text-4xl font-extrabold text-white"
-          data-aos="fade-up"
-        >
-          What Our Clients{" "}
-          <span
-            className="bg-clip-text text-transparent"
-            style={{
-              backgroundImage:
-                "linear-gradient(90deg, #FFD95A 0%, #D4AF37 100%)",
-            }}
-          >
-            Say
-          </span>
-        </h2>
+  const DARK_GREEN = "#014421";
 
-        {/* Gold divider */}
-        <div
-          className="mx-auto mt-3 mb-8 h-[2px] w-28 rounded-full"
+  return (
+    <section
+      id="testimonials"
+      className="relative py-16 sm:py-20"
+      style={{
+        background: "linear-gradient(180deg, #050505 0%, #0A1A15 50%, #050505 100%)",
+      }}
+    >
+      <div className="max-w-6xl px-4 mx-auto">
+        {/* Title */}
+        <h2
+          className="mb-12 text-3xl font-extrabold text-center text-transparent sm:text-4xl bg-clip-text"
           style={{
-            background:
-              "linear-gradient(90deg, transparent, #FFD95A 20%, #D4AF37 60%, transparent)",
-            boxShadow:
-              "0 0px 12px rgba(212,175,55,0.6), 0 0 36px rgba(212,175,55,0.35)",
-            filter: "blur(0.3px)",
+            backgroundImage: "linear-gradient(white, white, #111111)",
           }}
           data-aos="fade-up"
-          data-aos-delay="100"
-        />
+        >
+          What Our Clients Say
+        </h2>
 
+      
+        {/* Carousel */}
         <div data-aos="fade-up" data-aos-delay="200">
           <Swiper
             modules={[Autoplay]}
@@ -83,33 +73,34 @@ export default function TestimonialCarousel() {
               <SwiperSlide key={i} className="h-full">
                 <div
                   className="
-                    group relative overflow-hidden rounded-2xl p-6
+                    relative rounded-2xl p-6
                     h-full min-h-[240px] sm:min-h-[260px]
-                    bg-card
-                    border border-emerald-500/25
                     transition-all
-                    will-change-transform
                     shadow-[0_18px_40px_-16px_rgba(0,0,0,0.55)]
-                    hover:-translate-y-[4px]
-                    hover:shadow-[0_18px_60px_-24px_rgba(23,167,122,0.45)]
                   "
+                  style={{
+                    background: "linear-gradient(135deg, #0B1C1F 0%, #07110F 100%)",
+                    border: `1px solid ${DARK_GREEN}`,
+                    boxShadow: `0 0 15px rgba(1, 68, 33, 0.35)`,
+                  }}
                 >
-                  <div className="mb-3 text-4xl leading-none text-emerald-300/90 select-none">
+                  {/* Quote icon */}
+                  <div className="mb-3 text-4xl leading-none select-none text-emerald-400/90">
                     “
                   </div>
 
-                  <p className="text-[15px] leading-relaxed text-[#cfe2df]">
+                  {/* Message */}
+                  <p className="text-[15px] leading-relaxed text-gray-200 font-light">
                     {t.message}
                   </p>
 
+                  {/* Author */}
                   <div className="flex items-center gap-3 mt-6">
-                    <span className="block h-[1px] w-8 bg-emerald-400/70" />
-                    <span className="text-sm font-semibold luxury-gold">
+                    <span className="block h-[1px] w-8 bg-emerald-500/70" />
+                    <span className="text-sm font-semibold text-[#FFD95A]">
                       {t.name}
                     </span>
-                    <span className="text-sm text-[#cfe2df]/70">
-                      ({t.location})
-                    </span>
+                    <span className="text-sm text-gray-400">({t.location})</span>
                   </div>
                 </div>
               </SwiperSlide>

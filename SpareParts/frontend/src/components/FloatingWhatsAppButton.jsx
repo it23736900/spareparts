@@ -28,7 +28,7 @@ const FloatingWhatsAppButton = () => {
 
   const handleWhatsAppClick = () => {
     // Replace with your actual WhatsApp business number (with country code, no + sign)
-    const phoneNumber = "94785264854"; // Example: Sri Lankan number
+    const phoneNumber = "+94770556247"; // Example: Sri Lankan number
     
     // Pre-filled message
     const message = encodeURIComponent(

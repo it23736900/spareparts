@@ -3,7 +3,7 @@ import { AdvancedVideo } from '@cloudinary/react';
 import { fill } from '@cloudinary/url-gen/actions/resize';
 
 const cld = new Cloudinary({
-  cloud: { cloudName: 'dnk3tgxht' },
+  cloud: { cloudName: 'dznt9s0j8' },
 });
 
 const CloudinaryVideo = ({ publicId, width, height }) => {

@@ -1,3 +1,4 @@
+// src/components/WorldMapShowcase.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { geoEqualEarth, geoPath, geoInterpolate } from "d3-geo";
 import { feature } from "topojson-client";
@@ -32,7 +33,7 @@ function FlagPin({ x, y, size = 24, flagUrl }) {
           <circle cx="0" cy="0" r={r - 1} />
         </clipPath>
       </defs>
-      <circle cx="0" cy="0" r={r + 4} fill="rgba(23,167,122,0.2)" />
+      <circle cx="0" cy="0" r={r + 4} fill="rgba(23,167,122,0.25)" />
       <image
         href={flagUrl}
         x={-r}
@@ -57,7 +58,7 @@ export default function WorldMapShowcase() {
     if (!wrapRef.current) return;
     const ro = new ResizeObserver(([entry]) => {
       const width = entry.contentRect.width;
-      const h = Math.max(420, Math.min(780, width * 0.52));
+      const h = Math.max(420, Math.min(720, width * 0.48));
       setSize({ w: Math.round(width), h: Math.round(h) });
     });
     ro.observe(wrapRef.current);
@@ -99,16 +100,35 @@ export default function WorldMapShowcase() {
   const slXY = projection(SL);
 
   return (
-    <section className="relative w-full bg-transparent">
+    <section
+  className="relative w-full"
+  style={{
+    background: `
+      linear-gradient(
+        180deg,
+        #050505 0%,     /* top black */
+        #081513 30%,   /* dark green tint */
+        #0B1C1F 60%,   /* same as site theme */
+        #050505 100%   /* fades to bottom black */
+      )
+    `,
+  }}
+>
       <style>{`
-        @keyframes dash { to { stroke-dashoffset: -1000; } }
-        .route-dash-anim { stroke-dasharray: 6 8; animation: dash 18s linear infinite; }
+        @keyframes dashFlow {
+          to { stroke-dashoffset: -1000; }
+        }
+        .route-anim {
+          stroke-dasharray: 6 12;
+          stroke-dashoffset: 0;
+          animation: dashFlow 25s linear infinite;
+        }
       `}</style>
 
       <div ref={wrapRef} className="relative w-full" style={{ height: `${H}px` }}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="absolute inset-0 w-full h-full z-0 pointer-events-none"
+          className="absolute inset-0 z-0 w-full h-full pointer-events-none"
         >
           {/* Map */}
           {world &&
@@ -117,58 +137,40 @@ export default function WorldMapShowcase() {
                 key={feat.id}
                 d={pathGen(feat)}
                 style={{
-                  fill: "#0b3536",
+                  fill: "#0B1C1F", // ✅ matches dark green bg
                   stroke: ACCENT,
                   strokeWidth: 0.5,
                 }}
               />
             ))}
 
-          {/* Route (lighter on mobile, glowing only on desktop) */}
+          {/* Animated Route */}
           <path
             d={routeD}
-            stroke={isMobile ? "#18e0a8" : "url(#routeGrad)"}
+            stroke="#D4AF37"
             strokeWidth={isMobile ? 2 : 3}
             fill="none"
-            className="route-dash-anim"
+            style={{ strokeLinecap: "round" }}
+            className="route-anim"
           />
-
-          {!isMobile && (
-            <path
-              d={routeD}
-              stroke="#D4AF37"
-              strokeWidth="3.2"
-              fill="none"
-              style={{ strokeLinecap: "round" }}
-            />
-          )}
 
           {/* Flags */}
           {ukXY && <FlagPin x={ukXY[0]} y={ukXY[1]} flagUrl={FLAG_UK} />}
           {slXY && <FlagPin x={slXY[0]} y={slXY[1]} flagUrl={FLAG_SL} />}
         </svg>
 
-        {/* Overlay content */}
-        <div className="absolute inset-y-0 left-0 flex items-center z-20">
-          <div className="px-4 sm:px-6 md:px-8 w-[92vw] sm:w-[72vw] md:w-[52vw] lg:w-[46vw] xl:w-[42vw]">
+        {/* Overlay Content */}
+        <div className="absolute inset-y-0 left-0 z-20 flex items-center">
+          <div className="px-4 sm:px-6 md:px-8 w-[95vw] sm:w-[80vw] md:w-[60vw] lg:w-[50vw] xl:w-[46vw]">
             <div
-              className="rounded-2xl p-5 sm:p-6 md:p-7 backdrop-blur-md"
+              className="p-6 sm:p-7 md:p-8 rounded-2xl backdrop-blur-md"
               style={{
                 background:
-                  "linear-gradient(180deg, rgba(6,20,23,0.60), rgba(6,20,23,0.38))",
-                border: "1px solid rgba(23,167,122,.25)",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+                  "rgba(5, 15, 10, 0.7)", // ✅ more dark transparent
+                border: "1px solid #0d5e46", // ✅ luxury green border
+                boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
               }}
             >
-              <h2
-                className="mb-4 sm:mb-5 font-extrabold"
-                style={{
-                  color: ACCENT,
-                  fontSize: "clamp(1.4rem, 2.8vw, 2.1rem)",
-                }}
-              >
-                Global Sourcing, Local Confidence
-              </h2>
               <IntroParagraph />
             </div>
           </div>

@@ -7,7 +7,7 @@ import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
 const CloudinaryImage = ({ publicId, width = 500, height = 500 }) => {
   const cld = new Cloudinary({
     cloud: {
-      cloudName: 'dnk3tgxht', // 🔁 replace with your actual Cloudinary name
+      cloudName: 'dznt9s0j8', // 🔁 replace with your actual Cloudinary name
     },
   });
 

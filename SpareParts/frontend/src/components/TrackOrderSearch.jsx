@@ -79,22 +79,34 @@ export default function TrackOrderSearch() {
 
   return (
     <section
-      className="px-6 py-16 sm:py-20 bg-transparent"
-      aria-label="Track your order"
+      className="px-4 py-16 sm:px-6 lg:px-8 sm:py-20"
+      style={{
+        background: `
+          linear-gradient(
+            180deg,
+            #050505 0%,
+            #0A0F0D 25%,
+            #0A1A15 55%,
+            #06110D 80%,
+            #050505 100%
+          )
+        `,
+      }}
     >
       <div className="max-w-4xl mx-auto text-center text-soft">
         {/* Heading — only last word gradient */}
-        <h2 className="text-3xl font-extrabold md:text-4xl text-white">
-          Track Your <span className="luxury-gold">Order</span>
-        </h2>
-
-        <div
-          className="h-[2px] w-48 mx-auto my-4 rounded-full"
+        
+        <div className="max-w-6xl mx-auto mb-10 text-center md:mb-12">
+        <h2
+          className="text-2xl font-extrabold text-center text-transparent sm:text-3xl md:text-4xl lg:text-5xl bg-clip-text"
           style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(212,175,55,0.9), transparent)",
+            backgroundImage: "linear-gradient(white, white, #111111)",
           }}
-        />
+        >
+          Track Your Order
+        </h2>
+      </div>
+       
 
         {/* Input group */}
         <div className="relative max-w-2xl mx-auto mt-6">

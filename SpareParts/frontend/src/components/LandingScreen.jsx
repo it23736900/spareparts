@@ -4,8 +4,8 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 
 // Cloudinary
-const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
-const engineStartImg = cld.image("startengine_j1ahyv").format("auto").quality("auto");
+const cld = new Cloudinary({ cloud: { cloudName: "dznt9s0j8" } });
+const engineStartImg = cld.image("24_auqdzg").format("auto").quality("auto");
 
 const LandingScreen = ({ onStart, showSkip = true }) => {
   const [clicked, setClicked] = useState(false);

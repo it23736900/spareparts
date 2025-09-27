@@ -2,15 +2,14 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// --- Demo stock loops (free GIFs/WEBPs hosted externally) ---
-// You can later replace these with Cloudinary links if you want full control
+// --- Demo media (replace with Cloudinary later if needed) ---
 const DEMO_MEDIA = {
-  inquiry: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGF5OThlMmRwOXQydDFxYWl4eWFmOTdtcG5zZDhldGdwb2t1dmp0NSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3ohryiYkE0DVwdLAys/giphy.gif", // writing
-  touch: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2x2b29sY2NoNzhkZ3cwMGkyNnhtcGFpMXptZzJzdzJqMDAzeHhxeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/W4Q5C6bHBwa8sgWbS0/giphy.gif", // talking headset
-  quote: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbGJ5bG80Yzd4MjB1Z2dhYWsxMXVpaGlyeDN0aXN5OXVqZ2xxNzN6aiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/rR6yiFP9KLBmus6dvE/giphy.gif", // document/price
-  payment: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZWQxOGdpOHZha2F3aWs1ZDFpbmg4OXloYjEyamZmbGltYnQ0OTc4dSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/I90rL3aw7iwFNIu2qO/giphy.gif", // credit card
-  logistics: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3anJsdzhseTg3ams1dnozcGR3a2NsMWJmajJwcXF2YWZodDFlYzRvaCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/JogBOCr1eDSQxxAMNk/giphy.gif", // truck
-  delivered: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdDBlOGF1c2wwcXlqbWhxZ3h3eHlrZ2loNHp1b2NpM2o3aTZsMmZ2NiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/yQqNPOdGMexumRMxVP/giphy.gif", // package delivery
+  inquiry: "https://media.giphy.com/media/3ohryiYkE0DVwdLAys/giphy.gif",
+  touch: "https://res.cloudinary.com/dznt9s0j8/image/upload/v1758807541/we_get_in_touch_roaopi.gif",
+  quote: "https://res.cloudinary.com/dznt9s0j8/image/upload/v1758807962/receive_a_quotation_wbv41c.gif",
+  payment: "https://media.giphy.com/media/I90rL3aw7iwFNIu2qO/giphy.gif",
+  logistics: "https://res.cloudinary.com/dznt9s0j8/image/upload/v1758808028/logistics_coprdination_cqzfxh.png",
+  delivered: "https://assets-v2.lottiefiles.com/a/4fae1352-1178-11ee-ba24-eb0cb26a3211/OdQXXyGM51.gif",
 };
 
 const SERVICES = [
@@ -59,30 +58,63 @@ function ServiceCard({ item, active, onToggle }) {
   return (
     <motion.div
       ref={cardRef}
-      whileHover={{ translateY: -4, boxShadow: "0 18px 60px -24px rgba(23,167,122,0.45)" }}
+      whileHover={{ translateY: -4 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
-      className="group relative overflow-hidden rounded-2xl p-6 bg-card border border-emerald-500/25"
+      className="relative p-6 overflow-hidden group rounded-2xl backdrop-blur-xl"
+      style={{
+        background: "rgba(0,0,0,0.75)", // black card
+        border: "1px solid rgba(1,68,33,0.6)", // thin dark green line
+      }}
     >
       {/* Media circle */}
-      <div className="relative h-28 flex items-center justify-center">
-        <div className="relative w-24 h-24 rounded-full overflow-hidden border border-emerald-400/30 shadow-lg">
+      <div className="relative flex items-center justify-center h-28">
+        <div
+          className="relative w-24 h-24 overflow-hidden rounded-full shadow-md"
+          style={{ border: "1px solid rgba(1,68,33,0.6)" }}
+        >
           <img
             src={DEMO_MEDIA[item.id]}
             alt={item.title}
-            className="w-full h-full object-cover"
+            className="object-cover w-full h-full"
           />
         </div>
       </div>
 
       {/* Title */}
-      <h3 className="mt-2 text-xl font-extrabold text-emerald-300 text-center">{item.title}</h3>
-      <p className="mt-2 text-center text-sm text-[#cfe2df] leading-relaxed">{item.blurb}</p>
+      <h3
+        className="mt-3 text-xl font-extrabold text-center"
+        style={{ color: "#E3C85C" }}
+      >
+        {item.title}
+      </h3>
+
+      {/* Blurb */}
+      <p className="mt-2 text-sm leading-relaxed text-center text-white">
+        {item.blurb}
+      </p>
 
       {/* Button */}
-      <div className="mt-4 flex items-center justify-center gap-3">
+      <div className="flex items-center justify-center mt-4">
         <button
           onClick={() => onToggle(isOpen ? null : item.id)}
-          className="px-4 py-2 rounded-full text-sm font-semibold border border-emerald-400/45 text-[#cfe2df] hover:text-emerald-300 transition-all"
+          className="px-5 py-2 text-sm font-semibold transition-all rounded-full"
+          style={{
+            background: "black",
+            border: "1px solid #014421",
+            color: "white",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#E3C85C";
+            e.currentTarget.style.color = "#000";
+            e.currentTarget.style.border = "1px solid #E3C85C";
+            e.currentTarget.style.boxShadow = "0 0 16px rgba(227,200,92,0.4)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "black";
+            e.currentTarget.style.color = "white";
+            e.currentTarget.style.border = "1px solid #014421";
+            e.currentTarget.style.boxShadow = "none";
+          }}
         >
           {isOpen ? "Hide details" : "View details"}
         </button>
@@ -98,10 +130,10 @@ function ServiceCard({ item, active, onToggle }) {
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <ul className="mt-4 space-y-2 text-[14px] text-[#d9eee9]">
+            <ul className="mt-4 space-y-2 text-[14px] text-white">
               {item.details.map((d, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <span className="mt-[6px] block w-[6px] h-[6px] rounded-full bg-emerald-400" />
+                  <span className="mt-[6px] block w-[6px] h-[6px] rounded-full bg-[#014421]" />
                   <span>{d}</span>
                 </li>
               ))}
@@ -115,16 +147,44 @@ function ServiceCard({ item, active, onToggle }) {
 
 export default function ServicesShowcase() {
   const [active, setActive] = useState(null);
+
   return (
-    <section className="relative py-16 sm:py-20">
-      <div className="mx-auto max-w-6xl px-4">
-        <h2 className="text-center text-3xl md:text-4xl font-extrabold mb-10">
-          We Complete Every Step <span className="luxury-gold">Carefully</span>
+    <section
+      className="relative py-16 sm:py-20"
+ style={{
+  background: `
+    linear-gradient(
+      180deg,
+      #050505 0%,        /* pure blackish at top for headings */
+      #0A0F0D 25%,       /* slight green tint */
+      #0A1A15 55%,       /* richer dark green */
+      #06110D 80%,       /* deep green-black */
+      #050505 100%       /* fade back to black at bottom */
+    )
+  `,
+}}
+
+    >
+      <div className="max-w-6xl px-4 mx-auto">
+        {/* Section Heading */}
+        <h2
+          className="mb-10 text-2xl font-extrabold text-center text-transparent sm:text-3xl md:text-4xl bg-clip-text"
+          style={{
+            backgroundImage: "linear-gradient(white, white, black)",
+          }}
+        >
+          We Complete Every Step Carefully
         </h2>
 
-        <div className="grid gap-6 sm:gap-7 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 gap-6 sm:gap-7 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map((s) => (
-            <ServiceCard key={s.id} item={s} active={active} onToggle={setActive} />
+            <ServiceCard
+              key={s.id}
+              item={s}
+              active={active}
+              onToggle={setActive}
+            />
           ))}
         </div>
       </div>

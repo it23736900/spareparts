@@ -3,33 +3,48 @@ import AnimatedBrandWord from "./AnimatedBrandWord";
 
 export default function IntroParagraph() {
   const pStyle = {
-    // slightly smaller than before
-    fontSize: "clamp(1rem, 1.6vw, 1.15rem)",
-    lineHeight: 1.7,
-    color: "#E8ECEA", // all white (soft)
+    fontSize: "clamp(0.9rem, 1.5vw, 1.1rem)",
+    lineHeight: 1.6,
+    color: "#FFFFFF", // all text white
   };
 
-  // “highlight” now just keeps white + bold (no color change)
   const Highlight = ({ children }) => (
-    <span style={{ color: "#E8ECEA", fontWeight: 700 }}>{children}</span>
+    <span style={{ color: "#FFFFFF", fontWeight: 700 }}>{children}</span>
   );
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div
+      className="p-6 space-y-4 sm:space-y-5 rounded-2xl sm:p-8"
+      style={{
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        boxShadow: "0 8px 28px rgba(0,0,0,0.45)", // soft shadow
+      }}
+    >
+      {/* Heading styled like About Us */}
+      <h2
+        className="mb-4 font-extrabold text-transparent sm:mb-5 bg-clip-text"
+        style={{
+          backgroundImage: "linear-gradient(white, gray,white )",
+          fontSize: "clamp(1.4rem, 2.8vw, 2.1rem)",
+        }}
+      >
+        Global Sourcing, Local Confidence
+      </h2>
+
       <p style={pStyle}>
         We specialize in importing and supplying{" "}
         <Highlight>genuine, high-quality European car parts</Highlight> and
-        spares across Sri Lanka. Based in Colombo, we source used parts
-        directly from the UK — including from our own breaker’s yard — to
-        deliver trusted quality at great value.
+        spares across Sri Lanka. Based in Colombo, we source used parts directly
+        from the UK  including from our own breaker’s yard to deliver trusted
+        quality at great value.
       </p>
 
-      {/* Text line, then the animated brand word below (emerald, not gold) */}
       <div>
         <p style={pStyle} className="mb-2">
-          Our range includes parts for leading European brands, specially:
-        </p>
-        <AnimatedBrandWord accent="emerald" />
+          Our range includes parts for leading European brands, specially : 
+         < AnimatedBrandWord accent ="white" /> </p>
+       
       </div>
 
       <p style={pStyle}>

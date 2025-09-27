@@ -12,7 +12,7 @@ import { FaTools, FaCarSide, FaMicrochip } from "react-icons/fa";
 /* =========================
    Cloudinary setup
    ========================= */
-const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
+const cld = new Cloudinary({ cloud: { cloudName: "dznt9s0j8" } });
 const clImg = (id) =>
   cld
     .image(id)
@@ -21,18 +21,19 @@ const clImg = (id) =>
     .resize(clAuto().width(1600));
 
 /* =========================
-   THEME
+   THEME COLORS
    ========================= */
-const ACCENT = "#17A77A";
+const DARK_GREEN = "#014421";
+const LIGHT_YELLOW = "#E3C85C";
 
 /* =========================
    IMAGES (Cloudinary IDs)
    ========================= */
 const CLOUD_IMAGES = {
-  engine: "engine_usewdv",
-  mechanical: "mechanical_xjbgoi",
-  body: "bodypart_aep6hj",
-  electronic: "electronic_a92a01",
+  engine: "engine_usewdv_lqoswe",
+  mechanical: "mechanical_xjbgoi_iusj8u",
+  body: "pexels-maxavans-5066559_paewy1",
+  electronic: "electronic_a92a01_etopkr",
 };
 
 /* =========================
@@ -85,37 +86,35 @@ const fadeUp = {
 
 export default function ServicesSection() {
   return (
-    <section className="bg-transparent px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+    <section
+      className="px-4 py-16 sm:px-6 lg:px-8 sm:py-20"
+      style={{
+        background: `
+          linear-gradient(
+            180deg,
+            #050505 0%,
+            #0A0F0D 25%,
+            #0A1A15 55%,
+            #06110D 80%,
+            #050505 100%
+          )
+        `,
+      }}
+    >
       {/* Heading */}
-      <div className="max-w-6xl mx-auto text-center mb-10 md:mb-12">
-        <h2 className="mb-1 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white">
-          Our <span className="luxury-gold">Expertise</span>
-        </h2>
-        <div
-          className="mx-auto mt-3 h-[2px] w-36 rounded-full"
+      <div className="max-w-6xl mx-auto mb-10 text-center md:mb-12">
+        <h2
+          className="text-2xl font-extrabold text-center text-transparent sm:text-3xl md:text-4xl lg:text-5xl bg-clip-text"
           style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(212,175,55,0.9), transparent)",
+            backgroundImage: "linear-gradient(white, white, #111111)",
           }}
-        />
+        >
+          Our Expertise
+        </h2>
       </div>
 
-      <style>{`
-        .luxury-gold {
-          background: linear-gradient(90deg, #FFD95A, #E8B923, #FFD95A);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: shine 3s linear infinite;
-        }
-        @keyframes shine {
-          0% { background-position: 0% center; }
-          100% { background-position: 200% center; }
-        }
-      `}</style>
-
       {/* Grid */}
-      <div className="max-w-6xl mx-auto grid gap-6 sm:gap-8 md:grid-cols-2">
+      <div className="grid max-w-6xl gap-6 mx-auto sm:gap-8 md:grid-cols-2">
         {services.map((s, i) => (
           <motion.article
             key={s.key}
@@ -124,16 +123,8 @@ export default function ServicesSection() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}
-            className="
-              group relative rounded-2xl border bg-card
-              hover:scale-[1.015] transition-transform
-              backdrop-blur-[4px] hover:backdrop-blur-[8px]
-              flex flex-col overflow-hidden
-            "
-            style={{
-              borderColor: "rgba(23,167,122,0.35)",
-              boxShadow: "0 14px 34px rgba(0,0,0,0.45)",
-            }}
+            className="relative flex flex-col overflow-hidden transition-all duration-300 ease-out bg-black border group rounded-2xl"
+            style={{ borderColor: DARK_GREEN }}
           >
             {/* ===== Media ===== */}
             <div className="relative aspect-[16/9] overflow-hidden">
@@ -143,39 +134,39 @@ export default function ServicesSection() {
                     cldImg={clImg(s.imageId)}
                     loading="lazy"
                     plugins={[lazyload(), placeholder({ mode: "blur" })]}
-                    className="w-full h-full object-cover will-change-transform"
+                    className="object-cover w-full h-full"
                     alt={s.title}
                     fetchpriority={i === 0 ? "high" : "auto"}
                   />
+                  {/* Overlay */}
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
                       background:
-                        "radial-gradient(120% 120% at 50% 0%, rgba(23,167,122,0.10), rgba(0,0,0,0) 60%), linear-gradient(180deg, rgba(2,10,18,0) 40%, rgba(2,10,18,0.55))",
+                        "linear-gradient(180deg, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.8))",
                     }}
                   />
+                  {/* Inner border line */}
                   <div
                     className="absolute inset-3 rounded-2xl"
                     style={{
-                      boxShadow: "inset 0 0 0 1px rgba(23,167,122,0.30)",
+                      boxShadow: `inset 0 0 0 1px ${DARK_GREEN}`,
                     }}
                   />
                 </>
               ) : (
                 <div
-                  className="grid place-items-center h-full"
+                  className="grid h-full place-items-center"
                   style={{
                     background:
-                      "radial-gradient(120% 90% at 20% 10%, rgba(23,167,122,0.10), transparent 55%), radial-gradient(120% 90% at 80% 90%, rgba(16,94,66,0.10), transparent 55%), linear-gradient(180deg, rgba(9,20,26,0.92), rgba(6,16,22,0.92))",
+                      "linear-gradient(180deg, rgba(12,28,22,0.95), rgba(5,15,10,0.95))",
                   }}
                 >
                   <div
-                    className="rounded-2xl p-5"
+                    className="p-5 rounded-2xl"
                     style={{
-                      border: "1px solid rgba(23,167,122,0.35)",
-                      boxShadow: "0 0 32px 6px rgba(23,167,122,0.18)",
-                      color: ACCENT,
-                      textShadow: "0 0 10px rgba(23,167,122,0.28)",
+                      border: `1px solid ${DARK_GREEN}`,
+                      color: LIGHT_YELLOW,
                     }}
                   >
                     {s.icon}
@@ -185,20 +176,25 @@ export default function ServicesSection() {
             </div>
 
             {/* ===== Body ===== */}
-            <div className="p-5 md:p-6 flex flex-col items-center text-center gap-3">
+            <div className="flex flex-col items-center gap-3 p-5 text-center md:p-6">
               <h3
                 className="text-xl md:text-[22px] font-extrabold"
-                style={{
-                  color: ACCENT,
-                  textShadow: "0 0 10px rgba(23,167,122,0.28)",
-                }}
+                style={{ color: LIGHT_YELLOW }}
               >
                 {s.title}
               </h3>
-              <p className="text-white/85 leading-relaxed text-[0.98rem]">
+              <p className="text-white leading-relaxed text-[0.98rem]">
                 {s.desc}
               </p>
             </div>
+
+            {/* Hover effect border glow */}
+            <style>{`
+              .group:hover {
+                box-shadow: 0 0 14px rgba(1,68,33,0.45);
+                transform: scale(1.012);
+              }
+            `}</style>
           </motion.article>
         ))}
       </div>

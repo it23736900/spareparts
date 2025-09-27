@@ -1,20 +1,16 @@
 import React from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
-import { AdvancedImage, AdvancedVideo } from "@cloudinary/react";
-import { auto } from "@cloudinary/url-gen/actions/resize";
+import { AdvancedVideo } from "@cloudinary/react";
 import { format, quality } from "@cloudinary/url-gen/actions/delivery";
 
 // Cloudinary config
-const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
+const cld = new Cloudinary({ cloud: { cloudName: "dznt9s0j8" } });
 
-// 🎥 Optimized Video
+// Optimized Video
 const video = cld
-  .video("0829_6_yqjseg")
+  .video("0829_6_adqkzz")
   .delivery(format("auto"))
   .delivery(quality("auto"));
-
-
-
 
 const Hero = () => {
   return (
@@ -24,7 +20,7 @@ const Hero = () => {
         pt-[80px] md:pt-[90px]
       "
     >
-      {/* 🔲 Background Video */}
+      {/* Background Video */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <AdvancedVideo
           cldVid={video}
@@ -35,31 +31,46 @@ const Hero = () => {
           poster="auto"
           className="object-cover w-full h-full transition-transform duration-700 ease-in-out group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#0B1C1F]/80" />
       </div>
 
-      {/* 🔲 Foreground Content */}
+      {/* Foreground Content */}
       <div className="relative z-10 flex items-center justify-start h-full px-6 sm:px-10">
         <div className="max-w-xl space-y-6">
-          
-          
+          {/* Heading */}
+          <h1 className="font-bold leading-[1.05] tracking-tight text-left">
+  <span
+    className="block whitespace-nowrap text-[clamp(2rem,8vw,5.5rem)] text-transparent bg-clip-text"
+    style={{
+      backgroundImage:
+        "linear-gradient(  #ffffff 100%)",
+      
+      WebkitTextStroke: "1px rgba(0,0,0,0.3)", // sharper edge for premium feel
+    }}
+  >
+    Premium&nbsp;Used
+  </span>
 
-          {/* 🏷️ Heading */}
-          <h1 className="font-bold text-white leading-[1.05] tracking-tight">
-            <span className="block whitespace-nowrap text-[clamp(2rem,8vw,5.5rem)]">
-              Premium&nbsp;Used
-            </span>
-            <span className="block text-[clamp(1.6rem,6vw,3.75rem)] text-white/90">
-              Vehicle Parts
-            </span>
-          </h1>
+  <span
+    className="block text-[clamp(1.6rem,6vw,3.75rem)] text-transparent bg-clip-text"
+    style={{
+      backgroundImage:
+        "linear-gradient(  #ffffff 100%)",
+      
+      WebkitTextStroke: "1px rgba(0,0,0,0.3)",
+    }}
+  >
+    Vehicle Parts
+  </span>
+</h1>
 
-          {/* 📦 Subheading */}
-          <p className="text-lg text-emerald-300">
-            Fast, Reliable Island Wide Delivery.
+
+          {/* Subheading */}
+          <p className="text-lg font-medium text-[#FFD95A]/90 drop-shadow-sm">
+            Fast, Reliable Island-Wide Delivery
           </p>
 
-          {/* 🔘 CTA Button */}
+          {/*  CTA Button */}
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -74,30 +85,24 @@ const Hero = () => {
               hover:scale-105
             "
             style={{
-              background: `
-                linear-gradient(
-                  135deg,
-                  rgba(5,15,12,0.98) 0%,
-                  rgba(12,36,28,0.96) 45%,
-                  rgba(5,15,12,0.98) 100%
-                )
-              `,
-              border: "2px solid #17A77A",
-              color: "#17A77A",
-              boxShadow: "0 0 16px rgba(23,167,122,0.35)",
+              background:
+                "linear-gradient(135deg, rgba(6,12,10,0.92) 0%, rgba(10,22,18,0.95) 50%, rgba(6,12,10,0.92) 100%)",
+              border: "2px solid #066F49", // darker emerald
+              color: "#FFD95A",
+              boxShadow: "0 0 14px rgba(6,111,73,0.45)",
               cursor: "pointer",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow =
-                "0 0 28px rgba(23,167,122,0.65)";
-              e.currentTarget.style.background =
-                "linear-gradient(135deg, rgba(12,36,28,0.96) 0%, rgba(5,15,12,0.98) 100%)";
+                "0 0 24px rgba(6,111,73,0.7), 0 0 18px rgba(227,200,92,0.5)";
+              e.currentTarget.style.color = "#FFF6D1";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow =
-                "0 0 16px rgba(23,167,122,0.35)";
-              e.currentTarget.style.background =
-                "linear-gradient(135deg, rgba(5,15,12,0.98) 0%, rgba(12,36,28,0.96) 45%, rgba(5,15,12,0.98) 100%)";
+                "0 0 14px rgba(6,111,73,0.45)";
+              e.currentTarget.style.color = "#FFD95A";
             }}
           >
             Explore Brands

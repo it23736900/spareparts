@@ -48,11 +48,11 @@ export default function Footer() {
           </a>
 
           <a
-            href="tel:+94759687372"
+            href="tel:+94770556247"
             className="flex items-center gap-2 mt-2 text-sm text-white/80 transition-colors hover:text-[#E3C85C]"
           >
             <FaPhoneAlt className="text-[#E3C85C]/90" />
-            +94 75 968 7372
+            +94770556247
           </a>
 
           <a

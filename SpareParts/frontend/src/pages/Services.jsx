@@ -11,7 +11,7 @@ import {
   FiTruck,
   FiTool,
   FiCreditCard,
-} from "react-icons/fi"; 
+} from "react-icons/fi";
 import { FaTimes } from "react-icons/fa"; // close button icon
 
 const steps = [
@@ -30,61 +30,54 @@ export default function Services() {
   const navigate = useNavigate();
   const modalRef = useRef(null);
 
-  // Prevent body scroll when modal is open
+  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
+    return () => { document.body.style.overflow = "auto"; };
   }, []);
 
   const handleClickOutside = (e) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      navigate("/");
-    }
+    if (modalRef.current && !modalRef.current.contains(e.target)) navigate("/");
   };
-
-  const handleClose = () => {
-    navigate("/");
-  };
+  const handleClose = () => navigate("/");
 
   return (
     <div
       onClick={handleClickOutside}
       className="fixed inset-0 z-50 flex items-center justify-center 
-                 px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-10 
-                 bg-gradient-to-br from-[#051111] via-[#0B1C1F] to-[#050A0A] 
+                 px-3 sm:px-6 md:px-8 py-6 sm:py-8 md:py-12
+                 bg-gradient-to-br from-[#000000] via-[#0B1C1F] to-[#014421] 
                  backdrop-blur-sm"
     >
       <div
         ref={modalRef}
         className="relative text-white rounded-2xl 
-                   bg-[#051111]/80 border border-[#00ffb3]/20 backdrop-blur-xl
-                   shadow-[0_0_25px_rgba(0,255,179,0.06),inset_0_0_10px_rgba(255,255,255,0.03)]
-                   w-full max-w-7xl h-[95vh] overflow-y-auto
-                   p-4 sm:p-6 md:p-10 lg:p-16 
-                   space-y-8 sm:space-y-10 lg:space-y-14"
+                   bg-black/50 border border-[#014421]/60 backdrop-blur-2xl
+                   shadow-[0_0_30px_rgba(1,68,33,0.35),inset_0_0_12px_rgba(255,255,255,0.03)]
+                   w-full max-w-7xl h-[95vh] overflow-y-auto scroll-smooth
+                   p-5 sm:p-8 md:p-12 lg:p-16 
+                   space-y-8 sm:space-y-12 lg:space-y-16"
       >
-        {/* Close button (safe-area aware) */}
+        {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute z-50 text-emerald-400 hover:text-emerald-300 
+          className="absolute z-50 text-[#E3C85C] hover:text-white
                      transition-transform transform hover:scale-110 
                      bg-black/40 rounded-full p-2"
           style={{
-            top: "calc(env(safe-area-inset-top, 0px) + 1rem)",
-            right: "1rem",
+            top: "calc(env(safe-area-inset-top, 0px) + 0.75rem)",
+            right: "0.75rem",
           }}
         >
-          <FaTimes size={26} />
+          <FaTimes size={24} />
         </button>
 
         {/* Heading */}
-        <div className="text-center space-y-3">
-          <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white">
-            Our Services / How It Works
+        <div className="space-y-3 text-center">
+          <h1 className="text-2xl font-extrabold text-white sm:text-3xl lg:text-5xl">
+            Our Services
           </h1>
-          <p className="max-w-3xl mx-auto text-xs sm:text-sm lg:text-lg text-gray-300 leading-relaxed">
+          <p className="max-w-3xl mx-auto text-xs leading-relaxed text-gray-300 sm:text-sm lg:text-lg">
             At EuroTec, we deliver a transparent and reliable process from inquiry to delivery.  
             Every step is carefully managed to ensure premium service and trusted quality.
           </p>
@@ -92,28 +85,27 @@ export default function Services() {
 
         {/* Step-by-Step */}
         <section>
-          <h2 className="text-lg sm:text-2xl lg:text-3xl font-semibold text-center text-white">
+          <h2 className="text-lg font-semibold text-center text-white sm:text-2xl lg:text-3xl">
             Step-by-Step Process
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 
-                          gap-3 sm:gap-5 lg:gap-6 mt-6 sm:mt-10">
+          <div className="grid grid-cols-1 gap-4 mt-6 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6 lg:gap-8 sm:mt-10">
             {steps.map((step, index) => (
               <div
                 key={index}
-                className="bg-[#051111]/70 rounded-xl border border-[#00ffb3]/25 
-                           p-4 sm:p-6 lg:p-8 backdrop-blur-md
-                           shadow-[0_5px_18px_rgba(0,0,0,0.6),inset_0_0_8px_rgba(255,255,255,0.03)]
-                           hover:shadow-[0_10px_25px_rgba(0,255,179,0.25)]
-                           hover:border-[#00ffb3]/50
-                           transition-all duration-200 transform hover:scale-[1.02]"
+                className="bg-[#051111]/70 rounded-xl border border-[#014421]/50 
+                           p-5 sm:p-6 lg:p-8 backdrop-blur-md
+                           shadow-[0_6px_20px_rgba(0,0,0,0.6),inset_0_0_8px_rgba(255,255,255,0.04)]
+                           hover:shadow-[0_10px_28px_rgba(227,200,92,0.25)]
+                           hover:border-[#E3C85C]/50
+                           transition-all duration-300 transform hover:scale-[1.03]"
               >
-                <div className="text-[#00ffb3] text-2xl sm:text-3xl mb-3">
+                <div className="text-[#E3C85C] text-2xl sm:text-3xl mb-3">
                   {step.icon}
                 </div>
-                <h4 className="mb-1 text-sm sm:text-base lg:text-lg font-bold text-white">
+                <h4 className="mb-1 text-sm font-bold text-white sm:text-base lg:text-lg">
                   {step.title}
                 </h4>
-                <p className="text-xs sm:text-sm lg:text-base text-gray-300 leading-relaxed">
+                <p className="text-xs leading-relaxed text-gray-300 sm:text-sm lg:text-base">
                   {step.desc}
                 </p>
               </div>
@@ -122,30 +114,29 @@ export default function Services() {
         </section>
 
         {/* Shipping */}
-        <section className="bg-[#051111]/70 rounded-xl border border-[#00ffb3]/25 
-                            p-4 sm:p-6 lg:p-10 backdrop-blur-md
-                            shadow-[0_5px_18px_rgba(0,0,0,0.6),inset_0_0_8px_rgba(255,255,255,0.03)]">
-          <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-center text-white">
+        <section className="bg-[#051111]/70 rounded-xl border border-[#014421]/50 
+                            p-5 sm:p-6 lg:p-10 backdrop-blur-md
+                            shadow-[0_6px_20px_rgba(0,0,0,0.6),inset_0_0_8px_rgba(255,255,255,0.04)]">
+          <h2 className="text-lg font-bold text-center text-white sm:text-2xl lg:text-3xl">
             Shipping & Delivery Methods
           </h2>
-          <ul className="pl-4 sm:pl-6 mt-4 sm:mt-6 space-y-1 sm:space-y-2 
-                         text-xs sm:text-sm lg:text-lg text-gray-300 list-disc text-left">
-            <li><span className="text-[#00ffb3]">Sea Cargo:</span> Larger, cost-effective shipments</li>
-            <li><span className="text-[#00ffb3]">Air Cargo:</span> Fast delivery for urgent orders</li>
-            <li><span className="text-[#00ffb3]">Courier Service:</span> Ideal for smaller parts</li>
+          <ul className="pl-5 mt-4 space-y-2 text-xs text-left text-gray-300 list-disc sm:pl-6 sm:mt-6 sm:space-y-3 sm:text-sm lg:text-lg">
+            <li><span className="text-[#E3C85C]">Sea Cargo:</span> Larger, cost-effective shipments</li>
+            <li><span className="text-[#E3C85C]">Air Cargo:</span> Fast delivery for urgent orders</li>
+            <li><span className="text-[#E3C85C]">Courier Service:</span> Ideal for smaller parts</li>
           </ul>
         </section>
 
         {/* Installation */}
-        <section className="bg-[#051111]/70 rounded-xl border border-[#00ffb3]/25 
-                            p-4 sm:p-6 lg:p-10 backdrop-blur-md
-                            shadow-[0_5px_18px_rgba(0,0,0,0.6),inset_0_0_8px_rgba(255,255,255,0.03)]">
-          <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-center text-white">
+        <section className="bg-[#051111]/70 rounded-xl border border-[#014421]/50 
+                            p-5 sm:p-6 lg:p-10 backdrop-blur-md
+                            shadow-[0_6px_20px_rgba(0,0,0,0.6),inset_0_0_8px_rgba(255,255,255,0.04)]">
+          <h2 className="text-lg font-bold text-center text-white sm:text-2xl lg:text-3xl">
             Installation Support
           </h2>
-          <p className="mt-4 sm:mt-6 text-xs sm:text-sm lg:text-lg text-gray-300 leading-relaxed text-left">
+          <p className="mt-4 text-xs leading-relaxed text-left text-gray-300 sm:mt-6 sm:text-sm lg:text-lg">
             We work with{" "}
-            <span className="text-[#00ffb3] font-semibold">
+            <span className="text-[#E3C85C] font-semibold">
               recommended partner garages
             </span>{" "}
             across Sri Lanka. Let us know your location and we’ll connect you with a

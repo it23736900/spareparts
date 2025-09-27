@@ -79,10 +79,9 @@ export default function Navbar() {
     background: METALLIC_GREEN_SOFT,
     backdropFilter: "blur(10px)",
     WebkitBackdropFilter: "blur(10px)",
-    border: `1.5px solid rgba(23,167,122,0.35)`,
+    border: "1.5px solid #066F49",
     borderRadius: "9999px",
-    boxShadow:
-      "0 12px 28px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.35), inset 0 0 16px rgba(23,167,122,0.10)",
+    boxShadow: "0 0 14px rgba(6,111,73,0.45)",
     transition: "opacity 300ms ease, transform 320ms ease",
     opacity: isVisible ? 1 : 0,
     transform: isVisible ? "translateY(0px)" : "translateY(-10px)",
@@ -131,7 +130,7 @@ export default function Navbar() {
                       onFocus={() => setHoveredTo(link.to)}
                       onBlur={() => setHoveredTo("")}
                       style={{
-                        color: isHover ? EMERALD : "#E9EDEB",
+                        color: isHover ? "#D8B765" : "#E9EDEB",
                         textShadow: isHover
                           ? "0 0 3px rgba(23,167,122,0.28), 0 0 6px rgba(23,167,122,0.2)"
                           : "none",
