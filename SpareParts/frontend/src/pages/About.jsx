@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage, placeholder, responsive } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
-import { FaTimes } from "react-icons/fa";
+
 
 export default function About() {
   const navigate = useNavigate();
@@ -47,23 +47,28 @@ export default function About() {
                    bg-black/50 border border-[#014421] backdrop-blur-2xl
                    shadow-[0_0_30px_rgba(1,68,33,0.4),inset_0_0_10px_rgba(255,255,255,0.03)]
                    w-full max-w-[95%] sm:max-w-[90%] md:max-w-4xl lg:max-w-7xl 
-                   h-[94vh] overflow-y-auto scroll-smooth
-                   mx-auto p-5 sm:p-8 lg:p-14 space-y-12 sm:space-y-14"
+                   h-[90vh] overflow-y-auto scroll-smooth
+                   mx-auto p-4 sm:p-8 lg:p-16 space-y-8 sm:space-y-12"
         data-aos="zoom-in"
       >
         {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="absolute z-50 text-[#E3C85C] hover:text-white 
-                     transition-transform transform hover:scale-110 
-                     bg-black/40 rounded-full p-2"
-          style={{
-            top: "calc(env(safe-area-inset-top, 0px) + 0.75rem)",
-            right: "0.75rem",
-          }}
-        >
-          <FaTimes size={24} />
-        </button>
+        
+<button
+  onClick={handleClose}
+  className="sticky top-3 ml-auto z-50
+             text-[#00ffb3] hover:text-white
+             transition-transform transform hover:scale-110
+             bg-black/40 rounded-full w-8 h-8 flex items-center justify-center
+             shadow-[0_0_10px_rgba(0,255,179,0.6)]"
+  style={{
+    top: "calc(env(safe-area-inset-top, 0px) + 0rem)",
+    right: "0rem",
+  }}
+>
+  ✕
+</button>
+
+
 
         {/* Main Heading */}
         <h1

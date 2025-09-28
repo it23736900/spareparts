@@ -2,7 +2,7 @@
 // src/pages/Contact.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaTimes } from "react-icons/fa";
+import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt,} from "react-icons/fa";
 
 export default function Contact() {
   const navigate = useNavigate();
@@ -75,22 +75,24 @@ export default function Contact() {
         ref={modalRef}
         className="relative w-full max-w-6xl h-[95vh] overflow-y-auto
                    rounded-2xl bg-black/50 border border-[#014421] 
-                   backdrop-blur-2xl p-8 sm:p-12 lg:p-16
+                   backdrop-blur-2xl px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20
                    shadow-[0_0_25px_rgba(1,68,33,0.4),inset_0_0_10px_rgba(255,255,255,0.03)]"
-        data-aos="fade-up"
+        data-aos="zoom-in"
       >
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute z-50 text-[#E3C85C] hover:text-white 
-                     transition-transform transform hover:scale-110 
-                     bg-black/40 rounded-full p-2"
+          className="sticky top-3 ml-auto z-50
+             text-[#00ffb3] hover:text-white
+             transition-transform transform hover:scale-110
+             bg-black/40 rounded-full w-8 h-8 flex items-center justify-center
+             shadow-[0_0_10px_rgba(0,255,179,0.6)]"
           style={{
-            top: "calc(env(safe-area-inset-top, 0px) + 1rem)",
+            top: "calc(env(safe-area-inset-top, 0px) + 0.75rem)",
             right: "1rem",
           }}
         >
-          <FaTimes size={26} />
+          ✕
         </button>
 
         {/* Heading */}

@@ -2,9 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import api from "../utils/api"; // axios instance with baseURL "/api"
 
-const ACCENT = "#00ffb3";
-const ACCENT_BORDER = "rgba(0,255,179,0.35)";
-const TEXT_SOFT = "#e5e7eb";
+
 
 export default function GetQuotationForm({
   isOpen = false,
@@ -220,7 +218,7 @@ export default function GetQuotationForm({
           onClick={!loading ? onClose : undefined}
           className="absolute z-50 text-emerald-400 hover:text-emerald-300
                      transition-transform transform hover:scale-110
-                     bg-black/40 rounded-full p-2"
+                     bg-black/40 rounded-full w-8 h-8 flex items-center justify-center"
           style={{
             top: "calc(env(safe-area-inset-top, 0px) + 0.75rem)",
             right: "1rem",
@@ -275,15 +273,15 @@ export default function GetQuotationForm({
                 </button>
               </div>
             </div>
-
-            {inquiryId && (
+             {/* Removed the "Track this inquiry" link */}
+             {/*inquiryId && (
               <a
                 href={`/track?ref=${encodeURIComponent(successCode)}`}
                 className="mt-5 text-sm underline text-emerald-400"
               >
                 Track this inquiry
               </a>
-            )}
+             */}
 
             <button
               className="mt-6 px-5 py-3 rounded-lg text-sm font-semibold border border-[#00ffb3]/40 text-emerald-400 hover:bg-emerald-400/10 transition"

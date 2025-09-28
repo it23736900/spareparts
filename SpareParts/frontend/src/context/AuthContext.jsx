@@ -1,3 +1,4 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import api from "../utils/api";
 
@@ -5,16 +6,16 @@ const AuthCtx = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    // restore from localStorage if available
     const saved = localStorage.getItem("auth_user");
     return saved ? JSON.parse(saved) : null;
   });
   const [checking, setChecking] = useState(true);
 
+  // Run once on mount: check cookie/session
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get("/auth/me");
+        const { data } = await api.get("/auth/me", { withCredentials: true });
         setUser(data.user);
         localStorage.setItem("auth_user", JSON.stringify(data.user));
       } catch {
@@ -26,18 +27,24 @@ export function AuthProvider({ children }) {
     })();
   }, []);
 
+  // Login → cookie comes from server
   const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+    const { data } = await api.post(
+      "/auth/login",
+      { email, password },
+      { withCredentials: true }
+    );
     setUser(data.user);
     localStorage.setItem("auth_user", JSON.stringify(data.user));
     return data.user;
   };
 
+  // Logout → clears cookie server-side
   const logout = async () => {
     try {
-      await api.post("/auth/logout");
+      await api.post("/auth/logout", {}, { withCredentials: true });
     } catch {
-      // ignore if server has no logout
+      // ignore server errors here
     }
     setUser(null);
     localStorage.removeItem("auth_user");

@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "1.0.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "https://eurotec.lk",
 
   "proxy": "http://localhost:8080",
   "dependencies": {
