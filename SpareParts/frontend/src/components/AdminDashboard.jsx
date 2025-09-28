@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
+import { useAuth } from "../context/AuthContext";
 import {
   FaTachometerAlt,
   FaShippingFast,
@@ -903,32 +904,32 @@ function ReportsPage({ inquiries }) {
    ========================================= */
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user, checking, logout } = useAuth();
   const [active, setActive] = useState("dashboard");
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Read user from localStorage (supports both keys)
-  const readUser = () => {
-    try {
-      const a = localStorage.getItem("sparePartsUser");
-      const b = localStorage.getItem("sp_user");
-      return a ? JSON.parse(a) : b ? JSON.parse(b)?.user ?? null : null;
-    } catch {
-      return null;
-    }
-  };
-
-  // Auth guard + initial load
+  // Ensure only authenticated admins can view the dashboard
   useEffect(() => {
-    const savedUser = readUser();
-    if (!savedUser || (savedUser.role || savedUser?.user?.role) !== "ADMIN") {
-      navigate("/");
+    if (checking) return;
+    if (!user) {
+      navigate("/admin/login", { replace: true });
       return;
     }
-    setUser(savedUser);
+
+    if ((user.role || "").toLowerCase() !== "admin") {
+      navigate("/", { replace: true });
+    }
+  }, [checking, user, navigate]);
+
+  // Initial data load once the admin session is ready
+  useEffect(() => {
+    if (checking) return;
+    if (!user || (user.role || "").toLowerCase() !== "admin") return;
+
+    let cancelled = false;
 
     (async () => {
       try {
@@ -947,21 +948,35 @@ const AdminDashboard = () => {
           status: d.status || "Submitted",
           createdAt: d.createdAt || d.created_at || "",
         }));
-        setInquiries(normalized.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))));
+        if (!cancelled) {
+          setInquiries(
+            normalized.sort((a, b) =>
+              String(b.createdAt).localeCompare(String(a.createdAt))
+            )
+          );
+        }
       } catch (e) {
-        setErr(e?.response?.data?.message || "Failed to load inquiries");
+        if (!cancelled) {
+          setErr(e?.response?.data?.message || "Failed to load inquiries");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("sp_token");
-    localStorage.removeItem("sparePartsUser");
-    localStorage.removeItem("sp_user");
-    navigate("/");
+    return () => {
+      cancelled = true;
+    };
+  }, [checking, user]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      navigate("/admin/login", { replace: true });
+    }
   };
 
   // Update inquiry status via API
