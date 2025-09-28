@@ -276,27 +276,49 @@ const BrandLogos = ({
   const rowTop = useMarqueeRow({ speedPxPerSec: 26, reverse: false });
   const rowBottom = useMarqueeRow({ speedPxPerSec: 26, reverse: true });
 
+const [flippedCard, setFlippedCard] = useState(null);
+
+const handleCardClick = (brandTitle) => {
+  setFlippedCard((prev) => (prev === brandTitle ? null : brandTitle));
+};
+
+const handleCloseFlip = () => {
+  setFlippedCard(null);
+};
+
+useEffect(() => {
+  if (window.innerWidth >= 768) return; // desktop ignore
+  const handleOutsideClick = (e) => {
+    if (!e.target.closest("[aria-label$='card']")) {
+      setFlippedCard(null);
+    }
+  };
+  document.addEventListener("click", handleOutsideClick);
+  return () => document.removeEventListener("click", handleOutsideClick);
+}, []); 
   /* ---------------------------------------------------------------------------
      Card — visuals updated only (darker black, gradient titles, white body text,
      yellow subline, same green-bordered button). Layout & behavior preserved.
   --------------------------------------------------------------------------- */
   const Card = (brand, i, rowKey) => (
     <div
-      key={`${rowKey}-${i}-${brand.title}`}
-      className="w-[min(64vw,320px)] h-[min(64vw,320px)] sm:w-[min(44vw,300px)] sm:h-[min(44vw,300px)] md:w-[min(32vw,320px)] md:h-[min(32vw,320px)] lg:w-[min(24vw,340px)] lg:h-[min(24vw,340px)] xl:w-[min(20vw,360px)] xl:h-[min(20vw,360px)] 2xl:w-[360px] 2xl:h-[360px]
-                 flex-shrink-0 group [perspective:1000px] select-none
-                 transition-transform duration-300 hover:scale-[1.03] hover:z-10"
-      onMouseEnter={() =>
-        rowKey === "top" ? rowTop.setPaused(true) : rowBottom.setPaused(true)
-      }
-      onMouseLeave={() =>
-        rowKey === "top" ? rowTop.setPaused(false) : rowBottom.setPaused(false)
-      }
-      style={{ padding: "2px" }}
-      role="group"
-      aria-label={`${brand.title} card`}
-    >
-      <div className="relative w-full h-full duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+  key={`${rowKey}-${i}-${brand.title}`}
+  className={`w-[min(70vw,280px)] h-[min(70vw,280px)] sm:w-[min(44vw,300px)] sm:h-[min(44vw,300px)] md:w-[min(32vw,320px)] md:h-[min(32vw,320px)] lg:w-[min(24vw,340px)] lg:h-[min(24vw,340px)] xl:w-[min(20vw,360px)] xl:h-[min(20vw,360px)] 2xl:w-[360px] 2xl:h-[360px]
+     flex-shrink-0 group [perspective:1000px] select-none
+     transition-transform duration-300 hover:scale-[1.03] hover:z-10`}
+  onClick={() => {
+    // Only mobile walata click flip
+    if (window.innerWidth < 768) handleCardClick(brand.title);
+  }}
+  role="group"
+  aria-label={`${brand.title} card`}
+>
+  
+<div
+  className={`relative w-full h-full duration-700 [transform-style:preserve-3d] 
+    ${flippedCard === brand.title ? "[transform:rotateY(180deg)]" : "group-hover:[transform:rotateY(180deg)]"}`}
+>
+
         {/* FRONT */}
         <div
           className="absolute inset-0 rounded-[20px] flex flex-col items-center justify-between p-5 border [backface-visibility:hidden]"
@@ -398,6 +420,7 @@ const BrandLogos = ({
               onClick={(e) => {
                 e.stopPropagation();
                 onInquire(brand.title);
+                handleCloseFlip();
               }}
               className="mt-4 px-5 py-2 rounded-full text-sm font-semibold 
              text-[#0B7D4E] border border-[#0B7D4E] 
@@ -415,6 +438,8 @@ const BrandLogos = ({
     </div>
   );
 
+  
+  
   /* ---------------------------------------------------------------------------
      Row — infinite marquee duplicating content; unchanged
   --------------------------------------------------------------------------- */
@@ -448,7 +473,7 @@ const BrandLogos = ({
         <div
           ref={trackRef}
           className="flex gap-4 sm:gap-6 md:gap-7 w-max will-change-transform"
-          style={{ transform: "translate3d(0,0,0)" }}
+          style={{ transform: "translate3d(0,0,0)" ,flexDirection: window.innerWidth < 640 ? "column" : "row", }}
         >
           {doubled.map((b, i) => {
             const refProp =

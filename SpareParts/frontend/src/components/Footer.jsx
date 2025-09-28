@@ -155,7 +155,7 @@ export default function Footer() {
             },
             {
               icon: FaWhatsapp,
-              url: "https://wa.me/94785264854",
+              url: "https://wa.me/94770556247",
               label: "WhatsApp",
             },
             {

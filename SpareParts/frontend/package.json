@@ -2,6 +2,8 @@
   "name": "frontend",
   "version": "1.0.0",
   "private": true,
+  "homepage": ".",
+
   "proxy": "http://localhost:8080",
   "dependencies": {
     "@cloudinary/react": "^1.14.3",
