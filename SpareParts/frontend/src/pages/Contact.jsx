@@ -37,32 +37,31 @@ export default function Contact() {
   // ✅ Updated handleSubmit for WhatsApp
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) {
       setError("Please enter a valid email address.");
       return;
     }
-
+  
     setError("");
-
-    // SpareParts WhatsApp number (international format, no +, spaces, or dashes)
-    const phone = "+94770556247"; 
-    const text = `New inquiry from ${form.name} (${form.email}): %0A${form.message}`;
-
-    // Open WhatsApp Web/App with pre-filled message
-    window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
-
-    // Reset form + show popup
+  
+    const phone = "94770556247"; // ✅ wa.me requires number without "+"
+    const text = `Hello EuroTec Team, I’d like to make an inquiry. Here are my details:\n\n👤 Name: ${form.name}\n📧 Email: ${form.email}\n💬 Message: ${form.message}`;
+  
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
+  
     setSuccess(true);
     setForm({ name: "", email: "", message: "" });
     setTimeout(() => setSuccess(false), 4000);
   };
+  
 
   return (
     <div
-      onClick={handleClickOutside}
-      className="fixed inset-0 z-50 flex items-center justify-center px-4 py-10 backdrop-blur-sm sm:px-8"
+  onClick={handleClickOutside}
+  className="fixed inset-0 z-50 flex items-center justify-center px-3 py-6 sm:px-6 sm:py-10 backdrop-blur-sm"
+
       style={{
         background: `linear-gradient(135deg, #000000 0%, #000000 70%, #014421 100%)`,
         backgroundImage: "url('/images/contact-bg.jpg')", // optional
@@ -72,26 +71,30 @@ export default function Contact() {
       }}
     >
       <div
-        ref={modalRef}
-        className="relative w-full max-w-6xl h-[95vh] overflow-y-auto
-                   rounded-2xl bg-black/50 border border-[#014421] 
-                   backdrop-blur-2xl px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20
-                   shadow-[0_0_25px_rgba(1,68,33,0.4),inset_0_0_10px_rgba(255,255,255,0.03)]"
+  ref={modalRef}
+  className="relative w-full max-w-6xl 
+             h-[90vh] supports-[height:100dvh]:h-[90dvh] overflow-y-auto overscroll-contain
+             rounded-2xl bg-black/50 border border-[#014421]
+             backdrop-blur-2xl px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20
+             shadow-[0_0_25px_rgba(1,68,33,0.4),inset_0_0_10px_rgba(255,255,255,0.03)]"
+
+
         data-aos="zoom-in"
       >
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="sticky top-3 ml-auto z-50
+           {/* Close button */}
+        
+<button
+  onClick={handleClose}
+  className="absolute z-50
              text-[#00ffb3] hover:text-white
              transition-transform transform hover:scale-110
              bg-black/40 rounded-full w-8 h-8 flex items-center justify-center
              shadow-[0_0_10px_rgba(0,255,179,0.6)]"
-          style={{
-            top: "calc(env(safe-area-inset-top, 0px) + 0.75rem)",
-            right: "1rem",
-          }}
-        >
+  style={{
+    top: "max(env(safe-area-inset-top, 0px), 0.75rem)",
+    right: "0.75rem",
+  }}
+>
           ✕
         </button>
 

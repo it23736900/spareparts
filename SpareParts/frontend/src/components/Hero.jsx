@@ -38,39 +38,34 @@ const Hero = () => {
       <div className="relative z-10 flex items-center justify-start h-full px-6 sm:px-10">
         <div className="max-w-xl space-y-6">
           {/* Heading */}
-          <h1 className="font-bold leading-[1.05] tracking-tight text-left">
-  <span
-    className="block whitespace-nowrap text-[clamp(2rem,8vw,5.5rem)] text-transparent bg-clip-text"
-    style={{
-      backgroundImage:
-        "linear-gradient(  #ffffff 100%)",
-      
-      WebkitTextStroke: "1px rgba(0,0,0,0.3)", // sharper edge for premium feel
-    }}
-  >
-    Premium&nbsp;Used
-  </span>
+          <h1 className="font-extrabold leading-[1.05] tracking-tight text-left">
+            <span
+              className="block whitespace-nowrap text-[clamp(2rem,8vw,5.5rem)] text-white"
+              style={{
+                WebkitTextFillColor: "#ffffff", // Safari fix
+                WebkitTextStroke: "0px transparent", // disable stroke transparency
+              }}
+            >
+              Premium&nbsp;Used
+            </span>
 
-  <span
-    className="block text-[clamp(1.6rem,6vw,3.75rem)] text-transparent bg-clip-text"
-    style={{
-      backgroundImage:
-        "linear-gradient(  #ffffff 100%)",
-      
-      WebkitTextStroke: "1px rgba(0,0,0,0.3)",
-    }}
-  >
-    Vehicle Parts
-  </span>
-</h1>
-
+            <span
+              className="block text-[clamp(1.6rem,6vw,3.75rem)] text-white"
+              style={{
+                WebkitTextFillColor: "#ffffff",
+                WebkitTextStroke: "0px transparent",
+              }}
+            >
+              Vehicle Parts
+            </span>
+          </h1>
 
           {/* Subheading */}
           <p className="text-lg font-medium text-[#FFD95A]/90 drop-shadow-sm">
             Fast, Reliable Island-Wide Delivery
           </p>
 
-          {/*  CTA Button */}
+          {/* CTA Button */}
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -87,7 +82,7 @@ const Hero = () => {
             style={{
               background:
                 "linear-gradient(135deg, rgba(6,12,10,0.92) 0%, rgba(10,22,18,0.95) 50%, rgba(6,12,10,0.92) 100%)",
-              border: "2px solid #066F49", // darker emerald
+              border: "2px solid #066F49",
               color: "#FFD95A",
               boxShadow: "0 0 14px rgba(6,111,73,0.45)",
               cursor: "pointer",

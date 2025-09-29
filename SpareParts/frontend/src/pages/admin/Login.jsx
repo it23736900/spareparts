@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import api from "../../utils/api"; // 👈 use axios instance directly
 
 export default function AdminLogin() {
-  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -18,10 +17,14 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const user = await login(email, password);
+      // 🔥 Call backend directly
+      const { data } = await api.post("/auth/login", { email, password });
 
-      // ✅ Always send admins to dashboard after login
-      // If user came from a protected admin page, send them back there
+      // ✅ Save token + user in localStorage
+      localStorage.setItem("auth_token", data.token);
+      localStorage.setItem("auth_user", JSON.stringify(data.user));
+
+      // ✅ Pick destination
       const dest =
         location.state?.from?.pathname?.startsWith("/admin") &&
         location.state.from.pathname !== "/admin/login"

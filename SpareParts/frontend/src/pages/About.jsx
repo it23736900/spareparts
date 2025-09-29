@@ -55,14 +55,14 @@ export default function About() {
         
 <button
   onClick={handleClose}
-  className="sticky top-3 ml-auto z-50
+  className="absolute z-50
              text-[#00ffb3] hover:text-white
              transition-transform transform hover:scale-110
              bg-black/40 rounded-full w-8 h-8 flex items-center justify-center
              shadow-[0_0_10px_rgba(0,255,179,0.6)]"
   style={{
-    top: "calc(env(safe-area-inset-top, 0px) + 0rem)",
-    right: "0rem",
+    top: "max(env(safe-area-inset-top, 0px), 0.75rem)",
+    right: "0.75rem",
   }}
 >
   ✕

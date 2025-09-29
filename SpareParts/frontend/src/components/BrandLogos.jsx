@@ -10,7 +10,7 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 import { format, quality } from "@cloudinary/url-gen/actions/delivery";
-
+import { useCallback } from "react";
 /* =============================================================================
    THEME — Premium Metallic Black + Deep Emerald
    Only visual tokens updated per request. Functionality unchanged.
@@ -280,22 +280,30 @@ const [flippedCard, setFlippedCard] = useState(null);
 
 const handleCardClick = (brandTitle) => {
   setFlippedCard((prev) => (prev === brandTitle ? null : brandTitle));
+  if (flippedCard !== brandTitle) {
+    rowTop.setPaused(true);
+    rowBottom.setPaused(true);
+  }
 };
 
-const handleCloseFlip = () => {
+const handleCloseFlip = useCallback(() => {
   setFlippedCard(null);
-};
+  rowTop.setPaused(false);
+  rowBottom.setPaused(false);
+}, [rowTop, rowBottom]);
 
 useEffect(() => {
-  if (window.innerWidth >= 768) return; // desktop ignore
+  if (window.innerWidth >= 768) return; // only mobile
   const handleOutsideClick = (e) => {
+    if (e.target.closest("button[data-no-close]")) return; // skip Inquire button
     if (!e.target.closest("[aria-label$='card']")) {
-      setFlippedCard(null);
+      handleCloseFlip();
     }
   };
   document.addEventListener("click", handleOutsideClick);
   return () => document.removeEventListener("click", handleOutsideClick);
-}, []); 
+}, [handleCloseFlip]);
+
   /* ---------------------------------------------------------------------------
      Card — visuals updated only (darker black, gradient titles, white body text,
      yellow subline, same green-bordered button). Layout & behavior preserved.
@@ -306,18 +314,30 @@ useEffect(() => {
   className={`w-[min(70vw,280px)] h-[min(70vw,280px)] sm:w-[min(44vw,300px)] sm:h-[min(44vw,300px)] md:w-[min(32vw,320px)] md:h-[min(32vw,320px)] lg:w-[min(24vw,340px)] lg:h-[min(24vw,340px)] xl:w-[min(20vw,360px)] xl:h-[min(20vw,360px)] 2xl:w-[360px] 2xl:h-[360px]
      flex-shrink-0 group [perspective:1000px] select-none
      transition-transform duration-300 hover:scale-[1.03] hover:z-10`}
-  onClick={() => {
-    // Only mobile walata click flip
-    if (window.innerWidth < 768) handleCardClick(brand.title);
-  }}
+     onClick={() => {
+      if (window.innerWidth < 768) {
+        if (flippedCard === brand.title) {
+          // already flipped → close + resume
+          handleCloseFlip();
+        } else {
+          // flip new card + pause marquee
+          handleCardClick(brand.title);
+          rowTop.setPaused(true);
+          rowBottom.setPaused(true);
+        }
+      }
+    }}
+    
   role="group"
   aria-label={`${brand.title} card`}
 >
   
 <div
-  className={`relative w-full h-full duration-700 [transform-style:preserve-3d] 
-    ${flippedCard === brand.title ? "[transform:rotateY(180deg)]" : "group-hover:[transform:rotateY(180deg)]"}`}
+  className={`relative w-full h-full duration-700 [transform-style:preserve-3d]
+    ${flippedCard === brand.title ? "[transform:rotateY(180deg)]" : ""} 
+    group-hover:[transform:rotateY(180deg)]`}
 >
+
 
         {/* FRONT */}
         <div
@@ -416,6 +436,7 @@ useEffect(() => {
           <div className="flex justify-center pt-4 pb-1">
             <button
               data-no-drag
+              data-no-close
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
@@ -454,26 +475,25 @@ useEffect(() => {
       endDrag,
       onWheel,
     } = rowHook;
-
+  
     const doubled = useMemo(() => [...brands, ...brands], [brands]);
-
+  
     return (
       <div
-  ref={wrapRef}
-  className="py-2 overflow-x-hidden cursor-grab"
-  style={{ touchAction: "pan-y pinch-zoom" }}
-  onPointerDown={onPointerDown}
-  onPointerMove={onPointerMove}
-  onPointerUp={endDrag}
-  onPointerCancel={endDrag}
-  onPointerLeave={endDrag}
-  onWheel={onWheel}
->
-
+        ref={wrapRef}
+        className="py-2 overflow-x-hidden cursor-grab"
+        style={{ touchAction: "pan-y pinch-zoom" }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onPointerLeave={endDrag}
+        onWheel={onWheel}
+      >
         <div
           ref={trackRef}
-          className="flex gap-4 sm:gap-6 md:gap-7 w-max will-change-transform"
-          style={{ transform: "translate3d(0,0,0)" ,flexDirection: window.innerWidth < 640 ? "column" : "row", }}
+          className="flex gap-6 w-max will-change-transform"
+          style={{ transform: "translate3d(0,0,0)" }}
         >
           {doubled.map((b, i) => {
             const refProp =
@@ -492,6 +512,7 @@ useEffect(() => {
       </div>
     );
   };
+  
 
   /* ---------------------------------------------------------------------------
      Section — background blend + heading gradient (requested)

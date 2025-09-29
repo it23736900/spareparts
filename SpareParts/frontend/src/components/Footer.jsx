@@ -9,6 +9,7 @@ import {
   FaPhoneAlt,
   FaEnvelope,
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const PREMIUM_GRADIENT = `
   linear-gradient(
@@ -86,22 +87,24 @@ export default function Footer() {
         <div>
           <h4 className="mb-3 text-base font-semibold yellow-accent">Quick Links</h4>
           <ul className="space-y-1.5 text-sm">
-            {[
-              { label: "Home", href: "/home" },
-              { label: "About", href: "/about" },
-              { label: "Services", href: "/services" },
-              { label: "Contact", href: "/contact" },
-            ].map((l) => (
-              <li key={l.href}>
-                <a
-                  href={l.href}
-                  className="transition-colors text-white/80 hover:text-[#E3C85C]"
-                >
-                  {l.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+  {[
+    { label: "Home", to: "/" , onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
+    { label: "About", to: "/about" },
+    { label: "Services", to: "/services" },
+    { label: "Contact", to: "/contact" },
+  ].map((l) => (
+    <li key={l.to}>
+      <Link
+        to={l.to}
+        onClick={l.onClick}
+        className="transition-colors text-white/80 hover:text-[#E3C85C]"
+      >
+        {l.label}
+      </Link>
+    </li>
+  ))}
+</ul>
+
         </div>
 
         {/* Find Us */}
@@ -196,26 +199,29 @@ export default function Footer() {
         style={{ borderTop: "1px solid #014421" }}
       >
         <p>
-          © 2025 <span className="yellow-accent">EuroTec</span>. All Rights Reserved.
+          © 2025 <span className="yellow-accent">EUROTEC</span>. All Rights Reserved.
         </p>
       </div>
 
       {/* Yellow shimmer effect */}
       <style>{`
-        .yellow-accent {
-          background: linear-gradient(90deg, #E3C85C, #FFF1A8, #E3C85C);
-          background-size: 220% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          text-fill-color: transparent;
-          animation: yellowShine 6s linear infinite;
-        }
-        @keyframes yellowShine {
-          0% { background-position: 0% center; }
-          100% { background-position: 220% center; }
-        }
-      `}</style>
+  .yellow-accent {
+    background: linear-gradient(90deg, #E3C85C, #FFF1A8, #E3C85C);
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    animation: yellowShine 6s linear infinite;
+    animation-fill-mode: forwards; /* ✅ prevents flash reset */
+    background-position: 110% center; /* ✅ start from middle, not left */
+  }
+  @keyframes yellowShine {
+    0% { background-position: 0% center; }
+    100% { background-position: 220% center; }
+  }
+`}</style>
+
     </footer>
   );
 }
