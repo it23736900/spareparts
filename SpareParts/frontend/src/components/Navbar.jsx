@@ -12,7 +12,7 @@ import GetQuotationForm from "./GetQuotationForm";
    ========================= */
 const cld = new Cloudinary({ cloud: { cloudName: "dznt9s0j8" } });
 const logo = cld
-  .image("newlogoeuro_dd7xjc_c_crop_ar_16_9_ip5gt0_c_crop_w_1080_h_300_xvilbd")
+  .image("newlogoeuro_dd7xjc_c_crop_ar_16_9_ip5gt0_c_crop_w_1080_h_300_xvilbd_esm55u")
   .format("auto")
   .quality("auto")
   .resize(auto().width(240));

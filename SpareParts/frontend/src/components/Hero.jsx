@@ -9,7 +9,6 @@ import { format, quality } from "@cloudinary/url-gen/actions/delivery";
 const cld = new Cloudinary({ cloud: { cloudName: "dznt9s0j8" } });
 const video = cld
   .video("0829_6_adqkzz")
-  // Use auto+eco for fast initial load (important for mobiles)
   .delivery(format("auto"))
   .delivery(quality("auto:eco"));
 
@@ -18,47 +17,38 @@ const Hero = () => {
 
   useEffect(() => {
     const adv = videoRef.current;
-    // 👇 Cloudinary <AdvancedVideo> keeps the <video> inside `.videoRef.current`
     const vid = adv?.videoRef?.current;
-
     if (!vid) return;
 
-    const loopStart = 9; // seconds — where loop should begin
-    const loopEnd = 29; // seconds — where loop should restart
+    const loopStart = 9;
+    const loopEnd = 29;
 
-    // Safari/Chrome performance fix: avoid setInterval → use RAF
     let rafId;
-
     const checkLoop = () => {
       if (vid.currentTime >= loopEnd - 0.05) {
-        // Use tiny offset (-0.05s) so Safari doesn’t freeze on exact match
         vid.currentTime = loopStart;
-        vid.play().catch(() => {}); // prevent promise errors on Safari iOS
+        vid.play().catch(() => {});
       }
       rafId = requestAnimationFrame(checkLoop);
     };
 
-    // Start loop logic once video begins playing
     const startLoop = () => {
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(checkLoop);
     };
 
-    // Cleanup on pause/ended/unmount
     const stopLoop = () => cancelAnimationFrame(rafId);
 
     vid.addEventListener("play", startLoop);
     vid.addEventListener("pause", stopLoop);
     vid.addEventListener("ended", stopLoop);
 
-    // iOS Safari fix: force muted autoplay
+    // Always muted + inline
     vid.muted = true;
     vid.playsInline = true;
 
-    // Auto-start video safely
-    vid.play().catch(() => {
-      console.warn("Autoplay blocked — user interaction needed.");
-    });
+    // ❌ Removed autoplay here
+    // We let LandingScreen control when to start
 
     return () => {
       stopLoop();
@@ -73,23 +63,22 @@ const Hero = () => {
       {/* Background Video */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <AdvancedVideo
+          id="hero-video" // 👈 important
           ref={videoRef}
           cldVid={video}
-          autoPlay
+          // autoPlay ❌ removed
           muted
-          loop={false} // ❌ disable native loop, we control it manually
+          loop={false}
           playsInline
           poster="auto"
           className="object-cover w-full h-full transition-transform duration-700 ease-in-out group-hover:scale-105"
         />
-        {/* Overlay for readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#0B1C1F]/80" />
       </div>
 
       {/* Foreground Content */}
       <div className="relative z-10 flex items-center justify-start h-full px-6 sm:px-10">
         <div className="max-w-xl space-y-6">
-          {/* Heading */}
           <h1 className="font-bold leading-[1.05] tracking-tight text-left">
             <span className="block text-[clamp(2rem,8vw,5.5rem)] text-white">
               Premium&nbsp;Used
@@ -99,12 +88,10 @@ const Hero = () => {
             </span>
           </h1>
 
-          {/* Subheading */}
           <p className="text-lg font-medium text-[#FFD95A]/90">
             Fast, Reliable Island-Wide Delivery
           </p>
 
-          {/* CTA Button */}
           <button
             onClick={() =>
               document

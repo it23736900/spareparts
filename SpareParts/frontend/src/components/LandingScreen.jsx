@@ -15,27 +15,52 @@ const LandingScreen = ({ onStart, showSkip = true }) => {
   useEffect(() => {
     const saved = localStorage.getItem("engineStartedAt");
 
+    let shouldShow = false;
     if (!saved) {
-      // First visit ever → show splash
-      setShowSplash(true);
+      shouldShow = true;
     } else {
       const savedTime = parseInt(saved, 10);
       const sevenDays = 7 * 24 * 60 * 60 * 1000;
       if (Date.now() - savedTime > sevenDays) {
-        // More than 7 days passed → show splash again
-        setShowSplash(true);
-      } else {
-        // Within 7 days → skip splash
-        setShowSplash(false);
+        shouldShow = true;
+      }
+    }
+
+    setShowSplash(shouldShow);
+
+    // ⏸️ Pause hero video immediately if splash is needed
+    if (shouldShow) {
+      const heroVideo = document.getElementById("hero-video");
+      if (heroVideo) {
+        heroVideo.pause();
       }
     }
   }, []);
 
+  // Lock/unlock body scroll
+  useEffect(() => {
+    if (showSplash) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showSplash]);
+
   const finish = useCallback(() => {
-    // Save timestamp of when user clicked Start
+    // Save timestamp
     localStorage.setItem("engineStartedAt", String(Date.now()));
-    localStorage.setItem("heroCanPlay", "true"); // ✅ Allow autoplay after Start/Skip
+    localStorage.setItem("heroCanPlay", "true");
+
     setShowSplash(false);
+
+    // ▶️ Resume hero video
+    const heroVideo = document.getElementById("hero-video");
+    if (heroVideo) {
+      heroVideo.play().catch(() => {});
+    }
 
     const delay = prefersReducedMotion ? 200 : 400;
     const t = setTimeout(() => onStart?.(), delay);
@@ -57,10 +82,10 @@ const LandingScreen = ({ onStart, showSkip = true }) => {
             type="button"
             onClick={finish}
             className="relative cursor-pointer outline-none"
-            initial={{ scale: 0.8, opacity: 0 }}   // starts small + invisible
-            animate={{ scale: 1, opacity: 1 }}     // grows to full size
-            exit={{ scale: 1.2, opacity: 0 }}      //  expands + fades out on exit
-            transition={{ duration: 0.6, ease: "easeInOut" }} // smooth timing
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 1.2, opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
           >
             <span
               className="absolute inset-0 -z-10 rounded-full blur-md"
@@ -73,11 +98,11 @@ const LandingScreen = ({ onStart, showSkip = true }) => {
             <AdvancedImage
               cldImg={engineStartImg}
               alt="Start Engine"
-              className="w-36 h-36 sm:w-44 sm:h-44 object-contain drop-shadow-2xl"
+              className="w-44 h-44 sm:w-56 sm:h-56 object-contain drop-shadow-2xl"
             />
           </motion.button>
 
-          <p className="mt-6 text-[#D4AF37] font-bold text-base sm:text-lg animate-pulse">
+          <p className="mt-6 text-[#D4AF37] font-bold text-xl sm:text-2xl animate-pulse">
             Click to Start Engine
           </p>
 
@@ -85,7 +110,7 @@ const LandingScreen = ({ onStart, showSkip = true }) => {
             <button
               type="button"
               onClick={finish}
-              className="absolute bottom-6 right-6 text-xs sm:text-sm px-3 py-1.5 rounded-full bg-emerald-900/70 text-white border border-emerald-500/30 shadow-lg"
+              className="absolute bottom-6 right-6 text-sm sm:text-base px-5 py-3 rounded-full bg-emerald-900/70 text-white border border-emerald-500/30 shadow-lg"
             >
               Skip
             </button>
