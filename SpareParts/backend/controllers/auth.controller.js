@@ -8,27 +8,29 @@ const sign = (payload) =>
 // cookie settings
 const cookieOpts = {
   httpOnly: true,
-  sameSite: "lax",
-  secure: process.env.COOKIE_SECURE === "true", // only true on HTTPS
+  sameSite: "lax", // ✅ prevents CSRF, still works cross-subdomain
+  secure: process.env.COOKIE_SECURE === "true", // true in HTTPS prod
   path: "/",
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
-// register (optional – disable in prod if you don’t want open signups)
+// --- REGISTER ---
 export const register = async (req, res) => {
   try {
     const { email, password, role } = req.body;
     const exists = await User.findOne({ email });
-    if (exists) return res.status(409).json({ message: "Email already registered" });
+    if (exists)
+      return res.status(409).json({ message: "Email already registered" });
 
     await User.create({ email, password, role: role || "admin" });
     res.status(201).json({ message: "User created" });
   } catch (err) {
+    console.error("register error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// login
+// --- LOGIN ---
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -37,23 +39,39 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = sign({ sub: user._id, role: user.role, email: user.email });
+    const token = sign({
+      sub: String(user._id),
+      role: user.role,
+      email: user.email,
+    });
+
+    // ✅ set cookie
     res.cookie("token", token, cookieOpts);
-    res.json({ user: { id: user._id, email: user.email, role: user.role } });
+
+    // send back basic user info
+    res.json({
+      user: { id: String(user._id), email: user.email, role: user.role },
+    });
   } catch (err) {
+    console.error("login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// current logged-in user
+// --- CURRENT USER ---
 export const me = async (req, res) => {
-  if (!req.user) return res.sendStatus(401);
+  if (!req.user) return res.status(401).json({ message: "Not authenticated" });
+
   res.json({
-    user: { id: req.user._id, email: req.user.email, role: req.user.role },
+    user: {
+      id: req.user.id, // ✅ fixed (_id → id)
+      email: req.user.email,
+      role: req.user.role,
+    },
   });
 };
 
-// logout
+// --- LOGOUT ---
 export const logout = async (_req, res) => {
   res.clearCookie("token", { ...cookieOpts, maxAge: 0 });
   res.json({ message: "Logged out" });

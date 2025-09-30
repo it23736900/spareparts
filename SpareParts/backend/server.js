@@ -29,7 +29,9 @@ const allowedOrigins = [
   "http://127.0.0.1:3000",          // frontend dev alt
   "http://localhost:8080",          // backend dev
   "http://127.0.0.1:8080",          // backend dev alt
-  "http://72.60.97.47"              // live site
+  "http://72.60.97.47",
+  "https://eurotec.lk",      // ✅ add this
+  "https://www.eurotec.lk"   // ✅ add this              // live site
 ];
 
 const corsOptions = {
