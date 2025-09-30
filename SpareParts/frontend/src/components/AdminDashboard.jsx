@@ -58,15 +58,13 @@ const STAGE_COLORS = {
   Delivered: "#E3D38A",
 };
 function downloadCSV(inquiries) {
-  const quoted = inquiries.filter((i) => i.status === "Quoted");
-
-  if (!quoted.length) {
-    alert("No customer details with quotations to download.");
+  if (!inquiries.length) {
+    alert("No inquiries to download.");
     return;
   }
 
   const headers = ["Reference", "Customer Name", "Email", "Brand", "Item", "Status", "Created At"];
-  const rows = quoted.map((i) => [
+  const rows = inquiries.map((i) => [
     i.ref,
     i.name,
     i.email,
@@ -84,11 +82,12 @@ function downloadCSV(inquiries) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", "quoted_customers.csv");
+  link.setAttribute("download", "inquiries.csv");
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
+
 
 /* =========================================
    Helpers: Responsive container width hook
@@ -585,7 +584,7 @@ function DashboardPage({ inquiries }) {
 
   {/* CSV Download Section */}
   <div className="mt-4 text-sm text-white/80">
-    Download the customer details with quotations –{" "}
+    Download the full inquiry list –{" "}
     <button
       onClick={() => downloadCSV(inquiries)}
       className="ml-1 px-3 py-1 rounded-md bg-white/5 border border-white/10 hover:bg-white/10 transition"
@@ -597,10 +596,7 @@ function DashboardPage({ inquiries }) {
 
       {/* Charts */}
       <div className="grid grid-cols-1 gap-4 mt-6 xl:grid-cols-3">
-        <div className="p-4 md:p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
-          <h4 className="mb-3 text-base md:text-lg font-semibold text-white/90">Weekly Performance</h4>
-          <LineChartResponsive series={series} />
-        </div>
+        
         <div className="p-4 md:p-5 border rounded-xl" style={{ background: PANEL, borderColor: "rgba(255,255,255,0.08)" }}>
           <h4 className="mb-3 text-base md:text-lg font-semibold text-white/90">Pipeline Breakdown</h4>
           <DonutChart series={donutSeries.length ? donutSeries : [{ label: "None", value: 1, color: "rgba(255,255,255,.25)" }]} />

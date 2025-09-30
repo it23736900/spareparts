@@ -8,72 +8,59 @@ const cld = new Cloudinary({ cloud: { cloudName: "dznt9s0j8" } });
 const engineStartImg = cld.image("24_auqdzg").format("auto").quality("auto");
 
 const LandingScreen = ({ onStart, showSkip = true }) => {
-  const [clicked, setClicked] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
-  // Prevent scrolling while screen is active
-  useEffect(() => {
-    if (!clicked) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-    return () => {
-      document.body.style.overflow = "auto"; // cleanup
-    };
-  }, [clicked]);
-
-  const finish = useCallback(() => {
-    if (clicked) return;
-    setClicked(true);
-
-    // Save timestamp
-    const now = Date.now();
-    localStorage.setItem("engineStartedAt", String(now));
-
-    const delay = prefersReducedMotion ? 300 : 1000;
-    const t = setTimeout(() => onStart?.(), delay);
-    return () => clearTimeout(t);
-  }, [clicked, onStart, prefersReducedMotion]);
-
-  // Check localStorage to skip showing again within 5 days
+  // Runs only once on mount
   useEffect(() => {
     const saved = localStorage.getItem("engineStartedAt");
-    if (saved) {
+
+    if (!saved) {
+      // First visit ever → show splash
+      setShowSplash(true);
+    } else {
       const savedTime = parseInt(saved, 10);
-      const fiveDays = 5 * 24 * 60 * 60 * 1000; // 5 days in ms
-      if (Date.now() - savedTime < fiveDays) {
-        setClicked(true);
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+      if (Date.now() - savedTime > sevenDays) {
+        // More than 7 days passed → show splash again
+        setShowSplash(true);
+      } else {
+        // Within 7 days → skip splash
+        setShowSplash(false);
       }
     }
   }, []);
 
+  const finish = useCallback(() => {
+    // Save timestamp of when user clicked Start
+    localStorage.setItem("engineStartedAt", String(Date.now()));
+    localStorage.setItem("heroCanPlay", "true"); // ✅ Allow autoplay after Start/Skip
+    setShowSplash(false);
+
+    const delay = prefersReducedMotion ? 200 : 400;
+    const t = setTimeout(() => onStart?.(), delay);
+    return () => clearTimeout(t);
+  }, [onStart, prefersReducedMotion]);
+
   return (
     <AnimatePresence>
-      {!clicked && (
+      {showSplash && (
         <motion.div
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/80 backdrop-blur-xl"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
         >
-          {/* Dark overlay */}
-          <div
-            className="pointer-events-none absolute inset-0 -z-10"
-            style={{
-              background:
-                "radial-gradient(60% 40% at 50% 40%, rgba(16,94,66,0.35), transparent 70%)",
-              filter: "blur(28px)",
-            }}
-          />
-
           {/* Start button */}
           <motion.button
             type="button"
             onClick={finish}
             className="relative cursor-pointer outline-none"
-            exit={{ scale: 20, opacity: 0, transition: { duration: 1 } }}
+            initial={{ scale: 0.8, opacity: 0 }}   // starts small + invisible
+            animate={{ scale: 1, opacity: 1 }}     // grows to full size
+            exit={{ scale: 1.2, opacity: 0 }}      //  expands + fades out on exit
+            transition={{ duration: 0.6, ease: "easeInOut" }} // smooth timing
           >
             <span
               className="absolute inset-0 -z-10 rounded-full blur-md"
@@ -86,7 +73,7 @@ const LandingScreen = ({ onStart, showSkip = true }) => {
             <AdvancedImage
               cldImg={engineStartImg}
               alt="Start Engine"
-              className="w-28 h-28 sm:w-32 sm:h-32 object-contain drop-shadow-xl"
+              className="w-36 h-36 sm:w-44 sm:h-44 object-contain drop-shadow-2xl"
             />
           </motion.button>
 

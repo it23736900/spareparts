@@ -3,13 +3,14 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import GetQuotationForm from "./GetQuotationForm";
 
 /* =========================
    Cloudinary assets
    ========================= */
-const cld = new Cloudinary({ cloud: { cloudName: "dnk3tgxht" } });
+const cld = new Cloudinary({ cloud: { cloudName: "dznt9s0j8" } });
 const logo = cld
   .image("newlogoeuro_dd7xjc_c_crop_ar_16_9_ip5gt0_c_crop_w_1080_h_300_xvilbd")
   .format("auto")
@@ -36,6 +37,24 @@ export default function Navbar() {
   const [hoveredTo, setHoveredTo] = useState("");
 
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleHomeClick = (e) => {
+  e.preventDefault();
+  if (location.pathname === "/") {
+    // Already on home → scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    // Navigate to home
+    navigate("/");
+    // After navigation, scroll to top
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  }
+};
+
+
 
   /* Close mobile menu on route change */
   useEffect(() => {
@@ -117,33 +136,75 @@ export default function Navbar() {
               </Link>
 
               {/* Desktop Nav */}
-              <nav className="hidden md:flex gap-3 lg:gap-6 text-[0.98rem]">
-                {navLinks.map((link) => {
-                  const isHover = hoveredTo === link.to;
-                  return (
-                    <Link
-                      key={link.to}
-                      to={link.to}
-                      className={linkBase}
-                      onMouseEnter={() => setHoveredTo(link.to)}
-                      onMouseLeave={() => setHoveredTo("")}
-                      onFocus={() => setHoveredTo(link.to)}
-                      onBlur={() => setHoveredTo("")}
-                      style={{
-                        color: isHover ? "#D8B765" : "#E9EDEB",
-                        textShadow: isHover
-                          ? "0 0 3px rgba(23,167,122,0.28), 0 0 6px rgba(23,167,122,0.2)"
-                          : "none",
-                        transition:
-                          "color 200ms ease, text-shadow 180ms ease, transform 160ms ease",
-                        willChange: "transform",
-                      }}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </nav>
+<nav className="hidden md:flex gap-3 lg:gap-6 text-[0.98rem]">
+  {navLinks.map((link) => {
+    const isHover = hoveredTo === link.to;
+
+    // 🎯 special case for Home
+    if (link.label === "Home") {
+      return (
+        <a
+          key={link.to}
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            if (location.pathname === "/") {
+              // already home → scroll to top
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              // go home → then scroll to top
+              navigate("/");
+              setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }, 100);
+            }
+          }}
+          className={linkBase}
+          style={{
+            color: isHover ? "#D8B765" : "#E9EDEB",
+            textShadow: isHover
+              ? "0 0 3px rgba(23,167,122,0.28), 0 0 6px rgba(23,167,122,0.2)"
+              : "none",
+            transition:
+              "color 200ms ease, text-shadow 180ms ease, transform 160ms ease",
+            willChange: "transform",
+          }}
+          onMouseEnter={() => setHoveredTo(link.to)}
+          onMouseLeave={() => setHoveredTo("")}
+          onFocus={() => setHoveredTo(link.to)}
+          onBlur={() => setHoveredTo("")}
+        >
+          {link.label}
+        </a>
+      );
+    }
+
+    // 🟢 normal links
+    return (
+      <Link
+        key={link.to}
+        to={link.to}
+        className={linkBase}
+        onMouseEnter={() => setHoveredTo(link.to)}
+        onMouseLeave={() => setHoveredTo("")}
+        onFocus={() => setHoveredTo(link.to)}
+        onBlur={() => setHoveredTo("")}
+        style={{
+          color: isHover ? "#D8B765" : "#E9EDEB",
+          textShadow: isHover
+            ? "0 0 3px rgba(23,167,122,0.28), 0 0 6px rgba(23,167,122,0.2)"
+            : "none",
+          transition:
+            "color 200ms ease, text-shadow 180ms ease, transform 160ms ease",
+          willChange: "transform",
+        }}
+      >
+        {link.label}
+      </Link>
+    );
+  })}
+</nav>
+
 
               {/* Right cluster */}
               <div className="items-center hidden md:flex gap-3 lg:gap-6 -translate-x-[2px]">
@@ -193,17 +254,45 @@ export default function Navbar() {
               }}
             >
               <div className="px-3 pt-2 pb-3 space-y-1 text-[1.02rem]">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-4 py-3 rounded-xl transition"
-                    style={{ color: "#E9EDEB" }}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {navLinks.map((link) => {
+  if (link.label === "Home") {
+    return (
+      <a
+        key={link.to}
+        href="/"
+        onClick={(e) => {
+          e.preventDefault();
+          setIsMobileMenuOpen(false);
+          if (location.pathname === "/") {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          } else {
+            navigate("/");
+            setTimeout(() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }, 100);
+          }
+        }}
+        className="block px-4 py-3 rounded-xl transition"
+        style={{ color: "#E9EDEB" }}
+      >
+        {link.label}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      key={link.to}
+      to={link.to}
+      onClick={() => setIsMobileMenuOpen(false)}
+      className="block px-4 py-3 rounded-xl transition"
+      style={{ color: "#E9EDEB" }}
+    >
+      {link.label}
+    </Link>
+  );
+})}
+
 
                 <button
                   onClick={() => {

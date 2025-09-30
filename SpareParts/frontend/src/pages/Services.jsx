@@ -54,16 +54,13 @@ export default function Services() {
         className="relative text-white rounded-2xl
              bg-black/50 border border-[#014421]/60 backdrop-blur-2xl
              shadow-[0_0_30px_rgba(1,68,33,0.35),inset_0_0_12px_rgba(255,255,255,0.03)]
-             w-full max-w-[95%] sm:max-w-[90%] md:max-w-4xl lg:max-w-7xl
-             h-[90vh] overflow-y-auto scroll-smooth
-             px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20
-             space-y-8 sm:space-y-12 lg:space-y-16"
+             w-full max-w-6xl h-[90vh] overflow-y-auto px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20"
          data-aos="zoom-in" 
       >
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute z-50
+          className="absolute top-3 ml-auto z-50
            text-[#00ffb3] hover:text-white
              transition-transform transform hover:scale-110
              bg-black/40 rounded-full w-8 h-8 flex items-center justify-center
