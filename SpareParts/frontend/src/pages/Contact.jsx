@@ -1,8 +1,7 @@
-
 // src/pages/Contact.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt,} from "react-icons/fa";
+import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 export default function Contact() {
   const navigate = useNavigate();
@@ -12,7 +11,7 @@ export default function Contact() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // ✅ Lock body scroll
+  //  Lock body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -34,7 +33,6 @@ export default function Contact() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✅ Updated handleSubmit for WhatsApp
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -46,14 +44,13 @@ export default function Contact() {
 
     setError("");
 
-    // SpareParts WhatsApp number (international format, no +, spaces, or dashes)
-    const phone = "+94770556247"; 
+    const phone = "+94770556247"; //  your WhatsApp number
     const text = `New inquiry from ${form.name} (${form.email}): %0A${form.message}`;
 
-    // Open WhatsApp Web/App with pre-filled message
+    // Open WhatsApp Web/App
     window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
 
-    // Reset form + show popup
+    // Reset form + show success
     setSuccess(true);
     setForm({ name: "", email: "", message: "" });
     setTimeout(() => setSuccess(false), 4000);
@@ -65,37 +62,37 @@ export default function Contact() {
       className="fixed inset-0 z-50 flex items-center justify-center px-4 py-10 backdrop-blur-sm sm:px-8"
       style={{
         background: `linear-gradient(135deg, #000000 0%, #000000 70%, #014421 100%)`,
-        backgroundImage: "url('/images/contact-bg.jpg')", // optional
+        backgroundImage: "url('/images/contact-bg.jpg')", // optional background image
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundBlendMode: "overlay",
       }}
     >
+      {/* Close button OUTSIDE modal, fixed to viewport top-right */}
+      <button
+        onClick={handleClose}
+        className="fixed top-4 right-4 z-[100]
+                   text-[#00ffb3] hover:text-white
+                   transition-transform transform hover:scale-110
+                   bg-black/40 rounded-full w-9 h-9 flex items-center justify-center
+                   shadow-[0_0_10px_rgba(0,255,179,0.6)]"
+        style={{
+          top: "max(env(safe-area-inset-top, 0px), 1rem)",   // iOS notch safe-area
+          right: "max(env(safe-area-inset-right, 0px), 1rem)" // responsive to curved screens
+        }}
+      >
+        ✕
+      </button>
+
+      {/* Modal Box */}
       <div
         ref={modalRef}
-        className="relative w-full max-w-6xl h-[80vh] overflow-y-auto
-             rounded-2xl bg-black/50 border border-[#014421]
-             backdrop-blur-2xl px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20
-             shadow-[0_0_25px_rgba(1,68,33,0.4),inset_0_0_10px_rgba(255,255,255,0.03)c"
+        className="relative w-[92%] max-w-4xl h-[80vh] overflow-y-auto
+                   rounded-2xl bg-black/50 border border-[#014421]
+                   backdrop-blur-2xl px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20
+                   shadow-[0_0_25px_rgba(1,68,33,0.4),inset_0_0_10px_rgba(255,255,255,0.03)]"
         data-aos="zoom-in"
       >
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="sticky top-3 right-3 ml-auto z-50
-             text-[#00ffb3] hover:text-white
-             transition-transform transform hover:scale-110
-             bg-black/40 rounded-full w-8 h-8 flex items-center justify-center
-             shadow-[0_0_10px_rgba(0,255,179,0.6)]"
-          style={{
-            top: "max(env(safe-area-inset-top, 0px), 1rem)",
-            right: "max(env(safe-area-inset-right, 0px), 1rem)"
-            
-          }}
-        >
-          ✕
-        </button>
-
         {/* Heading */}
         <div className="space-y-4 text-center">
           <h1

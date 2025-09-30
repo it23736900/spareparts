@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+// src/App.jsx
+import { useEffect, useState, useRef } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -35,11 +36,11 @@ import { AuthProvider } from "./context/AuthContext";
 import RequireAuth from "./routes/RequireAuth";
 
 /* ---------------- Home page composition ---------------- */
-function HomePage({ onInquire, heroPlay }) {
+function HomePage({ onInquire, heroRef }) {
   return (
     <>
       <Navbar />
-      <Hero play={heroPlay} />
+      <Hero ref={heroRef} />
       <WorldMapShowcase />
       <TrackOrderSearch />
       <BrandLogos onInquire={onInquire} />
@@ -53,10 +54,22 @@ function HomePage({ onInquire, heroPlay }) {
 
 /* ---------------- App root ---------------- */
 function App() {
-  const [started, setStarted] = useState(false);
+  const heroRef = useRef();
+  const location = useLocation();
+
+  const [started, setStarted] = useState(() => {
+    const saved = localStorage.getItem("engineStartedAt");
+    if (!saved) return false;
+
+    const savedTime = parseInt(saved, 10);
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+    // only auto-start if still within 7 days
+    return Date.now() - savedTime <= sevenDays;
+  });
+
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState("");
-  const location = useLocation();
 
   useEffect(() => {
     AOS.init({ duration: 1200, once: true, offset: 100 });
@@ -67,11 +80,22 @@ function App() {
     setIsInquiryOpen(true);
   };
 
+  const handleStart = () => {
+    // save timestamp
+    localStorage.setItem("engineStartedAt", String(Date.now()));
+    localStorage.setItem("heroCanPlay", "true");
+
+    setStarted(true);
+
+    // force hero video to play
+    heroRef.current?.playVideo?.();
+  };
+
   return (
     <AuthProvider>
       <div className="relative min-h-screen bg-app text-soft">
         {/* Splash overlay until started */}
-        {!started && <LandingScreen onStart={() => setStarted(true)} />}
+        {!started && <LandingScreen onStart={handleStart} />}
 
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
@@ -84,7 +108,7 @@ function App() {
                   exit={{ opacity: 0, y: -40 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <HomePage heroPlay={started} onInquire={openInquiry} />
+                  <HomePage heroRef={heroRef} onInquire={openInquiry} />
                 </motion.div>
               }
             />

@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+// src/components/Hero.jsx
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedVideo } from "@cloudinary/react";
 import { format, quality } from "@cloudinary/url-gen/actions/delivery";
@@ -12,18 +13,30 @@ const video = cld
   .delivery(format("auto"))
   .delivery(quality("auto:eco"));
 
-const Hero = () => {
+const Hero = forwardRef((props, ref) => {
   const videoRef = useRef(null);
+
+  // expose method for parent (App.jsx) to control video
+  useImperativeHandle(ref, () => ({
+    playVideo: () => {
+      const vid = videoRef.current?.videoRef?.current;
+      if (vid) {
+        vid.play().catch(() => {
+          console.warn("Video play blocked until user interacts");
+        });
+      }
+    },
+  }));
 
   useEffect(() => {
     const adv = videoRef.current;
     const vid = adv?.videoRef?.current;
     if (!vid) return;
 
-    const loopStart = 9;
-    const loopEnd = 29;
-
+    const loopStart = 9; // seconds
+    const loopEnd = 29; // seconds
     let rafId;
+
     const checkLoop = () => {
       if (vid.currentTime >= loopEnd - 0.05) {
         vid.currentTime = loopStart;
@@ -36,19 +49,19 @@ const Hero = () => {
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(checkLoop);
     };
-
     const stopLoop = () => cancelAnimationFrame(rafId);
 
     vid.addEventListener("play", startLoop);
     vid.addEventListener("pause", stopLoop);
     vid.addEventListener("ended", stopLoop);
 
-    // Always muted + inline
     vid.muted = true;
     vid.playsInline = true;
 
-    // ❌ Removed autoplay here
-    // We let LandingScreen control when to start
+    // ✅ autoplay if already allowed before
+    if (localStorage.getItem("heroCanPlay") === "true") {
+      vid.play().catch(() => {});
+    }
 
     return () => {
       stopLoop();
@@ -63,13 +76,12 @@ const Hero = () => {
       {/* Background Video */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <AdvancedVideo
-          id="hero-video" // 👈 important
           ref={videoRef}
           cldVid={video}
-          // autoPlay ❌ removed
           muted
-          loop={false}
           playsInline
+          loop={false} // manual loop
+          preload="auto"
           poster="auto"
           className="object-cover w-full h-full transition-transform duration-700 ease-in-out group-hover:scale-105"
         />
@@ -79,6 +91,7 @@ const Hero = () => {
       {/* Foreground Content */}
       <div className="relative z-10 flex items-center justify-start h-full px-6 sm:px-10">
         <div className="max-w-xl space-y-6">
+          {/* Heading */}
           <h1 className="font-bold leading-[1.05] tracking-tight text-left">
             <span className="block text-[clamp(2rem,8vw,5.5rem)] text-white">
               Premium&nbsp;Used
@@ -88,15 +101,15 @@ const Hero = () => {
             </span>
           </h1>
 
+          {/* Subheading */}
           <p className="text-lg font-medium text-[#FFD95A]/90">
             Fast, Reliable Island-Wide Delivery
           </p>
 
+          {/* CTA Button */}
           <button
             onClick={() =>
-              document
-                .getElementById("brands")
-                ?.scrollIntoView({ behavior: "smooth" })
+              document.getElementById("brands")?.scrollIntoView({ behavior: "smooth" })
             }
             className="relative inline-block px-8 py-4 rounded-xl font-semibold text-[clamp(0.95rem,2.5vw,1.1rem)] transition-all duration-300 hover:scale-105"
             style={{
@@ -116,6 +129,6 @@ const Hero = () => {
       </div>
     </section>
   );
-};
+});
 
 export default Hero;

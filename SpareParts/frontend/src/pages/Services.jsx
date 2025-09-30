@@ -13,7 +13,6 @@ import {
   FiCreditCard,
 } from "react-icons/fi";
 
-
 const steps = [
   { icon: <FiFileText />, title: "Submit Your Inquiry", desc: "Share the required spare parts details with us." },
   { icon: <FiMessageSquare />, title: "We Get in Touch", desc: "Our team reviews your request and confirms additional details." },
@@ -30,7 +29,7 @@ export default function Services() {
   const navigate = useNavigate();
   const modalRef = useRef(null);
 
-  // Prevent body scroll
+  // Prevent body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = "auto"; };
@@ -49,30 +48,32 @@ export default function Services() {
                  bg-gradient-to-br from-[#000000] via-[#0B1C1F] to-[#014421] 
                  backdrop-blur-sm"
     >
+      {/* Close button OUTSIDE modal, fixed to viewport top-right */}
+      <button
+        onClick={handleClose}
+        className="fixed top-4 right-4 z-[100]
+                   text-[#00ffb3] hover:text-white
+                   transition-transform transform hover:scale-110
+                   bg-black/40 rounded-full w-9 h-9 flex items-center justify-center
+                   shadow-[0_0_10px_rgba(0,255,179,0.6)]"
+        style={{
+          top: "max(env(safe-area-inset-top, 0px), 1rem)",   // safe-area for iOS notch
+          right: "max(env(safe-area-inset-right, 0px), 1rem)" // safe-area for curved edges
+        }}
+      >
+        ✕
+      </button>
+
+      {/* Modal Box */}
       <div
         ref={modalRef}
         className="relative text-white rounded-2xl
              bg-black/50 border border-[#014421]/60 backdrop-blur-2xl
              shadow-[0_0_30px_rgba(1,68,33,0.35),inset_0_0_12px_rgba(255,255,255,0.03)]
-             w-full max-w-6xl h-[80vh] overflow-y-auto px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20"
+             w-[92%] max-w-4xl h-[80vh] overflow-y-auto 
+             px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20"
          data-aos="zoom-in" 
       >
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="sticky top-3 right-3 ml-auto z-50
-           text-[#00ffb3] hover:text-white
-             transition-transform transform hover:scale-110
-             bg-black/40 rounded-full w-8 h-8 flex items-center justify-center
-             shadow-[0_0_10px_rgba(0,255,179,0.6)]"
-          style={{
-            top: "max(env(safe-area-inset-top, 0px), 1rem)",
-            right: "max(env(safe-area-inset-right, 0px), 1rem)",
-          }}
-        >
-           ✕
-        </button>
-
         {/* Heading */}
         <div className="space-y-3 text-center">
           <h1 className="text-2xl font-extrabold text-white sm:text-3xl lg:text-5xl">

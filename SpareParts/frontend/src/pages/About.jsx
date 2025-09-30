@@ -5,12 +5,11 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage, placeholder, responsive } from "@cloudinary/react";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 
-
 export default function About() {
   const navigate = useNavigate();
   const modalRef = useRef(null);
 
-  // ✅ Cloudinary setup
+  //  Cloudinary setup
   const cld = new Cloudinary({ cloud: { cloudName: "dznt9s0j8" } });
   const clImg = (publicId) =>
     cld.image(publicId).format("auto").quality("auto").resize(auto().width(1200));
@@ -25,7 +24,7 @@ export default function About() {
     navigate("/");
   };
 
-  // ✅ Lock body scroll when modal is open
+  //  Lock body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -41,44 +40,41 @@ export default function About() {
         background: `linear-gradient(135deg, #000000 0%, #000000 70%, #014421 100%)`,
       }}
     >
+      {/*  Close button OUTSIDE modal → pinned to screen top-right */}
+      <button
+        onClick={handleClose}
+        className="fixed top-4 right-4 z-[100]
+                   text-[#00ffb3] hover:text-white
+                   transition-transform transform hover:scale-110
+                   bg-black/40 rounded-full w-9 h-9 flex items-center justify-center
+                   shadow-[0_0_10px_rgba(0,255,179,0.6)]"
+        style={{
+          top: "max(env(safe-area-inset-top, 0px), 1rem)",   // notch safe-area
+          right: "max(env(safe-area-inset-right, 0px), 1rem)" // curved edge safe-area
+        }}
+      >
+        ✕
+      </button>
+
+      {/* Modal Box */}
       <div
         ref={modalRef}
         className="relative text-white rounded-2xl 
                    bg-black/50 border border-[#014421] backdrop-blur-2xl
                    shadow-[0_0_30px_rgba(1,68,33,0.4),inset_0_0_10px_rgba(255,255,255,0.03)]
-                   w-full max-w-6xl h-[80vh] overflow-y-auto px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20"
+                   w-[92%] max-w-4xl h-[80vh] overflow-y-auto 
+                   px-4 py-10 sm:px-8 sm:py-12 lg:px-16 lg:py-20"
         data-aos="zoom-in"
       >
-        {/* Close button */}
-        
-<button
-  onClick={handleClose}
-  className="sticky top-3 right-3 ml-auto z-50
-             text-[#00ffb3] hover:text-white
-             transition-transform transform hover:scale-110
-             bg-black/40 rounded-full w-8 h-8 flex items-center justify-center
-             shadow-[0_0_10px_rgba(0,255,179,0.6)]"
-  style={{
-    top: "max(env(safe-area-inset-top, 0px), 1rem)",
-    right: "max(env(safe-area-inset-right, 0px), 1rem)",
-  }}
->
-  ✕
-</button>
-
-
-
         {/* Main Heading */}
         <h1
-  className="text-3xl font-extrabold tracking-wide text-center text-transparent bg-clip-text sm:text-4xl lg:text-5xl"
-  style={{
-    backgroundImage: "linear-gradient(white, white, #111111)",
-  }}
->
-  About Us
-</h1>
-
-
+          className="text-3xl font-extrabold tracking-wide text-center text-transparent bg-clip-text sm:text-4xl lg:text-5xl"
+          style={{
+            backgroundImage: "linear-gradient(white, white, #111111)",
+          }}
+        >
+          About Us
+        </h1>
 
         {/* Company Background */}
         <section className="space-y-8 text-center">
@@ -121,7 +117,7 @@ export default function About() {
             </p>
           </div>
 
-          {/* ✅ Image grid */}
+          {/*  Image grid */}
           <div className="grid grid-cols-1 gap-4 mt-6 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
             <AdvancedImage
               cldImg={clImg("WhatsApp_Image_2025-09-01_at_15.13.17_zzkhrq_kemsdm")}
